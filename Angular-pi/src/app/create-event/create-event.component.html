@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajouter un événement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+
+.add-card{max-width:600px;width:100%;background:rgba(255,255,255,0.95);backdrop-filter:blur(6px);border-radius:15px;box-shadow:0 8px 20px -5px rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);overflow:hidden;}
+.card-header{background:linear-gradient(135deg,#6366f1,#ec4899);padding:.8rem 1rem;}
+.card-header h2{color:#fff;font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:.3rem;}
+.card-header p{color:rgba(255,255,255,.9);font-size:0.7rem;margin-top:0.1rem;display:flex;align-items:center;gap:.2rem;}
+
+.card-body{padding:.8rem;}
+.info-badge{background:#f1f5f9;border-radius:20px;padding:.2rem .6rem;margin-bottom:.6rem;display:inline-flex;align-items:center;gap:.3rem;font-size:0.65rem;color:#475569;border:1px solid #e2e8f0;}
+.info-badge i{color:#6366f1;font-size:0.7rem;}
+
+.success-message{background:#d1fae5;color:#065f46;padding:.5rem 1rem;border-radius:12px;margin-bottom:0.8rem;font-size:0.82rem;display:flex;align-items:center;gap:0.4rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+
+.add-form{display:flex;flex-direction:column;gap:.5rem;}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;}
+.full-width{grid-column:span 2;}
+.form-group{display:flex;flex-direction:column;gap:0.1rem;}
+.form-label{display:flex;align-items:center;gap:0.2rem;font-weight:500;color:#1e293b;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2px;}
+.form-label i{color:#6366f1;font-size:0.7rem;width:14px;}
+.required-star{color:#ef4444;font-size:0.7rem;margin-left:0.1rem;}
+
+.form-input,.form-textarea,select{width:100%;padding:.4rem .6rem;background:white;border:1.2px solid #e2e8f0;border-radius:8px;font-size:0.8rem;transition:all 0.2s ease;}
+.form-input:focus,.form-textarea:focus,select:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,0.1);}
+.form-textarea{min-height:50px;resize:vertical;}
+
+.price-input{position:relative;}
+.price-input .form-input{padding-left:1.2rem;}
+.price-symbol{position:absolute;left:.4rem;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:0.7rem;font-weight:500;}
+
+.error-message{color:#ef4444;font-size:0.65rem;display:flex;align-items:center;gap:0.2rem;margin-top:0.1rem;}
+
+.form-actions{display:flex;justify-content:flex-end;margin-top:.3rem;}
+.submit-btn{padding:.5rem 1.2rem;background:linear-gradient(135deg,#6366f1,#ec4899);border:none;border-radius:25px;color:white;font-weight:600;font-size:0.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;box-shadow:0 4px 10px -3px rgba(99,102,241,0.4);transition:all 0.2s ease;}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 12px -3px rgba(99,102,241,0.5);}
+.submit-btn i{font-size:0.8rem;}
+
+@media(max-width:480px){.form-grid{grid-template-columns:1fr;}.full-width{grid-column:span 1;}.form-actions{justify-content:stretch;}.submit-btn{width:100%;justify-content:center;}}
+</style>
+</head>
+<body>
+
+<div class="add-card">
+  <div class="card-header">
+    <h2><i class="fas fa-plus-circle"></i> Ajouter un événement</h2>
+    <p><i class="fas fa-info-circle"></i> Formulaire compact</p>
+  </div>
+
+  <div class="card-body">
+
+    <!-- ⚡ Message de succès -->
+    <div *ngIf="successMessage" class="success-message">
+      <i class="fas fa-check-circle"></i> {{ successMessage }}
+    </div>
+
+    <div class="info-badge"><i class="fas fa-asterisk"></i> Champs obligatoires *</div>
+
+    <form #eventForm="ngForm" (ngSubmit)="saveEvent()" class="add-form">
+      <div class="form-grid">
+
+        <!-- Titre -->
+        <div class="form-group full-width">
+          <label class="form-label"><i class="fas fa-heading"></i> Titre <span class="required-star">*</span></label>
+          <input type="text" class="form-input" name="title" [(ngModel)]="event.title" #title="ngModel"
+                 required minlength="3" placeholder="Titre" (ngModelChange)="noOnlySpaces(title)">
+          <div class="error-message" *ngIf="title.invalid && title.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            <span *ngIf="title.errors?.['required']">Obligatoire</span>
+            <span *ngIf="title.errors?.['minlength']">Min 3 caractères</span>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-tag"></i> Type <span class="required-star">*</span></label>
+          <select class="form-input" name="type" [(ngModel)]="event.type" #type="ngModel" required>
+            <option value="" disabled>Sélectionnez</option>
+            <option value="HACKATHON">Hackathon</option>
+            <option value="WORKSHOP">Workshop</option>
+            <option value="MEETUP">Meetup</option>
+            <option value="WEBINAR">Webinar</option>
+          </select>
+          <div class="error-message" *ngIf="type.invalid && type.touched">
+            <i class="fas fa-exclamation-circle"></i> Obligatoire
+          </div>
+        </div>
+
+        <!-- Catégorie -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-folder"></i> Catégorie <span class="required-star">*</span></label>
+          <input type="text" class="form-input" name="category" [(ngModel)]="event.category" #category="ngModel"
+                 required minlength="2" placeholder="Catégorie" (ngModelChange)="noOnlySpaces(category)">
+          <div class="error-message" *ngIf="category.invalid && category.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            <span *ngIf="category.errors?.['required']">Obligatoire</span>
+            <span *ngIf="category.errors?.['minlength']">Min 2 caractères</span>
+          </div>
+        </div>
+
+        <!-- Lieu -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-map-marker-alt"></i> Lieu <span class="required-star">*</span></label>
+          <input type="text" class="form-input" name="location" [(ngModel)]="event.location" #location="ngModel"
+                 required minlength="2" placeholder="Lieu" (ngModelChange)="noOnlySpaces(location)">
+          <div class="error-message" *ngIf="location.invalid && location.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            <span *ngIf="location.errors?.['required']">Obligatoire</span>
+            <span *ngIf="location.errors?.['minlength']">Min 2 caractères</span>
+          </div>
+        </div>
+
+        <!-- Début -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-calendar-plus"></i> Début <span class="required-star">*</span></label>
+          <input type="datetime-local" class="form-input" name="startDate" [(ngModel)]="event.startDate" #startDate="ngModel" required>
+          <div class="error-message" *ngIf="startDate.invalid && startDate.touched">
+            <i class="fas fa-exclamation-circle"></i> Obligatoire
+          </div>
+        </div>
+
+        <!-- Fin -->
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-calendar-times"></i> Fin <span class="required-star">*</span></label>
+          <input type="datetime-local" class="form-input" name="endDate" [(ngModel)]="event.endDate" #endDate="ngModel" required>
+          <div class="error-message" *ngIf="endDate.invalid && endDate.touched">
+            <i class="fas fa-exclamation-circle"></i> Obligatoire
+          </div>
+        </div>
+
+        <!-- Prix -->
+        <div class="form-group full-width">
+  <label class="form-label"><i class="fas fa-tag"></i> Prix <span class="required-star">*</span></label>
+  <div class="price-input">
+    <input type="number" class="form-input" name="price" [(ngModel)]="event.price" #price="ngModel"
+           min="0.01" step="0.01" required placeholder="0.00">
+    <span class="price-symbol">€</span>
+  </div>
+  <div class="error-message" *ngIf="price.invalid && price.touched">
+    <i class="fas fa-exclamation-circle"></i>
+    <span *ngIf="price.errors?.['required']">Obligatoire</span>
+    <span *ngIf="price.errors?.['min']">Le prix doit être positif</span>
+  </div>
+</div>
+
+
+        <!-- Description -->
+        <div class="form-group full-width">
+          <label class="form-label"><i class="fas fa-align-left"></i> Description <span class="required-star">*</span></label>
+          <textarea class="form-textarea" name="description" [(ngModel)]="event.description" #description="ngModel"
+                    required minlength="10" placeholder="Description" (ngModelChange)="noOnlySpaces(description)"></textarea>
+          <div class="error-message" *ngIf="description.invalid && description.touched">
+            <i class="fas fa-exclamation-circle"></i>
+            <span *ngIf="description.errors?.['required']">Obligatoire</span>
+            <span *ngIf="description.errors?.['minlength']">Min 10 caractères</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" [disabled]="eventForm.invalid">
+          <i class="fas fa-save"></i> Ajouter
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

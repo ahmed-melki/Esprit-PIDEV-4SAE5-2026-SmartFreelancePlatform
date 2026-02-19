@@ -1,0 +1,648 @@
+/* ========================================
+   STYLES GLOBAUX DU FORMULAIRE
+   ======================================== */
+
+/* Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variables CSS pour une personnalisation facile */
+:root {
+  --primary-color: #2c3e50;
+  --primary-dark: #1a2632;
+  --primary-light: #5a6a7a;
+  --accent-color: #e74c3c;
+  --accent-dark: #c0392b;
+  --text-dark: #2d3748;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --text-muted: #a0aec0;
+  --bg-light: #f9fbfd;
+  --bg-white: #ffffff;
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e0;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   CONTAINER PRINCIPAL
+   ======================================== */
+.edit-card {
+  max-width: 720px;
+  width: 100%;
+  margin: 2rem auto;
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  overflow: hidden;
+  animation: cardEntrance 0.6s var(--transition-slow);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.edit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  opacity: 0.8;
+}
+
+/* ========================================
+   EN-TÊTE DE LA CARTE
+   ======================================== */
+.card-header {
+  background: linear-gradient(135deg, #ffffff, #fafcff);
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(44, 62, 80, 0.02) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.card-header h2 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-header h2 i {
+  color: var(--accent-color);
+  font-size: 1.8rem;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 0.8rem;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+}
+
+.card-header h2:hover i {
+  transform: rotate(10deg) scale(1.1);
+  background: rgba(231, 76, 60, 0.15);
+}
+
+.card-header p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 3.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-header p i {
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ========================================
+   CORPS DE LA CARTE
+   ======================================== */
+.card-body {
+  padding: 2rem;
+  background: var(--bg-white);
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Grille du formulaire */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+/* Groupes de champs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Labels */
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--transition-base);
+}
+
+.form-label i {
+  color: var(--primary-light);
+  font-size: 0.9rem;
+  width: 20px;
+  transition: var(--transition-base);
+}
+
+.form-group:hover .form-label i {
+  color: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.required-star {
+  color: var(--accent-color);
+  font-size: 1rem;
+  margin-left: 0.2rem;
+  animation: twinkle 1.5s infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Champs de saisie */
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  background: var(--bg-light);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-dark);
+  transition: all var(--transition-base);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-input:hover,
+.form-textarea:hover {
+  border-color: var(--border-medium);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: white;
+  box-shadow: 
+    0 0 0 4px rgba(44, 62, 80, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Champ prix avec icône */
+.price-input {
+  position: relative;
+}
+
+.price-input .form-input {
+  padding-left: 3rem;
+}
+
+.price-symbol {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-base);
+}
+
+.price-input:focus-within .price-symbol {
+  color: var(--primary-color);
+  background: rgba(44, 62, 80, 0.05);
+}
+
+/* ========================================
+   BOUTONS D'ACTION
+   ======================================== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--border-light);
+}
+
+.submit-btn,
+.cancel-btn {
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  transition: all var(--transition-base);
+  min-width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before,
+.cancel-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.submit-btn:hover::before,
+.cancel-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(44, 62, 80, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.submit-btn i {
+  font-size: 1rem;
+  transition: transform var(--transition-base);
+}
+
+.submit-btn:hover i {
+  transform: translateX(4px) rotate(5deg);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
+  color: white;
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+}
+
+.cancel-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(231, 76, 60, 0.4);
+}
+
+.cancel-btn:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.cancel-btn i {
+  font-size: 1rem;
+  transition: transform var(--transition-base);
+}
+
+.cancel-btn:hover i {
+  transform: scale(1.1);
+}
+
+/* ========================================
+   ÉTAT DE CHARGEMENT
+   ======================================== */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-light);
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading i {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation d'apparition pour les groupes */
+.form-group {
+  animation: slideInFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.form-group:nth-child(1) { animation-delay: 0.05s; }
+.form-group:nth-child(2) { animation-delay: 0.1s; }
+.form-group:nth-child(3) { animation-delay: 0.15s; }
+.form-group:nth-child(4) { animation-delay: 0.2s; }
+.form-group:nth-child(5) { animation-delay: 0.25s; }
+.form-group:nth-child(6) { animation-delay: 0.3s; }
+.form-group:nth-child(7) { animation-delay: 0.35s; }
+.form-group:nth-child(8) { animation-delay: 0.4s; }
+.form-group:nth-child(9) { animation-delay: 0.45s; }
+.form-group:nth-child(10) { animation-delay: 0.5s; }
+
+@keyframes slideInFade {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media screen and (max-width: 768px) {
+  .edit-card {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .card-header {
+    padding: 1.5rem 1.5rem 0.8rem 1.5rem;
+  }
+
+  .card-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .card-header h2 i {
+    font-size: 1.5rem;
+    padding: 0.6rem;
+  }
+
+  .card-header p {
+    margin-left: 2.8rem;
+    font-size: 0.8rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+  }
+
+  .info-badge {
+    width: 100%;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .card-header {
+    padding: 1.2rem 1.2rem 0.6rem 1.2rem;
+  }
+
+  .card-header h2 {
+    font-size: 1.3rem;
+    gap: 0.5rem;
+  }
+
+  .card-header h2 i {
+    font-size: 1.3rem;
+    padding: 0.5rem;
+  }
+
+  .card-header p {
+    margin-left: 2.2rem;
+    font-size: 0.75rem;
+  }
+
+  .card-body {
+    padding: 1.2rem;
+  }
+
+  .form-label {
+    font-size: 0.75rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .price-symbol {
+    left: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITÉ
+   ======================================== */
+.submit-btn:focus-visible,
+.cancel-btn:focus-visible,
+.form-input:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 3px;
+}
+
+/* ========================================
+   MODE SOMBRE AMÉLIORÉ
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-white: #1e2a3a;
+    --bg-light: #2a3647;
+    --text-dark: #e2e8f0;
+    --text-medium: #cbd5e0;
+    --text-light: #a0aec0;
+    --text-muted: #718096;
+    --border-light: #3a4758;
+    --border-medium: #4a5768;
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .edit-card {
+    background: var(--bg-white);
+    border-color: var(--border-light);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #1e2a3a, #1a2533);
+    border-bottom-color: var(--border-light);
+  }
+
+  .card-header::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  }
+
+  .card-header h2 {
+    color: #e2e8f0;
+  }
+
+  .card-header h2 i {
+    background: rgba(231, 76, 60, 0.15);
+  }
+
+  .info-badge {
+    background: #2a3647;
+    border-color: var(--border-light);
+    color: var(--text-medium);
+  }
+
+  .form-label {
+    color: var(--text-medium);
+  }
+
+  .form-label i {
+    color: var(--text-light);
+  }
+
+  .form-input,
+  .form-textarea {
+    background: var(--bg-light);
+    border-color: var(--border-light);
+    color: var(--text-dark);
+  }
+
+  .form-input:hover,
+  .form-textarea:hover {
+    background: #303d50;
+    border-color: var(--border-medium);
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    background: #303d50;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(90, 106, 122, 0.2);
+  }
+
+  .price-symbol {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* ========================================
+   RÉDUCTION DE MOUVEMENT
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

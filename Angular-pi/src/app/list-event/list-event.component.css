@@ -1,0 +1,143 @@
+.events-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Carte événement moderne */
+.event-card {
+  background: linear-gradient(145deg, #ffffff, #f0f4ff);
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  padding: 20px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+/* En-tête avec titre et type */
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.event-header h3 {
+  font-size: 18px;
+  margin: 0;
+  color: #1a237e;
+}
+
+.event-type {
+  font-size: 12px;
+  background-color: #4caf50;
+  color: #fff;
+  padding: 3px 7px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Description */
+.event-desc {
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: #333;
+  line-height: 1.4;
+  min-height: 40px;
+}
+
+/* Infos & dates */
+.event-info, .event-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.event-info div, .event-dates div {
+  width: 48%;
+}
+
+/* Prix */
+.event-price {
+  font-weight: bold;
+  color: #f44336;
+  font-size: 14px;
+  margin: 10px 0;
+  text-align: right;
+}
+
+/* Actions : boutons */
+.event-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px; /* espace entre edit et delete */
+}
+
+/* BOUTON DELETE */
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #f44336;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.delete-btn:hover {
+  transform: scale(1.05);
+  background-color: #d32f2f;
+}
+
+/* BOUTON EDIT */
+.edit-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3f51b5; /* bleu moderne */
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.edit-btn:hover {
+  transform: scale(1.05);
+  background-color: #303f9f; /* bleu plus foncé */
+}
+
+/* Message "aucun événement" */
+.no-event {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 16px;
+  color: #888;
+}
+
+/* Responsive : cartes sur mobile */
+@media screen and (max-width: 768px) {
+  .events-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .event-card {
+    width: 90%;
+  }
+}
