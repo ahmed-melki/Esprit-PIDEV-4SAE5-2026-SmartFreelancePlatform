@@ -1,0 +1,69 @@
+<mat-toolbar class="modern-header">
+  <mat-toolbar-row class="header-row">
+    <!-- Logo et marque -->
+    <div class="brand-section">
+      <mat-icon class="logo-icon">workspaces</mat-icon>
+      <span class="brand-name">FreeFlow</span>
+    </div>
+
+    <!-- Menu de navigation principal -->
+    <nav class="main-nav">
+      
+
+      <!-- Menu Projets avec sous-menu -->
+      <div class="menu-item" [matMenuTriggerFor]="projectsMenu" #menuTrigger="matMenuTrigger" (mouseenter)="menuTrigger.openMenu()">
+        <a class="menu-link" [class.active-link]="isProjectsRoute()">
+          <mat-icon>assignment</mat-icon>
+          <span>Projets</span>
+          <mat-icon class="arrow-icon">arrow_drop_down</mat-icon>
+        </a>
+      </div>
+
+      
+    </nav>
+
+    <!-- Espace flexible -->
+    <span class="spacer"></span>
+
+    <!-- Actions utilisateur -->
+    <div class="user-actions">
+      <button mat-icon-button class="notification-btn">
+        <mat-icon>notifications</mat-icon>
+        <span class="notification-badge">3</span>
+      </button>
+      
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<!-- Menu Projets -->
+<mat-menu #projectsMenu="matMenu" class="projects-menu">
+  <button mat-menu-item routerLink="/projects/new">
+    <mat-icon class="add-icon">add_circle</mat-icon>
+    <span>Post Project</span>
+  </button>
+  <button mat-menu-item routerLink="/projects">
+    <mat-icon>visibility</mat-icon>
+    <span>See All Projects</span>
+  </button>
+</mat-menu>
+
+<!-- Menu utilisateur -->
+<mat-menu #userMenu="matMenu" class="user-menu">
+  <button mat-menu-item routerLink="/profile">
+    <mat-icon>account_circle</mat-icon>
+    <span>Mon Profil</span>
+  </button>
+  <button mat-menu-item routerLink="/settings">
+    <mat-icon>settings</mat-icon>
+    <span>Paramètres</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Déconnexion</span>
+  </button>
+</mat-menu>
