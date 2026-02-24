@@ -1,9 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { HeaderComponent } from './shared/header/header.component';
+import { RouterOutlet } from '@angular/router';
+import { FooterComponent } from './shared/footer/footer.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'] // ✅ corrigé
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'] // ✅ corrigé
+    ,
+    standalone: true,
+    imports: [HeaderComponent, RouterOutlet, FooterComponent]
 })
 export class AppComponent implements OnInit {
   title = 'projetpi';

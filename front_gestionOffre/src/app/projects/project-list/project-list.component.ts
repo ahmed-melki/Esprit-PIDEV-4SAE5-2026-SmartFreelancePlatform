@@ -1,11 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService, Project } from '../project.service';
 import { Router } from '@angular/router';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/core';
+import { MatInput } from '@angular/material/input';
+import { NgFor, NgClass, CurrencyPipe, DatePipe } from '@angular/common';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-project-list',
-  templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.css'] // N'oubliez pas d'ajouter le CSS
+    selector: 'app-project-list',
+    templateUrl: './project-list.component.html',
+    styleUrls: ['./project-list.component.css'] // N'oubliez pas d'ajouter le CSS
+    ,
+    standalone: true,
+    imports: [MatFormField, MatLabel, MatSelect, MatOption, MatInput, NgFor, MatCard, NgClass, MatCardHeader, MatIcon, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions, MatButton, CurrencyPipe, DatePipe]
 })
 export class ProjectListComponent implements OnInit {
   // Données

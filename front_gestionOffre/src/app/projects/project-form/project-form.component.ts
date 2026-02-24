@@ -1,11 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService, Project } from '../project.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatCardContent, MatCard, MatCardHeader, MatCardAvatar, MatCardTitle, MatCardSubtitle, MatCardActions } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel, MatSuffix, MatError, MatHint, MatPrefix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/core';
 
 @Component({
-  selector: 'app-project-form',
-  templateUrl: './project-form.component.html',
-  styleUrls: ['./project-form.component.css']
+    selector: 'app-project-form',
+    templateUrl: './project-form.component.html',
+    styleUrls: ['./project-form.component.css'],
+    standalone: true,
+    imports: [MatCardContent, MatIcon, NgIf, FormsModule, MatCard, MatCardHeader, MatCardAvatar, MatCardTitle, MatCardSubtitle, MatFormField, MatLabel, MatInput, MatSuffix, MatError, MatHint, MatCardActions, MatButton, MatPrefix, MatSelect, MatOption]
 })
 export class ProjectFormComponent implements OnInit {
   project: Project = { 
