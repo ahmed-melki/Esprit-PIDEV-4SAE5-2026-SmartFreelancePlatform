@@ -22,7 +22,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
+    @ElementCollection
+    private List<String> skills;
     @OneToMany(mappedBy = "client")
     private List<Project> projects;
 

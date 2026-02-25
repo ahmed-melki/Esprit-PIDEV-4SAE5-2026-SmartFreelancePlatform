@@ -2,7 +2,9 @@ package tn.esprit.projetpi.controllers;
 
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.projetpi.entities.Project;
+import tn.esprit.projetpi.entities.User;
 import tn.esprit.projetpi.services.ProjectService;
+import tn.esprit.projetpi.services.UserService;
 
 import java.util.List;
 import java.util.Map;
@@ -13,9 +15,10 @@ import java.util.Map;
 public class ProjectController {
 
     private final ProjectService projectService;
-
-    public ProjectController(ProjectService projectService) {
+    private final UserService userService;
+    public ProjectController(ProjectService projectService,UserService userService) {
         this.projectService = projectService;
+        this.userService =userService;
     }
 
     @PostMapping
@@ -46,7 +49,13 @@ public class ProjectController {
         return projectService.updateProjectPartial(id, updates);
     }
 
+    @GetMapping("/matching/{userId}")
+    public List<Project> getMatchingProjects(@PathVariable Long userId) {
 
+        User freelancer = userService.getUserById(userId);
+
+        return projectService.getMatchedProjectsForFreelancer(freelancer);
+    }
 
     @DeleteMapping("/{id}")
     public void deleteProject(@PathVariable Long id) {

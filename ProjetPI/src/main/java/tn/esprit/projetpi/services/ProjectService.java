@@ -2,7 +2,9 @@ package tn.esprit.projetpi.services;
 
 import org.springframework.stereotype.Service;
 import tn.esprit.projetpi.entities.Project;
+import tn.esprit.projetpi.entities.Role;
 import tn.esprit.projetpi.entities.Status;
+import tn.esprit.projetpi.entities.User;
 import tn.esprit.projetpi.repositories.ProjectRepository;
 
 import java.time.LocalDate;
@@ -74,5 +76,31 @@ public class ProjectService {
 
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);
+    }
+    public List<Project> getMatchedProjectsForFreelancer(User freelancer) {
+
+        if (freelancer.getRole() != Role.FREELANCER) {
+            throw new RuntimeException("User is not a freelancer");
+        }
+
+        List<Project> openProjects = projectRepository.findAll()
+                .stream()
+                .filter(p -> p.getStatus() == Status.OPEN)
+                .toList();
+
+        return openProjects.stream()
+                .filter(project -> {
+
+                    String title = project.getTitle().toLowerCase();
+                    String description = project.getDescription().toLowerCase();
+
+                    return freelancer.getSkills().stream()
+                            .flatMap(skill -> List.of(skill.split(" ")).stream())
+                            .anyMatch(singleSkill ->
+                                    title.contains(singleSkill.toLowerCase()) ||
+                                            description.contains(singleSkill.toLowerCase())
+                            );
+                })
+                .toList();
     }
 }

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +31,7 @@ public class Project {
     private Status status;
 
     private LocalDateTime createdAt;
+
 
     @ManyToOne
     @JoinColumn(name = "client_id")
