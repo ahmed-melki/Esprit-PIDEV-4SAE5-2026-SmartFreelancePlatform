@@ -9,7 +9,6 @@
     <!-- Menu de navigation principal -->
     <nav class="main-nav">
       
-
       <!-- Menu Projets avec sous-menu -->
       <div class="menu-item" [matMenuTriggerFor]="projectsMenu" #menuTrigger="matMenuTrigger" (mouseenter)="menuTrigger.openMenu()">
         <a class="menu-link" [class.active-link]="isProjectsRoute()">
@@ -18,8 +17,14 @@
           <mat-icon class="arrow-icon">arrow_drop_down</mat-icon>
         </a>
       </div>
-
       
+      
+
+      <a routerLink="/offres" routerLinkActive="active-link" class="nav-link">
+        <mat-icon>work</mat-icon>
+        <span>Offres</span>
+      </a>
+            
     </nav>
 
     <!-- Espace flexible -->

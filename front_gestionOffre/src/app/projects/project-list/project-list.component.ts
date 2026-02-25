@@ -172,5 +172,15 @@ export class ProjectListComponent implements OnInit {
       'cancelled': 'Annulé'
     };
     return statusMap[status?.toLowerCase()] || status;
-  }
+  } 
+
+  getMatchedSkills(project: Project): string[] {
+  // Si vous avez les compétences du freelancer en session
+  const freelancerSkills = ['Angular', 'Spring Boot', 'Java']; // À remplacer par les vraies compétences
+  
+  const searchText = (project.title + ' ' + project.description).toLowerCase();
+  return freelancerSkills.filter(skill => 
+    searchText.includes(skill.toLowerCase())
+  );
+}
 }

@@ -9,6 +9,7 @@ export interface Project {
   budget: number;
   deadline: string;
   status: string;
+  createdAt?: string; 
 }
 
 @Injectable({
@@ -37,5 +38,9 @@ export class ProjectService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  //  MATCHING
+  getMatchingProjects(userId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/matching/${userId}`);
   }
 }

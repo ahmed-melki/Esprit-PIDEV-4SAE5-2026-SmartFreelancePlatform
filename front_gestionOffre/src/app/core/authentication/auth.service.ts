@@ -1,79 +1,59 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, iif, map, merge, of, share, switchMap, tap } from 'rxjs';
-import { filterObject, isEmptyObject } from './helpers';
-import { User } from './interface';
-import { LoginService } from './login.service';
-import { TokenService } from './token.service';
+// src/app/core/auth/auth.service.ts
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'CLIENT' | 'FREELANCER' | 'ADMIN';
+  skills?: string[];
+}
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
-  private readonly loginService = inject(LoginService);
-  private readonly tokenService = inject(TokenService);
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
 
-  private user$ = new BehaviorSubject<User>({});
-  private change$ = merge(
-    this.tokenService.change(),
-    this.tokenService.refresh().pipe(switchMap(() => this.refresh()))
-  ).pipe(
-    switchMap(() => this.assignUser()),
-    share()
-  );
-
-  init() {
-    return new Promise<void>(resolve => this.change$.subscribe(() => resolve()));
+  constructor() {
+    this.loadUserFromStorage();
   }
 
-  change() {
-    return this.change$;
-  }
-
-  check() {
-    return this.tokenService.valid();
-  }
-
-  login(username: string, password: string, rememberMe = false) {
-    return this.loginService.login(username, password, rememberMe).pipe(
-      tap(token => this.tokenService.set(token)),
-      map(() => this.check())
-    );
-  }
-
-  refresh() {
-    return this.loginService
-      .refresh(filterObject({ refresh_token: this.tokenService.getRefreshToken() }))
-      .pipe(
-        catchError(() => of(undefined)),
-        tap(token => this.tokenService.set(token)),
-        map(() => this.check())
-      );
-  }
-
-  logout() {
-    return this.loginService.logout().pipe(
-      tap(() => this.tokenService.clear()),
-      map(() => !this.check())
-    );
-  }
-
-  user() {
-    return this.user$.pipe(share());
-  }
-
-  menu() {
-    return iif(() => this.check(), this.loginService.menu(), of([]));
-  }
-
-  private assignUser() {
-    if (!this.check()) {
-      return of({}).pipe(tap(user => this.user$.next(user)));
+  private loadUserFromStorage(): void {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      this.currentUserSubject.next(JSON.parse(storedUser));
     }
+  }
 
-    if (!isEmptyObject(this.user$.getValue())) {
-      return of(this.user$.getValue());
-    }
+  // ✅ MÉTHODE getCurrentUser() AJOUTÉE
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
 
-    return this.loginService.me().pipe(tap(user => this.user$.next(user)));
+  // À appeler après login
+  setCurrentUser(user: User): void {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
+  isClient(): boolean {
+    return this.currentUserSubject.value?.role === 'CLIENT';
+  }
+
+  isFreelancer(): boolean {
+    return this.currentUserSubject.value?.role === 'FREELANCER';
+  }
+
+  isAdmin(): boolean {
+    return this.currentUserSubject.value?.role === 'ADMIN';
+  }
+
+  logout(): void {
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
   }
 }
