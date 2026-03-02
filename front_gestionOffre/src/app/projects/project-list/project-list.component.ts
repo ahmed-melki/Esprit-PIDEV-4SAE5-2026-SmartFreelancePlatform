@@ -9,14 +9,14 @@ import { NgFor, NgClass, CurrencyPipe, DatePipe } from '@angular/common';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
-
+import { MatExpansionModule } from '@angular/material/expansion';
 @Component({
     selector: 'app-project-list',
     templateUrl: './project-list.component.html',
     styleUrls: ['./project-list.component.css'] // N'oubliez pas d'ajouter le CSS
     ,
     standalone: true,
-    imports: [MatFormField, MatLabel, MatSelect, MatOption, MatInput, NgFor, MatCard, NgClass, MatCardHeader, MatIcon, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions, MatButton, CurrencyPipe, DatePipe]
+    imports: [MatFormField, MatLabel, MatSelect, MatOption, MatInput, NgFor, MatCard, NgClass, MatCardHeader, MatIcon, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions, MatButton, CurrencyPipe, DatePipe,MatExpansionModule]
 })
 export class ProjectListComponent implements OnInit {
   // Données
@@ -173,6 +173,19 @@ export class ProjectListComponent implements OnInit {
     };
     return statusMap[status?.toLowerCase()] || status;
   } 
+  getStatusIcon(status: string): string {
+  switch(status?.toLowerCase()) {
+    case 'open':
+      return 'radio_button_unchecked';
+    case 'in_progress':
+      return 'hourglass_empty';
+    case 'closed':
+      return 'check_circle';
+    default:
+      return 'circle';
+  }
+}
+
 
   getMatchedSkills(project: Project): string[] {
   // Si vous avez les compétences du freelancer en session

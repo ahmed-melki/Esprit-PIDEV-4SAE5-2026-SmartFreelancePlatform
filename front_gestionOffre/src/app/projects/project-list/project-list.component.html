@@ -3,10 +3,9 @@
   <div class="filters-bar">
     <mat-form-field appearance="outline" class="filter-field">
       <mat-label>Filtrer par statut</mat-label>
-      <!-- AJOUT DE (selectionChange)="applyFilter()" -->
       <mat-select 
         [(value)]="selectedStatus" 
-        (selectionChange)="applyFilter()">  <!-- ← LIGNE AJOUTÉE -->
+        (selectionChange)="applyFilter()">
         <mat-option value="all">All</mat-option>
         <mat-option value="OPEN">Open</mat-option>
         <mat-option value="IN_PROGRESS">In progress</mat-option>
@@ -23,48 +22,108 @@
     </mat-form-field>
   </div>
 
-  <!-- Grille de projets modernes -->
-  <div class="modern-grid">
-    <mat-card *ngFor="let project of filteredProjects" class="modern-card" [ngClass]="'status-' + project.status.toLowerCase()">
-      
-      <!-- Badge de statut -->
-      <div class="status-badge" [ngClass]="project.status.toLowerCase()">
-        {{ project.status }}
-      </div>
+  <!-- Liste des projets -->
+  <div class="projects-list">
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let project of filteredProjects" 
+                           class="project-panel"
+                           [ngClass]="'status-' + project.status.toLowerCase()">
+        
+        <!-- Header du panel (toujours visible) -->
+        <mat-expansion-panel-header>
+          <mat-panel-title class="panel-title">
+            <div class="title-content">
+              <mat-icon class="status-icon" [ngClass]="project.status.toLowerCase()">
+                {{ getStatusIcon(project.status) }}
+              </mat-icon>
+              <span class="project-title">{{ project.title }}</span>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description class="panel-description">
+            <div class="header-info">
+              <span class="project-id">#{{ project.id }}</span>
+              <span class="project-badge" [ngClass]="project.status.toLowerCase()">
+                {{ project.status }}
+              </span>
+              <span class="project-budget">{{ project.budget | currency:'EUR' }}</span>
+            </div>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
 
-      <!-- Contenu -->
-      <mat-card-header>
-        <mat-icon class="card-icon">assignment</mat-icon>
-        <mat-card-title>{{ project.title }}</mat-card-title>
-        <mat-card-subtitle>Projet #{{ project.id }}</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <p>{{ project.description }}</p>
-
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Budget</span>
-            <span class="info-value budget">{{ project.budget | currency:'EUR' }}</span>
+        <!-- Contenu détaillé (visible quand on clique) -->
+        <div class="panel-content">
+          <!-- Description -->
+          <div class="detail-section">
+            <h4>Description</h4>
+            <p>{{ project.description }}</p>
           </div>
-          <div class="info-item">
-            <span class="info-label">Deadline</span>
-            <span class="info-value">{{ project.deadline | date:'dd/MM/yyyy' }}</span>
+
+          <!-- Compétences matchées (si disponibles) -->
+          <div class="detail-section" *ngIf="getMatchedSkills(project).length > 0">
+            <h4>Compétences recherchées</h4>
+            <div class="skills-tags">
+              <span *ngFor="let skill of getMatchedSkills(project)" class="skill-tag">
+                {{ skill }}
+                <mat-icon class="check-icon">check_circle</mat-icon>
+              </span>
+            </div>
+          </div>
+
+          <!-- Informations détaillées -->
+          <div class="detail-section">
+            <h4>Informations</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>payments</mat-icon>
+                <div class="info-text">
+                  <span class="info-label">Budget</span>
+                  <span class="info-value budget">{{ project.budget | currency:'EUR' }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <mat-icon>calendar_today</mat-icon>
+                <div class="info-text">
+                  <span class="info-label">Deadline</span>
+                  <span class="info-value">{{ project.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+             
+              <div class="info-item">
+                <mat-icon>schedule</mat-icon>
+                <div class="info-text">
+                  <span class="info-label">Créé le</span>
+                  <span class="info-value">{{ project.createdAt | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="detail-section actions-section">
+            <h4>Actions</h4>
+            <div class="action-buttons">
+              <button mat-raised-button color="primary" (click)="viewProject(project.id!)">
+                <mat-icon>visibility</mat-icon> Voir détails
+              </button>
+              <button mat-raised-button color="accent" (click)="editProject(project.id!)">
+                <mat-icon>edit</mat-icon> Modifier
+              </button>
+              <button mat-raised-button color="warn" (click)="deleteProject(project.id!)">
+                <mat-icon>delete</mat-icon> Supprimer
+              </button>
+            </div>
           </div>
         </div>
-      </mat-card-content>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="viewProject(project.id!)">
-          <mat-icon>visibility</mat-icon> Détails
-        </button>
-        <button mat-button color="accent" (click)="editProject(project.id!)">
-          <mat-icon>edit</mat-icon> Modifier
-        </button>
-        <button mat-button color="warn" (click)="deleteProject(project.id!)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-card-actions>
-    </mat-card>
+  <!-- Message si aucun projet -->
+  <div *ngIf="filteredProjects.length === 0 && !loading" class="no-projects">
+    <mat-icon>info</mat-icon>
+    <p>Aucun projet trouvé</p>
+    <button mat-stroked-button color="primary" (click)="resetFilters()">
+      <mat-icon>refresh</mat-icon> Réinitialiser les filtres
+    </button>
   </div>
 </div>
