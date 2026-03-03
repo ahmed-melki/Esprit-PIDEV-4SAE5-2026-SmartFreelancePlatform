@@ -1,0 +1,224 @@
+<div class="sponsorship-container">
+  <h2 class="text-center mb-4">Créer un Sponsorship</h2>
+
+  <form (ngSubmit)="submitSponsorship()" #sponsorshipForm="ngForm" class="sponsorship-form">
+    
+    <!-- Section Informations Personnelles -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-user"></i> Informations du Sponsor
+      </h3>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="firstName">
+              <i class="fas fa-user-tag"></i> Prénom <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="firstName" 
+              [(ngModel)]="sponsorship.sponsorFirstName" 
+              name="sponsorFirstName" 
+              #firstName="ngModel"
+              class="form-control" 
+              [class.is-invalid]="firstName.invalid && firstName.touched"
+              placeholder="Entrez votre prénom"
+              required>
+            <div class="invalid-feedback" *ngIf="firstName.invalid && firstName.touched">
+              Le prénom est requis
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="lastName">
+              <i class="fas fa-user-tag"></i> Nom <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="lastName" 
+              [(ngModel)]="sponsorship.sponsorLastName" 
+              name="sponsorLastName" 
+              #lastName="ngModel"
+              class="form-control" 
+              [class.is-invalid]="lastName.invalid && lastName.touched"
+              placeholder="Entrez votre nom"
+              required>
+            <div class="invalid-feedback" *ngIf="lastName.invalid && lastName.touched">
+              Le nom est requis
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> Email <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="sponsorship.sponsorEmail" 
+          name="sponsorEmail" 
+          #email="ngModel"
+          class="form-control" 
+          [class.is-invalid]="email.invalid && email.touched"
+          placeholder="exemple@email.com"
+          required
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+        <div class="invalid-feedback" *ngIf="email.invalid && email.touched">
+          <span *ngIf="email.errors?.['required']">L'email est requis</span>
+          <span *ngIf="email.errors?.['pattern']">Format d'email invalide</span>
+        </div>
+        <small class="form-text text-muted">
+          Nous ne partagerons jamais votre email.
+        </small>
+      </div>
+    </div>
+
+    <!-- Section Montant -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-hand-holding-usd"></i> Détails du Sponsoring
+      </h3>
+
+      <div class="form-group">
+        <label for="amount">
+          <i class="fas fa-euro-sign"></i> Montant (€) <span class="required">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-text">€</span>
+          <input 
+            type="number" 
+            id="amount" 
+            [(ngModel)]="sponsorship.amount" 
+            name="amount" 
+            #amount="ngModel"
+            class="form-control" 
+            [class.is-invalid]="amount.invalid && amount.touched"
+            placeholder="5000"
+            required 
+            min="100" 
+            step="0.01">
+        </div>
+        <div class="invalid-feedback" *ngIf="amount.invalid && amount.touched">
+          <span *ngIf="amount.errors?.['required']">Le montant est requis</span>
+          <span *ngIf="amount.errors?.['min']">Le montant minimum est de 100€</span>
+        </div>
+        
+        <!-- Résumé visuel du montant -->
+        <div class="amount-preview mt-2" *ngIf="sponsorship.amount && sponsorship.amount >= 100">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Vous allez sponsoriser pour un montant de 
+            <strong>{{ sponsorship.amount | currency:'EUR':'symbol':'1.2-2' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions du formulaire -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-lg"
+        [disabled]="sponsorshipForm.invalid || isSubmitting">
+        <i class="fas fa-hand-holding-heart" *ngIf="!isSubmitting"></i>
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="isSubmitting"></span>
+        {{ isSubmitting ? 'Création en cours...' : 'Sponsoriser Maintenant' }}
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-secondary btn-lg"
+        (click)="resetForm()">
+        <i class="fas fa-redo"></i> Réinitialiser
+      </button>
+    </div>
+
+    <!-- Résumé des champs requis -->
+    <div class="form-footer text-muted">
+      <small><span class="required">*</span> Champs obligatoires</small>
+    </div>
+  </form>
+
+  <!-- Affichage PDF après création avec design amélioré -->
+  <div *ngIf="pdfUrl" class="pdf-section mt-5">
+    <div class="pdf-header">
+      <h3>
+        <i class="fas fa-file-pdf text-danger"></i> 
+        Contrat de Sponsoring
+      </h3>
+      <div class="pdf-actions">
+        <button class="btn btn-outline-primary" (click)="downloadPDF()">
+          <i class="fas fa-download"></i> Télécharger
+        </button>
+        <button class="btn btn-outline-secondary" (click)="printPDF()">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+    </div>
+    
+    <div class="pdf-viewer">
+      <iframe 
+        [src]="pdfUrl" 
+        width="100%" 
+        height="600px" 
+        class="pdf-frame"
+        title="Aperçu du contrat">
+      </iframe>
+    </div>
+
+    <!-- Section Signature -->
+    <div class="signature-section text-center mt-4">
+      <div class="signature-card" *ngIf="!isContractSigned">
+        <h4><i class="fas fa-signature"></i> Signer le contrat</h4>
+        <p class="text-muted">
+          En signant ce contrat, vous acceptez les termes et conditions du sponsoring.
+        </p>
+        
+        <!-- Récapitulatif avant signature -->
+        <div class="signature-summary alert alert-light">
+          <p><strong>Sponsor :</strong> {{ sponsorship.sponsorFirstName }} {{ sponsorship.sponsorLastName }}</p>
+          <p><strong>Email :</strong> {{ sponsorship.sponsorEmail }}</p>
+          <p><strong>Montant :</strong> {{ sponsorship.amount | currency:'EUR':'symbol':'1.2-2' }}</p>
+        </div>
+
+        <!-- Checkbox d'acceptation -->
+        <div class="form-check mb-3">
+          <input 
+            type="checkbox" 
+            class="form-check-input" 
+            id="acceptTerms" 
+            [(ngModel)]="termsAccepted">
+          <label class="form-check-label" for="acceptTerms">
+            J'ai lu et j'accepte les <a href="#" (click)="showTerms($event)">termes et conditions</a>
+          </label>
+        </div>
+
+        <button 
+          class="btn btn-success btn-lg" 
+          (click)="signContract()"
+          [disabled]="!termsAccepted || isSigning">
+          <i class="fas fa-pen-fancy" *ngIf="!isSigning"></i>
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="isSigning"></span>
+          {{ isSigning ? 'Signature en cours...' : 'Signer le contrat' }}
+        </button>
+      </div>
+
+      <!-- Message de succès après signature -->
+      <div class="signature-success" *ngIf="isContractSigned">
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle fa-3x mb-3"></i>
+          <h4>Contrat signé avec succès !</h4>
+          <p>Le contrat a été signé électroniquement.</p>
+          <button class="btn btn-outline-success" (click)="downloadSignedPDF()">
+            <i class="fas fa-file-pdf"></i> Télécharger le contrat signé
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

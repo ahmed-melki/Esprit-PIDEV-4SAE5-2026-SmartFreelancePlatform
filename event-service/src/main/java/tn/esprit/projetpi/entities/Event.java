@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "event")
 @Getter
@@ -45,6 +46,7 @@ public class Event {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
+
 
 
 

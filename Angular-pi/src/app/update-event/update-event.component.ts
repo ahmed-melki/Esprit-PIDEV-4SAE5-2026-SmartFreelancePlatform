@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventService } from '../event.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-event-edit',
-  templateUrl: './update-event.component.html',
-  styleUrls: ['./update-event.component.css']
+    selector: 'app-event-edit',
+    templateUrl: './update-event.component.html',
+    styleUrls: ['./update-event.component.css'],
+    standalone: true,
+    imports: [FormsModule]
 })
 export class EventEditComponent implements OnInit {
 

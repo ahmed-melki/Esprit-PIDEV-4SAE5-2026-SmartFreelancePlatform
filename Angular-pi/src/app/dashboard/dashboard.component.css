@@ -1,0 +1,72 @@
+.mat-mdc-button-base {
+  margin: 4px;
+}
+
+/* Styles additionnels pour le dashboard */
+.text-white {
+  color: white;
+}
+
+.m-t-0 {
+  margin-top: 0 !important;
+}
+
+.m-t-8 {
+  margin-top: 8px !important;
+}
+
+.m-t-16 {
+  margin-top: 16px !important;
+}
+
+.m-b-8 {
+  margin-bottom: 8px !important;
+}
+
+.m-16 {
+  margin: 16px !important;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.d-block {
+  display: block;
+}
+
+/* Couleurs de fond personnalisées */
+.bg-azure-50 { background-color: #e6f7ff; }
+.bg-blue-50 { background-color: #e6f0ff; }
+.bg-green-50 { background-color: #e6ffe6; }
+.bg-cyan-50 { background-color: #e6fffa; }
+.bg-violet-95 { background-color: #f0e6ff; }
+.bg-magenta-95 { background-color: #ffe6f0; }
+.bg-orange-95 { background-color: #fff0e6; }
+.bg-azure-95 { background-color: #e6f7ff; }
+.bg-orange-90 { background-color: #ffe6cc; }
+.bg-blue-90 { background-color: #cce0ff; }
+.bg-cyan-90 { background-color: #ccfff5; }
+.bg-red-90 { background-color: #ffcccc; }
+.bg-green-90 { background-color: #ccffcc; }
+
+/* Classes utilitaires */
+.text-dark {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+/* Ajustements pour Material Design */
+.mat-mdc-card {
+  margin-bottom: 16px;
+}
+
+.mat-mdc-tab-body-content {
+  padding: 16px;
+}
+
+/* Responsive */
+@media (max-width: 599px) {
+  .mat-mdc-card-header {
+    flex-direction: column;
+  }
+}

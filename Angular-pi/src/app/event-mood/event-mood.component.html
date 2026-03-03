@@ -1,0 +1,228 @@
+<div *ngIf="showMood" class="mood-container">
+  <!-- En-tête du formulaire -->
+  <div class="form-header">
+    <h2 class="form-title">Formulaire de vote</h2>
+    <p class="form-subtitle">Exprimez votre ressenti sur cet événement</p>
+  </div>
+
+  <!-- Formulaire de vote -->
+  <form class="vote-form" (ngSubmit)="submitVote()" #voteForm="ngForm">
+    <!-- Groupe d'options de vote -->
+    <div class="form-group">
+      <label class="form-label">Sélectionnez votre réaction *</label>
+      
+      <div class="radio-group">
+        <!-- Option Très intéressé -->
+        <div class="radio-option">
+          <input 
+            type="radio" 
+            id="very-interested" 
+            name="voteOption" 
+            value="VERY_INTERESTED"
+            [(ngModel)]="selectedVote"
+            (change)="react('VERY_INTERESTED')"
+            class="radio-input"
+            [disabled]="hasVoted">
+          <label for="very-interested" class="radio-label" [class.selected]="selectedVote === 'VERY_INTERESTED'">
+            <span class="radio-emoji">🔥</span>
+            <span class="radio-text">Très intéressé</span>
+            <span class="radio-stats" *ngIf="stats['VERY_INTERESTED'] > 0">
+              {{ stats['VERY_INTERESTED'] }}
+            </span>
+          </label>
+        </div>
+
+        <!-- Option Intéressé -->
+        <div class="radio-option">
+          <input 
+            type="radio" 
+            id="interested" 
+            name="voteOption" 
+            value="INTERESTED"
+            [(ngModel)]="selectedVote"
+            (change)="react('INTERESTED')"
+            class="radio-input"
+            [disabled]="hasVoted">
+          <label for="interested" class="radio-label" [class.selected]="selectedVote === 'INTERESTED'">
+            <span class="radio-emoji">👍</span>
+            <span class="radio-text">Intéressé</span>
+            <span class="radio-stats" *ngIf="stats['INTERESTED'] > 0">
+              {{ stats['INTERESTED'] }}
+            </span>
+          </label>
+        </div>
+
+        <!-- Option Peut-être -->
+        <div class="radio-option">
+          <input 
+            type="radio" 
+            id="maybe" 
+            name="voteOption" 
+            value="MAYBE"
+            [(ngModel)]="selectedVote"
+            (change)="react('MAYBE')"
+            class="radio-input"
+            [disabled]="hasVoted">
+          <label for="maybe" class="radio-label" [class.selected]="selectedVote === 'MAYBE'">
+            <span class="radio-emoji">🤔</span>
+            <span class="radio-text">Peut-être</span>
+            <span class="radio-stats" *ngIf="stats['MAYBE'] > 0">
+              {{ stats['MAYBE'] }}
+            </span>
+          </label>
+        </div>
+
+        <!-- Option Pas intéressé -->
+        <div class="radio-option">
+          <input 
+            type="radio" 
+            id="not-interested" 
+            name="voteOption" 
+            value="NOT_INTERESTED"
+            [(ngModel)]="selectedVote"
+            (change)="react('NOT_INTERESTED')"
+            class="radio-input"
+            [disabled]="hasVoted">
+          <label for="not-interested" class="radio-label" [class.selected]="selectedVote === 'NOT_INTERESTED'">
+            <span class="radio-emoji">❌</span>
+            <span class="radio-text">Pas intéressé</span>
+            <span class="radio-stats" *ngIf="stats['NOT_INTERESTED'] > 0">
+              {{ stats['NOT_INTERESTED'] }}
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Message d'aide -->
+      <small class="form-help-text" *ngIf="!hasVoted">
+        Choisissez une option pour voter
+      </small>
+      
+      <!-- Message de confirmation -->
+      <div class="vote-confirmation" *ngIf="hasVoted && selectedVote" @fadeIn>
+        <span class="confirmation-icon">✓</span>
+        <span class="confirmation-text">Votre vote a été enregistré !</span>
+      </div>
+    </div>
+
+    <!-- Bouton de soumission -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="submit-btn"
+        [disabled]="!selectedVote || hasVoted"
+        [class.btn-active]="selectedVote && !hasVoted">
+        <span class="btn-text">Voter</span>
+        <span class="btn-icon">→</span>
+      </button>
+      
+      <button 
+        *ngIf="canReset && getTotalVotes() > 0" 
+        type="button" 
+        class="reset-btn" 
+        (click)="resetVotes()">
+        <span class="reset-icon">↻</span>
+        <span class="reset-text">Réinitialiser</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Séparateur -->
+  <hr class="form-divider">
+
+  <!-- Section des résultats -->
+  <div class="results-section">
+    <h3 class="results-title">
+      <span class="title-icon">📊</span>
+      Résultats des votes
+      <span class="total-badge" *ngIf="getTotalVotes() > 0">
+        {{ getTotalVotes() }} vote{{ getTotalVotes() > 1 ? 's' : '' }}
+      </span>
+    </h3>
+
+    <!-- Barres de progression -->
+    <div class="progress-list">
+      <!-- Très intéressé -->
+      <div class="progress-item" *ngIf="shouldShowStat('VERY_INTERESTED')">
+        <div class="progress-header">
+          <div class="progress-label">
+            <span class="progress-emoji">🔥</span>
+            <span class="progress-name">Très intéressé</span>
+          </div>
+          <div class="progress-value">
+            <span class="value-number">{{ stats['VERY_INTERESTED'] || 0 }}</span>
+            <span class="value-percent">{{ getPercentage(stats['VERY_INTERESTED'] || 0) }}%</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar very-interested-bar" 
+               [style.width.%]="getPercentage(stats['VERY_INTERESTED'] || 0)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Intéressé -->
+      <div class="progress-item" *ngIf="shouldShowStat('INTERESTED')">
+        <div class="progress-header">
+          <div class="progress-label">
+            <span class="progress-emoji">👍</span>
+            <span class="progress-name">Intéressé</span>
+          </div>
+          <div class="progress-value">
+            <span class="value-number">{{ stats['INTERESTED'] || 0 }}</span>
+            <span class="value-percent">{{ getPercentage(stats['INTERESTED'] || 0) }}%</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar interested-bar" 
+               [style.width.%]="getPercentage(stats['INTERESTED'] || 0)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Peut-être -->
+      <div class="progress-item" *ngIf="shouldShowStat('MAYBE')">
+        <div class="progress-header">
+          <div class="progress-label">
+            <span class="progress-emoji">🤔</span>
+            <span class="progress-name">Peut-être</span>
+          </div>
+          <div class="progress-value">
+            <span class="value-number">{{ stats['MAYBE'] || 0 }}</span>
+            <span class="value-percent">{{ getPercentage(stats['MAYBE'] || 0) }}%</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar maybe-bar" 
+               [style.width.%]="getPercentage(stats['MAYBE'] || 0)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Pas intéressé -->
+      <div class="progress-item" *ngIf="shouldShowStat('NOT_INTERESTED')">
+        <div class="progress-header">
+          <div class="progress-label">
+            <span class="progress-emoji">❌</span>
+            <span class="progress-name">Pas intéressé</span>
+          </div>
+          <div class="progress-value">
+            <span class="value-number">{{ stats['NOT_INTERESTED'] || 0 }}</span>
+            <span class="value-percent">{{ getPercentage(stats['NOT_INTERESTED'] || 0) }}%</span>
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar not-interested-bar" 
+               [style.width.%]="getPercentage(stats['NOT_INTERESTED'] || 0)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div class="empty-results" *ngIf="getTotalVotes() === 0">
+      <p class="empty-message">Aucun vote pour le moment</p>
+      <p class="empty-submessage">Soyez le premier à voter !</p>
+    </div>
+  </div>
+</div>

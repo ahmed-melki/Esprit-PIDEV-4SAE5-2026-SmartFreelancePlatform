@@ -10,6 +10,7 @@ export class EventService {
 
   private apiUrl = 'http://localhost:8081/pi/api/events';
   private uploadUrl = 'http://localhost:8081/pi/api/upload'; // URL pour l'upload
+ 
     getEventById: any;
 
   constructor(private http: HttpClient) {}
@@ -50,5 +51,12 @@ export class EventService {
   createWithFile(formData: FormData): Observable<Event> {
     return this.http.post<Event>(this.apiUrl, formData);
   }
+
+
+  
+  
+
+
+  
 
 }

@@ -1,13 +1,16 @@
 import { Component } from '@angular/core';
-import { NgModel } from '@angular/forms';
+import { NgModel, FormsModule } from '@angular/forms';
 import { Event } from '../event.model';
 import { EventService } from '../event.service';
 import { Router } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-create-event',
-  templateUrl: './create-event.component.html',
-  styleUrls: ['./create-event.component.css']
+    selector: 'app-create-event',
+    templateUrl: './create-event.component.html',
+    styleUrls: ['./create-event.component.css'],
+    standalone: true,
+    imports: [NgIf, FormsModule]
 })
 export class CreateComponent {
 

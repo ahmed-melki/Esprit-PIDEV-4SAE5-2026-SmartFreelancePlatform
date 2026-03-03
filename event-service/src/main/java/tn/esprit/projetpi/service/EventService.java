@@ -1,7 +1,10 @@
 package tn.esprit.projetpi.service;
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.projetpi.entities.Event;
+import tn.esprit.projetpi.repositories.EventReactionRepository;
 import tn.esprit.projetpi.repositories.EventRepository;
 
 import java.util.List;
@@ -12,6 +15,8 @@ import java.util.Optional;
 public class EventService {
 
     private final EventRepository repository;
+    @Autowired
+    private EventReactionRepository eventReactionRepository;
 
     public EventService(EventRepository repository) {
         this.repository = repository;
@@ -31,9 +36,12 @@ public class EventService {
     public Event saveEvent(Event event) {
         return repository.save(event);
     }
-
-    // 🔹 Supprimer un événement par ID
+    @Transactional
     public void deleteEvent(Long id) {
+        // Supprimer toutes les réactions liées
+        eventReactionRepository.deleteByEventId(id);
+
+        // Puis supprimer l'événement
         repository.deleteById(id);
     }
 }

@@ -1,0 +1,353 @@
+.events-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.event-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.event-type-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.type-conference {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.type-atelier {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.type-webinaire {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.event-image {
+  height: 160px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.8;
+}
+
+.event-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.event-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.event-category {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.event-desc {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.event-details {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 13px;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item svg {
+  flex-shrink: 0;
+}
+
+.event-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.event-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.price-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.event-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-vote, .btn-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-vote {
+  background: #ff6b6b;
+  color: white;
+}
+
+.btn-vote:hover {
+  background: #ff5252;
+  transform: scale(1.05);
+}
+
+.btn-details {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.btn-details:hover {
+  background: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.no-event {
+  text-align: center;
+  padding: 48px;
+  color: #999;
+  font-size: 16px;
+  grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .events-container {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  
+  .event-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .event-actions {
+    width: 100%;
+  }
+  
+  .btn-vote, .btn-details {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Style de base commun à tous les boutons d'action */
+.btn-vote, .btn-sponsor, .btn-details {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet de brillance au survol pour tous les boutons */
+.btn-vote::before, .btn-sponsor::before, .btn-details::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+  z-index: 0;
+}
+
+.btn-vote:hover::before, .btn-sponsor:hover::before, .btn-details:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-vote span, .btn-sponsor span, .btn-details span,
+.btn-vote svg, .btn-sponsor svg, .btn-details svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Style spécifique pour le bouton Voter (rose/rouge) */
+.btn-vote {
+  background: linear-gradient(135deg, #ff6b6b, #ee5253);
+  color: white;
+}
+
+.btn-vote:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+.btn-vote:active {
+  transform: translateY(-1px);
+}
+
+/* Style spécifique pour le bouton Sponsoriser (or/doré) */
+.btn-sponsor {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.btn-sponsor:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+}
+
+.btn-sponsor:active {
+  transform: translateY(-1px);
+}
+
+/* Style spécifique pour le bouton Détails (turquoise) */
+.btn-details {
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  color: white;
+}
+
+.btn-details:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+}
+
+.btn-details:active {
+  transform: translateY(-1px);
+}
+
+/* Animation d'entrée pour les boutons */
+.btn-vote, .btn-sponsor, .btn-details {
+  animation: buttonAppear 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes buttonAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Version compacte pour petits écrans */
+@media (max-width: 480px) {
+  .btn-vote, .btn-sponsor, .btn-details {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .btn-vote svg, .btn-sponsor svg, .btn-details svg {
+    width: 16px;
+    height: 16px;
+  }
+}
