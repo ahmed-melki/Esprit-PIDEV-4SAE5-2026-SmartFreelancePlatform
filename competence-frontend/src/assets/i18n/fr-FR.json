@@ -1,0 +1,49 @@
+{
+  "menu": {
+    "dashboard": "Tableau de bord",
+    "statistiques": "Statistiques",
+    "competence": "Compétences"
+  },
+  "stats": {
+    "title": "Statistiques des compétences",
+    "totalCompetences": "Nombre total de compétences",
+    "totalNotes": "Nombre total de notes",
+    "noteMoyenneGlobale": "Note moyenne globale",
+    "repartitionParNiveau": "Répartition par niveau",
+    "niveau": "Niveau",
+    "nombreCompetences": "Nombre de compétences",
+    "loading": "Chargement des statistiques...",
+    "topCompetencesNote": "Top compétences par note moyenne"
+  },
+  "competence": {
+    "title": "Compétences",
+    "new": "Nouvelle compétence",
+    "view": "Voir détails",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "nom": "Nom",
+    "description": "Description",
+    "niveau": "Niveau",
+    "actions": "Actions",
+    "loading": "Chargement...",
+    "error": "Impossible de charger les compétences. Vérifiez que le backend est lancé.",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette compétence ?",
+    "deleted": "Compétence supprimée avec succès.",
+    "deleteError": "Erreur lors de la suppression.",
+    "empty": "Aucune compétence. Cliquez sur \"Nouvelle compétence\" pour en ajouter.",
+    "editTitle": "Modifier la compétence",
+    "newTitle": "Nouvelle compétence",
+    "save": "Enregistrer",
+    "create": "Créer",
+    "saveError": "Erreur lors de l'enregistrement.",
+    "createError": "Erreur lors de la création.",
+    "ratingsTitle": "Notes",
+    "note": "Note",
+    "commentaire": "Commentaire",
+    "addRating": "Ajouter une note",
+    "noRatings": "Aucune note pour l'instant.",
+    "ratingsLoadError": "Impossible de charger les notes.",
+    "ratingAddError": "Erreur lors de l'ajout de la note."
+  }
+}
+

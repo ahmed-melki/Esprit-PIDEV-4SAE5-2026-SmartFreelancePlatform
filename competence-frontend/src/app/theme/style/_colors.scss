@@ -1,0 +1,68 @@
+@use 'sass:meta';
+// Use Material M2 palette module (Angular Material 18 does not expose these on the main entry)
+@use '@angular/material/core/m2/palette' as mat-palette;
+
+$mat-colors: (
+  red: mat-palette.$red-palette,
+  pink: mat-palette.$pink-palette,
+  purple: mat-palette.$purple-palette,
+  deep-purple: mat-palette.$deep-purple-palette,
+  indigo: mat-palette.$indigo-palette,
+  blue: mat-palette.$blue-palette,
+  light-blue: mat-palette.$light-blue-palette,
+  cyan: mat-palette.$cyan-palette,
+  teal: mat-palette.$teal-palette,
+  green: mat-palette.$green-palette,
+  light-green: mat-palette.$light-green-palette,
+  lime: mat-palette.$lime-palette,
+  yellow: mat-palette.$yellow-palette,
+  amber: mat-palette.$amber-palette,
+  orange: mat-palette.$orange-palette,
+  deep-orange: mat-palette.$deep-orange-palette,
+  brown: mat-palette.$brown-palette,
+  gray: mat-palette.$gray-palette,
+  blue-gray: mat-palette.$blue-gray-palette,
+  white: white,
+  black: black,
+  light: white,
+  dark: rgba(black, .87),
+);
+
+@mixin generate-colors($prefix, $property) {
+  @each $name, $value in $mat-colors {
+    // If the value is a map, continue to each
+    @if meta.type-of($value) == 'map' {
+      @each $hue, $color in $value {
+        @if ($hue != 'contrast') {
+          .#{$prefix + '-' + $name + '-' + $hue} {
+            #{$property}: $color !important;
+          }
+        }
+      }
+    }
+
+    @if meta.type-of($value) == 'color' {
+      .#{$prefix + '-' + $name} {
+        #{$property}: $value !important;
+      }
+    }
+  }
+
+  // alias
+  @for $i from 1 through 9 {
+    .#{$prefix + '-grey-' + $i * 100} {
+      @extend .#{$prefix + '-gray-' + $i * 100};
+    }
+
+    .#{$prefix + '-blue-grey-' + $i * 100} {
+      @extend .#{$prefix + '-blue-gray-' + $i * 100};
+    }
+  }
+}
+
+// Generate text-color helpers
+@include generate-colors('text', 'color');
+// Generate background-color helpers
+@include generate-colors('bg', 'background-color');
+// Generate border-color helpers
+@include generate-colors('border', 'border-color');

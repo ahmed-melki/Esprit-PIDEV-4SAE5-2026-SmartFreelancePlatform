@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>
+  {{ (isEdit ? 'competence.editTitle' : 'competence.newTitle') | translate }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="skill-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'competence.nom' | translate }}</mat-label>
+      <input matInput formControlName="nomSkill" />
+      <mat-error *ngIf="nomSkill?.hasError('required')">{{ 'validations.required' | translate }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'competence.description' | translate }}</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      <mat-error *ngIf="description?.hasError('required')">{{ 'validations.required' | translate }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'competence.niveau' | translate }}</mat-label>
+      <mat-select formControlName="niveau">
+        <mat-option *ngFor="let n of niveaux" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+  <p *ngIf="error" class="error-msg">{{ error | translate }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'table_kitchen_sink.close' | translate }}</button>
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="form.invalid || submitting">
+    {{ isEdit ? ('competence.save' | translate) : ('competence.create' | translate) }}
+  </button>
+</mat-dialog-actions>

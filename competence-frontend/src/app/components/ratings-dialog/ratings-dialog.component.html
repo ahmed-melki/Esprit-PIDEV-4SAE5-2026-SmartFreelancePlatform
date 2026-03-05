@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>
+  {{ 'competence.ratingsTitle' | translate }} : {{ skill.nomSkill }}
+</h2>
+<mat-dialog-content>
+  <div *ngIf="loading" class="loading">
+    <span>{{ 'competence.loading' | translate }}</span>
+  </div>
+  <p *ngIf="error" class="error-msg">{{ error | translate }}</p>
+
+  <div *ngIf="!loading" class="ratings-content">
+    <div class="add-rating">
+      <form [formGroup]="form" (ngSubmit)="addRating()" class="rating-form">
+        <mat-form-field appearance="outline" class="note-field">
+          <mat-label>{{ 'competence.note' | translate }}</mat-label>
+          <input matInput type="number" formControlName="note" min="1" max="5" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="comment-field">
+          <mat-label>{{ 'competence.commentaire' | translate }}</mat-label>
+          <input matInput formControlName="commentaire" />
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || adding">
+          {{ 'competence.addRating' | translate }}
+        </button>
+      </form>
+    </div>
+    <table mat-table [dataSource]="ratings" class="ratings-table">
+      <ng-container matColumnDef="note">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.note' | translate }}</th>
+        <td mat-cell *matCellDef="let row">{{ row.note }}</td>
+      </ng-container>
+      <ng-container matColumnDef="commentaire">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.commentaire' | translate }}</th>
+        <td mat-cell *matCellDef="let row">{{ row.commentaire }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-icon-button color="warn" (click)="deleteRating(row)" [matTooltip]="'competence.delete' | translate">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ 'competence.noRatings' | translate }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">{{ 'table_kitchen_sink.close' | translate }}</button>
+</mat-dialog-actions>

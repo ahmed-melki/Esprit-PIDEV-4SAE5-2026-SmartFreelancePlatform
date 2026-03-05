@@ -1,0 +1,86 @@
+<div class="competence-container">
+  <h1>{{ 'competence.title' | translate }}</h1>
+
+  <div class="toolbar">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openSkillForm()"
+      [matTooltip]="'competence.new' | translate"
+    >
+      <mat-icon>add</mat-icon>
+      {{ 'competence.new' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>{{ 'competence.loading' | translate }}</span>
+  </div>
+
+  <div *ngIf="error && !loading" class="error">
+    {{ error | translate }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="table-wrapper">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="mat-elevation-z2 competence-table"
+    >
+      <ng-container matColumnDef="nomSkill">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.nom' | translate }}</th>
+        <td mat-cell *matCellDef="let row">{{ row.nomSkill }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.description' | translate }}</th>
+        <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="niveau">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.niveau' | translate }}</th>
+        <td mat-cell *matCellDef="let row">{{ row.niveau }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'competence.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let row">
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="viewRatings(row)"
+            [matTooltip]="'competence.view' | translate"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="accent"
+            (click)="openSkillForm(row)"
+            [matTooltip]="'competence.edit' | translate"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deleteSkill(row)"
+            [matTooltip]="'competence.delete' | translate"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          {{ 'competence.empty' | translate }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

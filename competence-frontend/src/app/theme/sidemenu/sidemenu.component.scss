@@ -1,0 +1,128 @@
+@use '../style/transitions';
+@use '../style/badge';
+
+.matero-sidemenu {
+  width: calc(var(--sidenav-width) - 1px); // subtract border width
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  .menu-item {
+    display: block;
+    height: auto;
+    padding: 0;
+
+    >.menu-heading {
+      &:hover,
+      &:focus {
+        background-color: var(--sidemenu-heading-hover-background-color);
+      }
+    }
+
+    &.active {
+      > .menu-heading {
+        color: var(--sidemenu-active-heading-text-color);
+        background-color: var(--sidemenu-active-heading-background-color);
+
+        &:hover,
+        &:focus {
+          background-color: var(--sidemenu-active-heading-hover-background-color);
+        }
+      }
+    }
+
+    &.expanded {
+      background-color: var(--sidemenu-expanded-background-color);
+
+      >.menu-toggle>.menu-caret {
+        transform: rotate(-180deg);
+      }
+    }
+  }
+
+  &.submenu {
+    padding-top: 0;
+    overflow: hidden;
+  }
+
+  .menu-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: inherit;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .mat-icon.menu-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.125rem;
+
+    [dir='rtl'] & {
+      margin-right: auto;
+      margin-left: 1rem;
+    }
+  }
+
+  .mat-icon.menu-caret {
+    display: block;
+    text-align: center;
+    transition: transitions.fast-out-slow(transform);
+  }
+
+  .menu-name {
+    flex: 1;
+    text-align: initial;
+  }
+
+  .menu-name,
+  .menu-label,
+  .menu-badge {
+    transition: transitions.swift-ease-out(opacity);
+  }
+
+  .menu-label,
+  .menu-badge {
+    @include badge.badge();
+  }
+
+  .menu-badge {
+    border-radius: 50rem;
+  }
+
+  &.level-1>li>.menu-heading {
+    padding-left: 3.125rem;
+
+    [dir='rtl'] & {
+      padding-right: 3.125rem;
+      padding-left: 1rem;
+    }
+  }
+
+  &.level-2>li>.menu-heading {
+    padding-left: 4rem;
+
+    [dir='rtl'] & {
+      padding-right: 4rem;
+      padding-left: 1rem;
+    }
+  }
+
+  &.level-2 [class^='level-']>li>.menu-heading {
+    padding-left: 5rem;
+
+    [dir='rtl'] & {
+      padding-right: 5rem;
+      padding-left: 1rem;
+    }
+  }
+}

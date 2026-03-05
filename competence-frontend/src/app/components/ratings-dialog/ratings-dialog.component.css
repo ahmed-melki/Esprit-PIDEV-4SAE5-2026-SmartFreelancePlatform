@@ -1,0 +1,16 @@
+.loading, .error-msg {
+  margin: 8px 0;
+}
+.error-msg {
+  color: var(--mat-form-field-error-text-color, #f44336);
+}
+.rating-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.note-field { width: 80px; }
+.comment-field { flex: 1; min-width: 180px; }
+.ratings-table { width: 100%; }

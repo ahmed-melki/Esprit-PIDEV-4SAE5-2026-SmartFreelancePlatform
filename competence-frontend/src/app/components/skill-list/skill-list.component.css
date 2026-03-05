@@ -1,0 +1,49 @@
+.competence-container {
+  padding: 1rem;
+}
+
+.competence-container h1 {
+  margin-bottom: 1rem;
+}
+
+.toolbar {
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  margin-right: 0.5rem;
+}
+
+.toolbar mat-icon {
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.error {
+  color: var(--mat-form-field-error-text-color, #f44336);
+  padding: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.competence-table {
+  width: 100%;
+}
+
+.competence-table td.mat-cell,
+.competence-table th.mat-header-cell {
+  padding: 0 0.5rem;
+}
+
+.competence-table .mat-column-actions button {
+  margin: 0 2px;
+}
