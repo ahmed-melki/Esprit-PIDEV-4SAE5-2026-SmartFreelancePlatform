@@ -2,7 +2,7 @@
   <!-- Filtres rapides -->
   <div class="filters-bar">
     <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Filtrer par statut</mat-label>
+      <mat-label>Filter by status</mat-label>
       <mat-select 
         [(value)]="selectedStatus" 
         (selectionChange)="applyFilter()">
@@ -60,7 +60,7 @@
 
           <!-- Compétences matchées (si disponibles) -->
           <div class="detail-section" *ngIf="getMatchedSkills(project).length > 0">
-            <h4>Compétences recherchées</h4>
+            <h4>Desired skills</h4>
             <div class="skills-tags">
               <span *ngFor="let skill of getMatchedSkills(project)" class="skill-tag">
                 {{ skill }}
@@ -91,7 +91,7 @@
               <div class="info-item">
                 <mat-icon>schedule</mat-icon>
                 <div class="info-text">
-                  <span class="info-label">Créé le</span>
+                  <span class="info-label">Created on</span>
                   <span class="info-value">{{ project.createdAt | date:'dd/MM/yyyy' }}</span>
                 </div>
               </div>
@@ -103,13 +103,13 @@
             <h4>Actions</h4>
             <div class="action-buttons">
               <button mat-raised-button color="primary" (click)="viewProject(project.id!)">
-                <mat-icon>visibility</mat-icon> Voir détails
+                <mat-icon>visibility</mat-icon> See details
               </button>
               <button mat-raised-button color="accent" (click)="editProject(project.id!)">
-                <mat-icon>edit</mat-icon> Modifier
+                <mat-icon>edit</mat-icon> Edit
               </button>
               <button mat-raised-button color="warn" (click)="deleteProject(project.id!)">
-                <mat-icon>delete</mat-icon> Supprimer
+                <mat-icon>delete</mat-icon> Delete
               </button>
             </div>
           </div>

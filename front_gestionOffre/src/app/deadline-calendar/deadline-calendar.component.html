@@ -4,12 +4,12 @@
     <div>
       <h1>
         <mat-icon class="header-icon">calendar_month</mat-icon>
-        Calendrier des deadlines
+        Deadlines calendar
       </h1>
       <p class="subtitle">
-        {{ stats.total }} projet(s) • 
+        {{ stats.total }} project(s) • 
         <span class="highlight" [class.warning]="stats.overdue > 0">
-          {{ stats.overdue }} en retard
+          {{ stats.overdue }} Late
         </span>
       </p>
     </div>
@@ -37,7 +37,7 @@
       <mat-icon class="stat-icon">assignment</mat-icon>
       <div class="stat-info">
         <span class="stat-value">{{ stats.total }}</span>
-        <span class="stat-label">Total projets</span>
+        <span class="stat-label">Total projects</span>
       </div>
     </mat-card>
     
@@ -45,7 +45,7 @@
       <mat-icon class="stat-icon">event</mat-icon>
       <div class="stat-info">
         <span class="stat-value">{{ stats.thisWeek }}</span>
-        <span class="stat-label">Cette semaine</span>
+        <span class="stat-label">This week</span>
       </div>
     </mat-card>
     
@@ -53,7 +53,7 @@
       <mat-icon class="stat-icon">date_range</mat-icon>
       <div class="stat-info">
         <span class="stat-value">{{ stats.thisMonth }}</span>
-        <span class="stat-label">Ce mois</span>
+        <span class="stat-label">This month</span>
       </div>
     </mat-card>
     
@@ -61,14 +61,14 @@
       <mat-icon class="stat-icon">warning</mat-icon>
       <div class="stat-info">
         <span class="stat-value">{{ stats.overdue }}</span>
-        <span class="stat-label">En retard</span>
+        <span class="stat-label">Late</span>
       </div>
     </mat-card>
   </div>
 
   <!-- Tabs pour changer de vue -->
   <mat-tab-group [selectedIndex]="viewMode === 'month' ? 0 : 1">
-    <mat-tab label="Vue mensuelle">
+    <mat-tab label="Monthly view">
       <div class="month-view">
         <!-- Loading -->
         @if (loading) {
@@ -108,7 +108,7 @@
                       }
                       @if (day.projects.length > 2) {
                         <div class="preview-more">
-                          +{{ day.projects.length - 2 }} autre(s)
+                          +{{ day.projects.length - 2 }} other(s)
                         </div>
                       }
                     </div>
@@ -130,7 +130,7 @@
             @if (getProjectsForDate(selectedDate).length === 0) {
               <div class="no-projects">
                 <mat-icon>info</mat-icon>
-                <p>Aucun projet pour cette date</p>
+                <p>No project for this date</p>
               </div>
             }
 
@@ -143,7 +143,7 @@
                     <mat-icon [style.color]="getStatusColor(project.status)">assignment</mat-icon>
                     <div class="project-info">
                       <h4>{{ project.title }}</h4>
-                      <p class="project-meta">Projet #{{ project.id }}</p>
+                      <p class="project-meta">Project #{{ project.id }}</p>
                     </div>
                     <mat-chip class="status-chip" [style.background]="getStatusColor(project.status)">
                       {{ project.status }}
@@ -173,10 +173,10 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Vue liste">
+    <mat-tab label="List view">
       <div class="list-view">
         <!-- Prochains deadlines -->
-        <h3>Prochaines deadlines</h3>
+        <h3>Upcoming deadlines</h3>
         <div class="upcoming-list">
           @for (project of stats.nextDeadlines; track project.id) {
             <mat-card class="upcoming-card">
@@ -196,14 +196,14 @@
           @if (stats.nextDeadlines.length === 0) {
             <div class="no-data">
               <mat-icon>event_busy</mat-icon>
-              <p>Aucune deadline à venir</p>
+              <p>No upcoming deadline</p>
             </div>
           }
         </div>
 
         <!-- En retard -->
         @if (stats.overdue > 0) {
-          <h3 class="overdue-title">En retard</h3>
+          <h3 class="overdue-title">Late</h3>
           <div class="overdue-list">
             @for (project of projects; track project.id) {
               @if (isProjectPast(project)) {
@@ -215,7 +215,7 @@
                       <span class="overdue-date">{{ project.deadline | date:'dd MMMM yyyy' }}</span>
                     </div>
                     <span class="overdue-badge">
-                      Retard
+                      Late
                     </span>
                   </div>
                 </mat-card>

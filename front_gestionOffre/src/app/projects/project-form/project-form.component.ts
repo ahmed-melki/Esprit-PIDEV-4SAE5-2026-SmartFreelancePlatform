@@ -53,7 +53,7 @@ export class ProjectFormComponent implements OnInit {
     } else {
       // En mode création, le statut est forcé à OPEN
       this.project.status = 'OPEN';
-      this.step3Completed = true; // ← FORCER ICI
+      this.step3Completed = true; 
       this.checkStep3Completion();
     }
   }

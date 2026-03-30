@@ -13,7 +13,7 @@
       <div class="menu-item" [matMenuTriggerFor]="projectsMenu" #menuTrigger="matMenuTrigger" (mouseenter)="menuTrigger.openMenu()">
         <a class="menu-link" [class.active-link]="isProjectsRoute()">
           <mat-icon>assignment</mat-icon>
-          <span>Projets</span>
+          <span>Projects</span>
           <mat-icon class="arrow-icon">arrow_drop_down</mat-icon>
         </a>
       </div>
@@ -21,12 +21,12 @@
       <!-- 🔥 NOUVEAU LIEN CALENDRIER -->
       <a routerLink="/calendar" routerLinkActive="active-link" class="nav-link">
         <mat-icon>calendar_month</mat-icon>
-        <span>Calendrier</span>
+        <span>Calendar</span>
       </a>
 
       <a routerLink="/offres" routerLinkActive="active-link" class="nav-link">
         <mat-icon>work</mat-icon>
-        <span>Offres</span>
+        <span>Project Offers</span>
       </a>
             
     </nav>
@@ -64,15 +64,15 @@
 <mat-menu #userMenu="matMenu" class="user-menu">
   <button mat-menu-item routerLink="/profile">
     <mat-icon>account_circle</mat-icon>
-    <span>Mon Profil</span>
+    <span> My Profile</span>
   </button>
   <button mat-menu-item routerLink="/settings">
     <mat-icon>settings</mat-icon>
-    <span>Paramètres</span>
+    <span>Settings</span>
   </button>
   <mat-divider></mat-divider>
   <button mat-menu-item (click)="logout()">
     <mat-icon>logout</mat-icon>
-    <span>Déconnexion</span>
+    <span>Logout</span>
   </button>
 </mat-menu>

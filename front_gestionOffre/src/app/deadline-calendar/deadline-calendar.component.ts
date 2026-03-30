@@ -43,10 +43,9 @@ export class DeadlineCalendarComponent implements  OnInit, OnChanges {
   selectedDate: Date | null = null;
   currentMonth: Date = new Date();
   monthNames: string[] = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
   ];
-  dayNames: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  dayNames: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   
   calendarDays: any[] = [];
   viewMode: 'month' | 'list' = 'month';
