@@ -1,6 +1,7 @@
 package tn.esprit.blogservice.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Table(name = "articles")
 @Getter
 @Setter
+@Data
 public class Article {
 
     @Id
@@ -26,6 +28,16 @@ public class Article {
     private String status;
 
     private int likes;
+
+    private int reportCount = 0;
+
+    @Column(name = "like_count")
+    private Integer likeCount = 0;  // Changé de int à Integer
+
+    @Column(name = "dislike_count")
+    private Integer dislikeCount = 0;  // Changé de int à Integer
+
+
 
 
 
