@@ -1,0 +1,158 @@
+<div class="jobs-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>
+        <mat-icon class="header-icon">work</mat-icon>
+        Job Offers
+      </h1>
+      <p class="subtitle">{{ filteredJobs.length }} offer(s) found</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/jobs/new">
+      <mat-icon>add</mat-icon> Post a Job
+    </button>
+  </div>
+
+  <!-- Enhanced Filters -->
+  <div class="filters-wrapper">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="Title, description, company...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contract Type</mat-label>
+        <mat-select [(ngModel)]="selectedContractType" (selectionChange)="applyFilters()">
+          <mat-option value="all">All</mat-option>
+          <mat-option *ngFor="let type of contractTypes" [value]="type">{{ getContractTypeLabel(type) }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+          <mat-option value="all">All</mat-option>
+          <mat-option *ngFor="let status of jobStatuses" [value]="status">{{ getStatusLabel(status) }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="salary-range">
+        <mat-form-field appearance="outline">
+          <mat-label>Min Salary (€)</mat-label>
+          <input matInput type="number" [(ngModel)]="minSalary" (ngModelChange)="applyFilters()">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Max Salary (€)</mat-label>
+          <input matInput type="number" [(ngModel)]="maxSalary" (ngModelChange)="applyFilters()">
+        </mat-form-field>
+      </div>
+
+      <div class="filter-actions">
+        <mat-checkbox [(ngModel)]="remoteOnly" (ngModelChange)="applyFilters()">
+          Remote Only
+        </mat-checkbox>
+
+        <button mat-stroked-button (click)="resetFilters()">
+          <mat-icon>refresh</mat-icon> Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Jobs Grid without cards -->
+  @if (!loading) {
+    <div class="jobs-grid">
+      @for (job of paginatedJobs; track job.id) {
+        <div class="job-item">
+          <div class="status-badge" [style.background]="getStatusColor(job.status)">
+            {{ getStatusLabel(job.status) }}
+          </div>
+          
+          <div class="job-header">
+            <div class="job-icon">
+              <mat-icon>business</mat-icon>
+            </div>
+            <div class="job-title-section">
+              <h3 class="job-title">{{ job.title }}</h3>
+              <p class="job-company">{{ job.company }} • {{ job.location }}</p>
+            </div>
+          </div>
+
+          <div class="job-content">
+            <p class="job-description">{{ job.description | slice:0:150 }}...</p>
+            
+            <div class="job-details">
+              <div class="detail">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ getContractTypeLabel(job.contractType) }}</span>
+              </div>
+              <div class="detail">
+                <mat-icon>payments</mat-icon>
+                <span>{{ job.salaryMin | currency:'EUR' }} - {{ job.salaryMax | currency:'EUR' }}</span>
+              </div>
+              @if (job.remotePossible) {
+                <div class="detail remote">
+                  <mat-icon>wifi</mat-icon>
+                  <span>Remote</span>
+                </div>
+              }
+            </div>
+
+            <div class="skills-section">
+              @for (skill of job.requiredSkills.slice(0, 4); track skill) {
+                <span class="skill-tag">{{ skill }}</span>
+              }
+              @if (job.requiredSkills.length > 4) {
+                <span class="more-skills">+{{ job.requiredSkills.length - 4 }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="job-actions">
+            <button mat-button color="primary" [routerLink]="['/jobs', job.id]">
+              <mat-icon>visibility</mat-icon> Details
+            </button>
+            <button mat-button color="accent" [routerLink]="['/jobs/edit', job.id]">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+            <button mat-raised-button color="primary" (click)="openQuizDialog(job)">
+              <mat-icon>quiz</mat-icon> Post Quiz
+            </button>
+            <button mat-button color="primary" [routerLink]="['/gestion-candidatures', job.id]">
+              <mat-icon>people</mat-icon> Applications
+            </button>
+            <button mat-button color="warn" (click)="deleteJob(job.id!)">
+              <mat-icon>delete</mat-icon> Delete
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (filteredJobs.length === 0) {
+        <div class="no-results">
+          <mat-icon>search_off</mat-icon>
+          <h3>No jobs found</h3>
+          <p>Try adjusting your search criteria</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (filteredJobs.length > pageSize) {
+    <mat-paginator
+      [length]="filteredJobs.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  }
+</div>

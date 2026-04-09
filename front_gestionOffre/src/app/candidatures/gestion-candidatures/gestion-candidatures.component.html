@@ -1,0 +1,115 @@
+<div class="gestion-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon class="header-icon">people</mat-icon>
+      Application Management
+    </h1>
+    <p class="subtitle">{{ candidatures.length }} application(s) received</p>
+  </div>
+
+  <!-- Statistics -->
+  <div class="stats-cards">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.total || 0 }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.enAttente || 0 }}</span>
+      <span class="stat-label">Pending</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.enCoursExamen || 0 }}</span>
+      <span class="stat-label">Under Review</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.entretienPlanifie || 0 }}</span>
+      <span class="stat-label">Interviews</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.acceptees || 0 }}</span>
+      <span class="stat-label">Accepted</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.refusees || 0 }}</span>
+      <span class="stat-label">Rejected</span>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  @if (!loading && candidatures.length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <h3>No applications</h3>
+      <p>You haven't received any applications for this position yet.</p>
+    </div>
+  }
+
+  <div class="candidatures-list">
+    @for (candidature of candidatures; track candidature.id) {
+      <mat-card class="candidature-card" [class]="getStatutClass(candidature.statut)">
+        <div class="card-header">
+          <div class="candidat-info">
+            <mat-icon>person</mat-icon>
+            <div>
+              <h3>Candidate #{{ candidature.candidatId }}</h3>
+              <p class="date">Applied on {{ candidature.datePostulation | date:'dd/MM/yyyy à HH:mm' }}</p>
+            </div>
+          </div>
+          <div class="status-select">
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select [value]="candidature.statut" (selectionChange)="updateStatut(candidature, $event.value)">
+                @for (status of statusOptions; track status) {
+                  <mat-option [value]="status">{{ getStatutLabel(status) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="section">
+            <h4>Cover Letter</h4>
+            <p>{{ candidature.lettreMotivation }}</p>
+          </div>
+          
+          <!-- CV SECTION WITH BUTTONS -->
+          <div class="section cv-section">
+            <h4>Curriculum Vitae (CV)</h4>
+            <div class="cv-actions">
+              <button mat-stroked-button color="primary" (click)="viewCV(candidature.cvUrl)">
+                <mat-icon>visibility</mat-icon> View CV
+              </button>
+              <button mat-raised-button color="accent" (click)="downloadCV(candidature.cvUrl, candidature.candidatId)" [disabled]="downloading">
+                <mat-icon>download</mat-icon> 
+                {{ downloading ? 'Downloading...' : 'Download CV' }}
+              </button>
+            </div>
+            <p class="cv-url" *ngIf="candidature.cvUrl">
+              <mat-icon>link</mat-icon>
+              <a [href]="candidature.cvUrl" target="_blank">{{ candidature.cvUrl }}</a>
+            </p>
+          </div>
+
+          @if (candidature.commentaireRecruteur) {
+            <div class="section commentaire">
+              <h4>Recruiter Comment</h4>
+              <p>{{ candidature.commentaireRecruteur }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="card-actions">
+          <button mat-raised-button color="primary" (click)="planifierEntretien(candidature)">
+            <mat-icon>calendar_month</mat-icon> Schedule Interview
+          </button>
+        </div>
+      </mat-card>
+    }
+  </div>
+</div>

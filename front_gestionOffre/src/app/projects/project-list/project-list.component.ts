@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ProjectService, Project } from '../project.service';
 import { Router } from '@angular/router';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -16,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
     styleUrls: ['./project-list.component.css'] // N'oubliez pas d'ajouter le CSS
     ,
     standalone: true,
-    imports: [MatFormField, MatLabel, MatSelect, MatOption, MatInput, NgFor, MatCard, NgClass, MatCardHeader, MatIcon, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions, MatButton, CurrencyPipe, DatePipe,MatExpansionModule]
+    imports: [CommonModule,MatFormField, MatLabel, MatSelect, MatOption, MatInput, NgFor, MatCard, NgClass, MatCardHeader, MatIcon, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions, MatButton, CurrencyPipe, DatePipe,MatExpansionModule]
 })
 export class ProjectListComponent implements OnInit {
   // Données

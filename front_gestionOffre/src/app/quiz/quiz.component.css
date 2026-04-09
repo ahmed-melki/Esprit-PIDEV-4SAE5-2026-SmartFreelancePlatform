@@ -1,0 +1,189 @@
+.quiz-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background: white;
+  border-radius: 20px;
+}
+
+.loading-container p {
+  margin-top: 20px;
+  color: #7f8c8d;
+}
+
+.quiz-header {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.quiz-header h1 {
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 28px;
+}
+
+.description {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.quiz-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.info-item mat-icon {
+  color: #9b59b6;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.question-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.question-card h3 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.answers-section {
+  margin: 24px 0;
+}
+
+.mat-radio-group, .checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.mat-card-actions {
+  padding: 16px !important;
+  display: flex;
+  gap: 16px;
+}
+
+.result-card {
+  border-radius: 20px;
+  text-align: center;
+  padding: 32px;
+  transition: all 0.3s ease;
+}
+
+.result-card.passed {
+  border-left: 4px solid #27ae60;
+  background: linear-gradient(135deg, white, #e8f5e9);
+}
+
+.result-card.failed {
+  border-left: 4px solid #e74c3c;
+  background: linear-gradient(135deg, white, #ffebee);
+}
+
+.result-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+}
+
+.result-card.passed .result-icon {
+  color: #27ae60;
+}
+
+.result-card.failed .result-icon {
+  color: #e74c3c;
+}
+
+.score-circle {
+  width: 150px;
+  height: 150px;
+  margin: 24px auto;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-text {
+  font-size: 24px;
+  font-weight: bold;
+  fill: #2c3e50;
+}
+
+.result-details {
+  margin: 24px 0;
+}
+
+.result-details p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.success-message, .fail-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+}
+
+.fail-message {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+@media (max-width: 768px) {
+  .quiz-container {
+    padding: 16px;
+  }
+
+  .quiz-header h1 {
+    font-size: 24px;
+  }
+
+  .quiz-info {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mat-card-actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,207 @@
+.candidatures-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.header-icon {
+  color: #9b59b6;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  margin: 0;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px;
+  background: white;
+  border-radius: 20px;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #bdc3c7;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: #7f8c8d;
+  margin-bottom: 24px;
+}
+
+.candidatures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.candidature-card {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  border-left: 4px solid #ddd;
+}
+
+.candidature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.candidature-card.status-pending { border-left-color: #ff9800; }
+.candidature-card.status-review { border-left-color: #2196f3; }
+.candidature-card.status-interview { border-left-color: #9c27b0; }
+.candidature-card.status-interview-done { border-left-color: #00bcd4; }
+.candidature-card.status-accepted { border-left-color: #4caf50; }
+.candidature-card.status-rejected { border-left-color: #f44336; }
+.candidature-card.status-hired { border-left-color: #8bc34a; }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.job-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.job-icon {
+  color: #9b59b6;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.job-info h3 {
+  margin: 0 0 4px;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.company {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-pending { background: #fff3e0; color: #e67e22; }
+.status-review { background: #e3f2fd; color: #1976d2; }
+.status-interview { background: #f3e5f5; color: #7b1fa2; }
+.status-interview-done { background: #e0f7fa; color: #00838f; }
+.status-accepted { background: #e8f5e9; color: #388e3c; }
+.status-rejected { background: #ffebee; color: #d32f2f; }
+.status-hired { background: #f1f8e9; color: #558b2f; }
+
+.card-content {
+  padding: 20px;
+}
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.detail-item mat-icon {
+  color: #9b59b6;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.commentaire {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.commentaire mat-icon {
+  color: #9b59b6;
+}
+
+.commentaire p {
+  margin: 0;
+  color: #34495e;
+  line-height: 1.5;
+}
+
+.card-actions {
+  padding: 16px 20px;
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .candidatures-container {
+    padding: 16px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .details {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

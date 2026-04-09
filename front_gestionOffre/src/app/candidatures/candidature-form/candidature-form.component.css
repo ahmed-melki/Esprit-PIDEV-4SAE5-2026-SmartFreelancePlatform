@@ -1,0 +1,131 @@
+.candidature-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.header-icon {
+  color: #9b59b6;
+}
+
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.warning-box, .success-box, .info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.warning-box {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+}
+
+.success-box {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.info-box {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+
+.warning-icon { color: #ff9800; }
+.success-icon { color: #4caf50; }
+.info-icon { color: #2196f3; }
+
+.warning-content, .success-content, .info-content {
+  flex: 1;
+}
+
+.warning-content strong, .success-content strong, .info-content strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.warning-content p, .success-content p, .info-content p {
+  margin: 0 0 16px 0;
+  color: #666;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.cv-section {
+  margin-bottom: 20px;
+}
+
+.cv-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.upload-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.file-name {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.form-actions button {
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .candidature-container {
+    padding: 16px;
+  }
+  
+  .warning-box, .success-box, .info-box {
+    flex-direction: column;
+  }
+  
+  .upload-area {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}

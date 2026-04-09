@@ -1,0 +1,95 @@
+<h2 mat-dialog-title>Create Quiz for "{{ job?.title }}"</h2>
+
+<mat-dialog-content>
+  <div class="quiz-form">
+    <!-- Quiz Information -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Quiz Title</mat-label>
+      <input matInput [(ngModel)]="quiz.title" placeholder="E.g: Angular Skills Test">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput [(ngModel)]="quiz.description" rows="3" placeholder="Describe the quiz..."></textarea>
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Required Score (%)</mat-label>
+        <input matInput type="number" [(ngModel)]="quiz.passingScore" min="0" max="100">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Time Limit (minutes)</mat-label>
+        <input matInput type="number" [(ngModel)]="quiz.timeLimitMinutes" min="0">
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Questions -->
+    <div class="questions-section">
+      <h3>Questions</h3>
+      <button mat-raised-button (click)="addQuestion()">
+        <mat-icon>add</mat-icon> Add Question
+      </button>
+
+      <div *ngFor="let question of quiz.questions; let i = index">
+        <mat-card class="question-card">
+          <mat-card-header>
+            <mat-card-title>Question {{ i + 1 }}</mat-card-title>
+            <button mat-icon-button color="warn" (click)="removeQuestion(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-card-header>
+
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Question Text</mat-label>
+              <input matInput [(ngModel)]="question.text" placeholder="E.g: What is Angular?">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Question Type</mat-label>
+              <mat-select [(ngModel)]="question.type">
+                <mat-option value="SINGLE_CHOICE">Single Choice</mat-option>
+                <mat-option value="MULTIPLE_CHOICE">Multiple Choice</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Points</mat-label>
+              <input matInput type="number" [(ngModel)]="question.points" min="1">
+            </mat-form-field>
+
+            <!-- Answers -->
+            <div class="answers-section">
+              <label>Answers</label>
+              <div *ngFor="let answer of question.answers; let j = index" class="answer-row">
+                <mat-form-field appearance="outline" class="answer-input">
+                  <input matInput [(ngModel)]="answer.text" placeholder="Answer {{ j + 1 }}">
+                </mat-form-field>
+                <mat-checkbox [(ngModel)]="answer.isCorrect">
+                    Correct Answer
+                </mat-checkbox>
+                <button mat-icon-button color="warn" (click)="removeAnswer(i, j)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <button mat-button (click)="addAnswer(i)">
+                <mat-icon>add</mat-icon> Add Answer
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!isValid()">
+    <mat-icon>save</mat-icon> Publish Quiz
+  </button>
+</mat-dialog-actions>

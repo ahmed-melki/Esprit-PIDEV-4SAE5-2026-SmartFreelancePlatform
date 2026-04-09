@@ -1,0 +1,114 @@
+<div class="candidature-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="header-icon">description</mat-icon>
+      <mat-card-title>Apply for Job Offer</mat-card-title>
+      <mat-card-subtitle *ngIf="job">{{ job.title }} - {{ job.company }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (!quizCompleted) {
+        <div class="loading-box">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Checking your eligibility...</p>
+        </div>
+      }
+
+      @if (quizCompleted && !hasPassedQuiz) {
+        <div class="warning-box">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          <div class="warning-content">
+            <strong>Quiz Required</strong>
+            <p>You must pass the qualification quiz before applying for this job offer.</p>
+            <button mat-raised-button color="primary" (click)="goToQuiz()">
+              <mat-icon>quiz</mat-icon> Take the Quiz
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (quizCompleted && hasPassedQuiz && !hasApplied) {
+        <div class="success-box">
+          <mat-icon class="success-icon">check_circle</mat-icon>
+          <div class="success-content">
+            <strong>Quiz Passed!</strong>
+            <p>Congratulations! You have passed the qualification quiz. You can now apply.</p>
+          </div>
+        </div>
+      }
+
+      @if (hasApplied) {
+        <div class="info-box">
+          <mat-icon class="info-icon">info</mat-icon>
+          <div class="info-content">
+            <strong>Application Already Submitted</strong>
+            <p>You have already applied for this position. Track your application status.</p>
+            <button mat-stroked-button color="primary" (click)="voirStatut()">
+              <mat-icon>visibility</mat-icon> View Status
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (quizCompleted && hasPassedQuiz && !hasApplied) {
+        <form (ngSubmit)="postuler()" #candidatureForm="ngForm">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Cover Letter</mat-label>
+            <textarea matInput 
+                      [(ngModel)]="lettreMotivation" 
+                      name="lettreMotivation" 
+                      #lettre="ngModel"
+                      rows="6" 
+                      required 
+                      minlength="50"
+                      maxlength="2000"
+                      placeholder="Describe your motivation, skills and why you are the ideal candidate..."></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+            
+            @if (lettre.invalid && lettre.touched) {
+              <mat-error>
+                @if (lettre.errors?.['required']) { Cover letter is required }
+                @else if (lettre.errors?.['minlength']) { Minimum 50 characters }
+              </mat-error>
+            }
+            
+            <mat-hint align="end">{{ lettreMotivation.length || 0 }}/2000</mat-hint>
+          </mat-form-field>
+
+          <div class="cv-section">
+            <label>CV (PDF, DOC, DOCX)</label>
+            <div class="upload-area">
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" hidden>
+              <button mat-stroked-button type="button" (click)="fileInput.click()">
+                <mat-icon>cloud_upload</mat-icon> Choose File
+              </button>
+              <span class="file-name">{{ cvFile ? cvFile.name : 'No file selected' }}</span>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Your CV URL</mat-label>
+            <input matInput [(ngModel)]="cvUrl" name="cvUrl" required placeholder="https://drive.google.com/...">
+            <mat-icon matSuffix>link</mat-icon>
+            <mat-hint>Link to your CV (Google Drive, Dropbox, etc.)</mat-hint>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-stroked-button type="button" (click)="annuler()">
+              <mat-icon>cancel</mat-icon> Cancel
+            </button>
+            <button mat-raised-button color="primary" type="submit" 
+                    [disabled]="candidatureForm.invalid || !cvUrl || loading">
+              @if (loading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>send</mat-icon>
+              }
+              {{ loading ? 'Sending...' : 'Submit Application' }}
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
