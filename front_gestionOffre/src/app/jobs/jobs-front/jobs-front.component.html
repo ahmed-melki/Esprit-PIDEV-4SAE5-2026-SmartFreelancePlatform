@@ -1,22 +1,17 @@
 <div class="jobs-front-container">
 
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1>Job Offers</h1>
-      <p>Discover all available opportunities</p>
+  <!-- Simple Search Bar - Sans le bloc gris -->
+  <div class="search-section">
+    <div class="search-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search for a position, company...</mat-label>
+        <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="E.g: Java Developer...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
 
-      <div class="hero-search">
-        <mat-form-field appearance="outline" class="hero-search-field">
-          <mat-label>Search for a position, company...</mat-label>
-          <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="E.g: Java Developer...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <button mat-raised-button color="primary" (click)="applyFilters()">
-          <mat-icon>search</mat-icon> Search
-        </button>
-      </div>
+      <button mat-raised-button class="search-btn" (click)="applyFilters()">
+        <mat-icon>search</mat-icon> Search
+      </button>
     </div>
   </div>
 
@@ -82,14 +77,14 @@
 
           <!-- Urgent badge -->
           @if (isUrgent(job.deadline)) {
-            <div class="urgent-badge">
+            <div class="badge urgent">
               <mat-icon>schedule</mat-icon> Urgent
             </div>
           }
 
           <!-- Quiz badge -->
           @if (hasQuiz(job.id!)) {
-            <div class="quiz-badge">
+            <div class="badge quiz">
               <mat-icon>quiz</mat-icon> Test Available
             </div>
           }
@@ -150,14 +145,13 @@
           <mat-card-actions>
 
             <!-- View details -->
-            <button mat-button color="primary" [routerLink]="['/jobs', job.id]">
+            <button mat-button class="outline-btn" [routerLink]="['/jobs', job.id]">
               <mat-icon>visibility</mat-icon> View Details
             </button>
 
             <!-- TEST -->
             @if (hasQuiz(job.id!)) {
-              <button mat-raised-button 
-                      color="accent" 
+              <button mat-raised-button class="quiz-btn" 
                       [routerLink]="['/quiz', getQuizId(job.id!)]"
                       matTooltip="Qualification test">
                 <mat-icon>quiz</mat-icon> Test
@@ -165,8 +159,7 @@
             }
 
             <!-- APPLY -->
-            <button mat-raised-button 
-                    color="primary"
+            <button mat-raised-button class="apply-btn"
                     (click)="applyToJob(job)"  
                     [disabled]="!hasQuiz(job.id!)">
               <mat-icon>send</mat-icon> Apply
@@ -203,7 +196,7 @@
         <h3>No jobs found</h3>
         <p>Try adjusting your search criteria</p>
 
-        <button mat-raised-button color="primary" (click)="resetFilters()">
+        <button mat-raised-button class="reset-btn" (click)="resetFilters()">
           <mat-icon>refresh</mat-icon> Reset
         </button>
       </div>
