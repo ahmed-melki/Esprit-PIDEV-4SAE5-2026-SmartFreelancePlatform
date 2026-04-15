@@ -1,0 +1,36 @@
+# Node modules
+**/node_modules/
+**/dist/
+**/tmp/
+**/.angular/
+
+# Java
+**/target/
+**/*.class
+**/.idea/
+**/.vscode/
+**/*.log
+**/*.iml
+**/.DS_Store
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+**/HELP.md
+
+# IDE
+.vscode/
+.idea/
+
+# Environment files
+**/.env
+**/.env.local
+**/application-local.properties
+
+# Logs
+**/logs/
+**/*.log
+**/npm-debug.log*
+
+# OS
+**/Thumbs.db
+**/.DS_Store

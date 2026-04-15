@@ -1,0 +1,69 @@
+<div class="container">
+  <h2>User Management</h2>
+  
+  <div class="search-box">
+    <input 
+      type="text" 
+      [(ngModel)]="searchKeyword" 
+      placeholder="Search by name, email..."
+      (keyup.enter)="search()">
+    <button (click)="search()" class="btn-search">🔍 Search</button>
+    <button (click)="addUser()" class="btn-add">➕ Add User</button>
+  </div>
+
+  <div class="table-container">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Verified</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span [class]="'badge ' + (user.role ? user.role.toLowerCase() : '')">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>
+            <span [class]="'status ' + (user.status ? user.status.toLowerCase() : '')">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>
+            <span [class]="'verified ' + (user.emailVerified ? 'true' : 'false')">
+              {{ user.emailVerified ? '✓' : '✗' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button (click)="editUser(user.id!)" class="btn-edit" title="Edit">
+              ✏️
+            </button>
+            <button (click)="deleteUser(user.id!)" class="btn-delete" title="Delete">
+              🗑️
+            </button>
+          </td>
+        </tr>
+        
+        <tr *ngIf="users.length === 0">
+          <td colspan="7" class="no-data">
+            No users found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stats" *ngIf="users.length > 0">
+    <p>Total : <strong>{{ users.length }}</strong> user(s)</p>
+  </div>
+</div>

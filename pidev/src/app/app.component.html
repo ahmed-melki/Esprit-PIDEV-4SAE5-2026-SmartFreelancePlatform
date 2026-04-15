@@ -1,0 +1,53 @@
+<!-- Barre de navigation -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a routerLink="/" class="brand">
+      FreeFlow
+    </a>
+  </div>
+</nav>
+
+<!-- Contenu principal -->
+<main>
+  <router-outlet />
+</main>
+
+<!-- Styles (identiques) -->
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fb;
+  }
+
+  .navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .brand {
+    color: white;
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    min-height: calc(100vh - 140px);
+  }
+</style>

@@ -1,0 +1,122 @@
+<div class="form-container">
+  <h2>{{ isEditMode ? 'Edit' : 'Add' }} User</h2>
+  
+  <form (ngSubmit)="onSubmit()" #userForm="ngForm" class="user-form">
+    <!-- First Name -->
+    <div class="form-group">
+      <label for="firstName">First Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="firstName"
+        [(ngModel)]="user.firstName" 
+        name="firstName" 
+        required
+        #firstName="ngModel"
+        placeholder="Enter first name"
+        [class.invalid]="firstName.invalid && firstName.touched">
+      <div class="error-message" *ngIf="firstName.invalid && firstName.touched">
+        First name is required
+      </div>
+    </div>
+
+    <!-- Last Name -->
+    <div class="form-group">
+      <label for="lastName">Last Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="lastName"
+        [(ngModel)]="user.lastName" 
+        name="lastName" 
+        required
+        #lastName="ngModel"
+        placeholder="Enter last name"
+        [class.invalid]="lastName.invalid && lastName.touched">
+      <div class="error-message" *ngIf="lastName.invalid && lastName.touched">
+        Last name is required
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email <span class="required">*</span></label>
+      <input 
+        type="email" 
+        id="email"
+        [(ngModel)]="user.email" 
+        name="email" 
+        required 
+        email
+        #email="ngModel"
+        placeholder="example@email.com"
+        [class.invalid]="email.invalid && email.touched">
+      <div class="error-message" *ngIf="email.invalid && email.touched">
+        Valid email is required
+      </div>
+    </div>
+
+    <!-- Password (visible only in creation) -->
+    <div class="form-group" *ngIf="!isEditMode">
+      <label for="password">Password <span class="required">*</span></label>
+      <input 
+        type="password" 
+        id="password"
+        [(ngModel)]="user.password" 
+        name="password" 
+        required 
+        minlength="6"
+        #password="ngModel"
+        placeholder="Minimum 6 characters"
+        [class.invalid]="password.invalid && password.touched">
+      <div class="error-message" *ngIf="password.invalid && password.touched">
+        Password must be at least 6 characters
+      </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input 
+        type="tel" 
+        id="phone"
+        [(ngModel)]="user.phone" 
+        name="phone"
+        #phone="ngModel"
+        placeholder="06 12 34 56 78">
+    </div>
+
+    <!-- Role -->
+    <div class="form-group">
+      <label for="role">Role <span class="required">*</span></label>
+      <select 
+        id="role"
+        [(ngModel)]="user.role" 
+        name="role" 
+        required
+        #role="ngModel"
+        [class.invalid]="role.invalid && role.touched">
+        <option *ngFor="let role of roles" [value]="role">
+          {{ role }}
+        </option>
+      </select>
+      <div class="error-message" *ngIf="role.invalid && role.touched">
+        Role is required
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        [disabled]="!userForm.form.valid"
+        class="btn-submit">
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+      <button 
+        type="button" 
+        (click)="cancel()"
+        class="btn-cancel">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

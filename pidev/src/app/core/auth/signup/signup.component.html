@@ -1,0 +1,43 @@
+<div class="signup-page">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Create an account</h2>
+      <p>Join FreeFlow and get started today</p>
+    </div>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First name</label>
+          <input type="text" [(ngModel)]="user.firstName" name="firstName" placeholder="John" required />
+        </div>
+        <div class="form-group">
+          <label>Last name</label>
+          <input type="text" [(ngModel)]="user.lastName" name="lastName" placeholder="Doe" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" [(ngModel)]="user.email" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="user.password" name="password" placeholder="••••••••" required />
+      </div>
+      <div class="form-group">
+        <label>Phone number <span class="optional">(optional)</span></label>
+        <input type="tel" [(ngModel)]="user.phone" name="phone" placeholder="+1 (555) 000-0000" />
+      </div>
+      <div class="form-group">
+        <label>I am a</label>
+        <div class="role-select">
+          <div class="role-option" [class.selected]="user.role === 'CLIENT'" (click)="user.role = 'CLIENT'">Client</div>
+          <div class="role-option" [class.selected]="user.role === 'FREELANCER'" (click)="user.role = 'FREELANCER'">Freelancer</div>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Create Account</button>
+      <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+      <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    </form>
+    <div class="footer-link">Already have an account? <a routerLink="/login">Sign in</a></div>
+  </div>
+</div>
