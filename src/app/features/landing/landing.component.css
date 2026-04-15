@@ -1,0 +1,253 @@
+.landing-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(100vh - 220px);
+  gap: 4rem;
+  padding: 4rem 0 2rem;
+}
+
+.hero-content {
+  flex: 1.2;
+  max-width: 650px;
+}
+
+.badge-wrapper {
+  margin-bottom: 2rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  color: var(--text-main);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.badge-icon {
+  color: var(--warning);
+  font-size: 1.1rem;
+}
+
+.hero-title {
+  font-size: 4rem;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+}
+
+.highlight-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  padding-bottom: 0.1em;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-bottom: 3rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.btn-large {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.shadow-glow {
+  box-shadow: 0 10px 25px -5px rgba(67, 56, 202, 0.4), 0 8px 10px -6px rgba(67, 56, 202, 0.1);
+}
+
+.hero-visual {
+  flex: 1;
+  position: relative;
+  min-height: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Abstract Background Shapes */
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  z-index: -1;
+  opacity: 0.7;
+}
+
+.shape-1 {
+  width: 350px;
+  height: 350px;
+  background: var(--accent-secondary);
+  top: 10%;
+  right: 10%;
+  animation: pulse 8s infinite alternate;
+}
+
+.shape-2 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-primary);
+  bottom: 0%;
+  left: 0%;
+  animation: pulse 12s infinite alternate-reverse;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(-20px, 20px); }
+}
+
+/* Floating Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  position: absolute;
+  animation: float 6s ease-in-out infinite;
+  min-width: 260px;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-md);
+}
+
+.icon-box .material-symbols-rounded {
+  font-size: 24px;
+}
+
+.feature-text h4 {
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.feature-text p {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.float-1 {
+  top: 15%;
+  right: 5%;
+  animation-delay: 0s;
+}
+
+.float-2 {
+  top: 50%;
+  left: -5%;
+  transform: translateY(-50%);
+  animation-delay: -2s;
+}
+
+.float-3 {
+  bottom: 10%;
+  right: 15%;
+  animation-delay: -4s;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Trusted Section */
+.trusted-section {
+  padding: 3rem 0;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.trusted-text {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.trusted-logos {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  flex-wrap: wrap;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.mock-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: -0.05em;
+  font-family: inherit;
+}
+
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 3.2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-hero {
+    flex-direction: column;
+    text-align: center;
+    padding-top: 2rem;
+  }
+  
+  .hero-content {
+    margin-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-actions {
+    justify-content: center;
+  }
+  
+  .hero-visual {
+    width: 100%;
+    min-height: 400px;
+  }
+  
+  .float-1 { top: 0; right: 0; }
+  .float-2 { top: 40%; left: 0; }
+  .float-3 { bottom: 0; right: 10%; }
+}

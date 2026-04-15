@@ -1,0 +1,89 @@
+<div class="form-wrapper container">
+  <!-- Success State -->
+  <div *ngIf="success" class="centered-state">
+    <div class="success-card glass-card">
+      <div class="success-icon"><span class="material-symbols-rounded">check_circle</span></div>
+      <h2>Application Submitted! 🎉</h2>
+      <p>Your application for <strong>{{ job?.title }}</strong> has been sent. The recruiter will review it soon.</p>
+      <a routerLink="/freelancer/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Form State -->
+  <div *ngIf="!success">
+    <div class="form-header">
+      <a routerLink="/freelancer/dashboard" class="back-link">
+        <span class="material-symbols-rounded">arrow_back</span> Back to Dashboard
+      </a>
+      <div *ngIf="job" class="job-info-bar glass-card">
+        <div class="job-info-logo">{{ job.company.charAt(0) }}</div>
+        <div>
+          <h3>{{ job.title }}</h3>
+          <p>{{ job.company }} · {{ job.location || 'Remote' }} · {{ job.contractType }}</p>
+        </div>
+      </div>
+      <h2>Submit Your Application</h2>
+      <p>You've passed the quiz. Now tell us why you're the best fit.</p>
+    </div>
+
+    <div class="glass-panel form-card">
+      <form [formGroup]="applyForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label class="form-label">Cover Letter (Lettre de Motivation) *</label>
+          <textarea formControlName="lettreMotivation" class="form-control" rows="8"
+            placeholder="Tell the recruiter why you're excited about this role and what makes you a great fit..."></textarea>
+          <small *ngIf="applyForm.get('lettreMotivation')?.invalid && applyForm.get('lettreMotivation')?.touched" class="field-error">At least 50 characters required.</small>
+        </div>
+
+        <!-- CV File Upload -->
+        <div class="form-group">
+          <label class="form-label">Upload your CV *</label>
+          <div class="upload-zone" [class.has-file]="fileName" [class.uploading]="isUploading">
+            <input type="file" id="cvFile" accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" class="file-input">
+
+            <!-- Empty state -->
+            <label for="cvFile" class="upload-content" *ngIf="!fileName">
+              <div class="upload-icon">
+                <span class="material-symbols-rounded">cloud_upload</span>
+              </div>
+              <p class="upload-title">Drag & drop your CV here or <span class="upload-link">browse</span></p>
+              <p class="upload-hint">PDF, DOC, DOCX — Max 10MB</p>
+            </label>
+
+            <!-- File selected state -->
+            <div class="upload-file-info" *ngIf="fileName">
+              <div class="file-icon">
+                <span class="material-symbols-rounded">description</span>
+              </div>
+              <div class="file-details">
+                <span class="file-name">{{ fileName }}</span>
+                <span class="file-status" [class.done]="uploadProgress === 'Uploaded ✓'"
+                  [class.error]="submitError && !cvUrl">
+                  {{ uploadProgress }}
+                </span>
+              </div>
+              <label for="cvFile" class="btn-change" title="Change file">
+                <span class="material-symbols-rounded">swap_horiz</span>
+              </label>
+            </div>
+
+            <!-- Upload progress bar -->
+            <div class="upload-bar" *ngIf="isUploading">
+              <div class="upload-bar-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="error-msg" *ngIf="submitError">{{ submitError }}</p>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-icon"
+            [disabled]="applyForm.invalid || isSubmitting || !cvUrl">
+            <span class="material-symbols-rounded">send</span>
+            {{ isSubmitting ? 'Sending...' : 'Submit Application' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
