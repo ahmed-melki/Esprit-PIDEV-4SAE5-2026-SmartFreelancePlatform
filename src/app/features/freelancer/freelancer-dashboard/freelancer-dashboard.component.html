@@ -1,0 +1,194 @@
+<div class="dashboard-wrapper container">
+  <div class="dashboard-grid">
+    
+    <!-- Main Content Area -->
+    <div class="dashboard-main">
+      <div class="dashboard-header">
+        <div>
+          <h2 class="greeting">Welcome back, Jane 👋</h2>
+          <p class="subtitle">Showing projects that match your skills automatically.</p>
+        </div>
+        <div class="header-actions">
+          <a routerLink="/freelancer/find-job" class="btn btn-outline btn-icon bg-white">
+            <span class="material-symbols-rounded">search</span> Browse Jobs
+          </a>
+        </div>
+      </div>
+
+      <h3 class="section-title">Recommended For You</h3>
+      
+      <div class="glass-card job-card" *ngFor="let job of paginatedJobs">
+        <div class="card-left">
+          <div class="company-logo">
+            {{ job.company.charAt(0) }}
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="company-name">{{ job.company }}</span>
+            <span class="meta-dot">•</span>
+            <span class="posted-time">{{ job.location || 'Remote' }}</span>
+            <span class="meta-dot">•</span>
+            <span class="posted-time">{{ job.contractType }}</span>
+          </div>
+          <h4 class="job-title">{{ job.title }}</h4>
+          <p class="job-desc">{{ job.description }}</p>
+          <div class="job-tags">
+            <span class="tag tag-budget" *ngIf="job.salaryMin || job.salaryMax">
+              {{ job.salaryMin | number }} – {{ job.salaryMax | number }} TND
+            </span>
+            <span class="tag tag-skill" *ngFor="let skill of job.requiredSkills">{{ skill }}</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <a [routerLink]="['/freelancer/quiz', job.id]" class="btn btn-primary btn-quiz">
+            <span class="material-symbols-rounded">quiz</span>Take Quiz to Apply
+          </a>
+        </div>
+      </div>
+      
+      <div *ngIf="jobs.length === 0" class="empty-state glass-card">
+        <p>No new job recommendations at the moment.</p>
+      </div>
+
+      <!-- Jobs Pagination -->
+      <div class="pagination-container" *ngIf="jobs.length > pageSize">
+        <div class="pagination-info">
+          Showing {{ (jobsPage - 1) * pageSize + 1 }} - {{ Math.min(jobsPage * pageSize, jobs.length) }} of {{ jobs.length }}
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="jobsPage === 1" (click)="jobsPage = jobsPage - 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="page-btn" *ngFor="let p of [].constructor(totalJobPages); let i = index" 
+            [class.active]="jobsPage === i + 1" (click)="jobsPage = i + 1">
+            {{ i + 1 }}
+          </button>
+          <button class="page-btn" [disabled]="jobsPage === totalJobPages" (click)="jobsPage = jobsPage + 1">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <h3 class="section-title">
+        Matched Projects
+        <span class="match-count">{{ projects.length }} found</span>
+      </h3>
+
+      <!-- Loading state -->
+      <div *ngIf="isLoadingProjects" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading matched projects...</p>
+      </div>
+
+      <!-- Error state -->
+      <div *ngIf="projectError && !isLoadingProjects" class="empty-state glass-card error-state">
+        <span class="material-symbols-rounded empty-icon">cloud_off</span>
+        <p>Could not reach backend. Make sure Spring Boot runs on port 8081.</p>
+      </div>
+
+      <!-- Results -->
+      <div class="glass-card job-card" *ngFor="let proj of paginatedProjects">
+        <div class="card-left">
+          <div class="company-logo project-logo">
+            <span class="material-symbols-rounded">rocket_launch</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="match-badge">
+              <span class="material-symbols-rounded">auto_awesome</span> Skill Match
+            </span>
+            <span class="meta-dot">•</span>
+            <span class="company-name">{{ proj.client?.name || 'Client' }}</span>
+            <span class="meta-dot">•</span>
+            <span class="posted-time">{{ proj.deadline ? 'Due ' + proj.deadline : 'Open deadline' }}</span>
+          </div>
+          <h4 class="job-title">{{ proj.title }}</h4>
+          <p class="job-desc">{{ proj.description }}</p>
+          <div class="job-tags">
+            <span class="tag tag-budget-alt">${{ proj.budget }} Est.</span>
+            <span class="tag tag-status">{{ proj.status }}</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <button class="btn btn-primary">Place Bid</button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingProjects && !projectError && projects.length === 0" class="empty-state glass-card">
+        <span class="material-symbols-rounded empty-icon">search_off</span>
+        <p>No OPEN projects match your current skills.</p>
+        <p class="hint">Try adding more skills to your profile to see more results.</p>
+      </div>
+
+      <!-- Projects Pagination -->
+      <div class="pagination-container" *ngIf="projects.length > pageSize">
+        <div class="pagination-info">
+          Showing {{ (projectsPage - 1) * pageSize + 1 }} - {{ Math.min(projectsPage * pageSize, projects.length) }} of {{ projects.length }}
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="projectsPage === 1" (click)="projectsPage = projectsPage - 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="page-btn" *ngFor="let p of [].constructor(totalProjectPages); let i = index" 
+            [class.active]="projectsPage === i + 1" (click)="projectsPage = i + 1">
+            {{ i + 1 }}
+          </button>
+          <button class="page-btn" [disabled]="projectsPage === totalProjectPages" (click)="projectsPage = projectsPage + 1">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="dashboard-sidebar">
+      <div class="glass-card profile-card">
+        <div class="profile-header">
+          <div class="avatar-ring">
+            <div class="avatar">
+              <img src="https://i.pravatar.cc/150?u=jane" alt="Jane" />
+            </div>
+          </div>
+          <h3>Jane Freelancer</h3>
+          <p class="profile-role">Senior Frontend Developer</p>
+        </div>
+
+        <div class="skills-section">
+          <p class="skills-label">Matching Skills</p>
+          <div class="skills-list">
+            <span class="skill-chip" *ngFor="let skill of freelancerSkills">{{ skill }}</span>
+          </div>
+        </div>
+        
+        <div class="profile-stats">
+          <div class="stat-col">
+            <span class="stat-num text-success">12</span>
+            <span class="stat-txt">Invites</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-num text-primary">5</span>
+            <span class="stat-txt">Active</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-num">28</span>
+            <span class="stat-txt">Proposals</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card promo-card bg-gradient">
+        <div class="promo-icon">
+          <span class="material-symbols-rounded">workspace_premium</span>
+        </div>
+        <h4>Upgrade to Pro</h4>
+        <p>Get 50 more connects and priority bidding.</p>
+        <button class="btn btn-outline btn-sm full-width mt-3" style="border-color: white; color: white;">Learn More</button>
+      </div>
+    </div>
+    
+  </div>
+</div>
