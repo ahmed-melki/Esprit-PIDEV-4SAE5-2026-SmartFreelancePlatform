@@ -1,0 +1,117 @@
+<div class="quiz-wrapper container">
+  <!-- Loading -->
+  <div *ngIf="loading" class="centered-state">
+    <div class="spinner"></div>
+    <p>Loading quiz...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="centered-state glass-card error-card">
+    <span class="material-symbols-rounded big-icon">error_outline</span>
+    <p>{{ error }}</p>
+    <a routerLink="/freelancer/dashboard" class="btn btn-outline">Back to Dashboard</a>
+  </div>
+
+  <!-- Already Passed -->
+  <div *ngIf="!loading && !error && alreadyPassed" class="centered-state glass-card success-card">
+    <div class="result-badge pass">
+      <span class="material-symbols-rounded">verified</span>
+    </div>
+    <h2>You already passed this quiz!</h2>
+    <p>You can go ahead and apply to this job directly.</p>
+    <button class="btn btn-primary" (click)="goApply()">Apply Now →</button>
+  </div>
+
+  <!-- Quiz Form -->
+  <div *ngIf="!loading && !error && !alreadyPassed && !submitted && quiz">
+    <div class="quiz-header">
+      <a routerLink="/freelancer/dashboard" class="back-link">
+        <span class="material-symbols-rounded">arrow_back</span> Back
+      </a>
+      <div class="quiz-meta">
+        <div class="quiz-meta-item">
+          <span class="material-symbols-rounded">quiz</span>
+          <span>{{ quiz.questions.length }} Questions</span>
+        </div>
+        <div class="quiz-meta-item">
+          <span class="material-symbols-rounded">timer</span>
+          <span>{{ quiz.timeLimitMinutes }} min</span>
+        </div>
+        <div class="quiz-meta-item pass-required">
+          <span class="material-symbols-rounded">military_tech</span>
+          <span>Pass: {{ quiz.passingScore }}%</span>
+        </div>
+      </div>
+      <h2>{{ quiz.title }}</h2>
+      <p *ngIf="quiz.description">{{ quiz.description }}</p>
+    </div>
+
+    <div class="questions-container">
+      <div class="glass-card question-card" *ngFor="let q of quiz.questions; let qi = index">
+        <div class="q-top">
+          <span class="q-badge">Q{{ qi + 1 }}</span>
+          <span class="q-points">{{ q.points }} pts</span>
+        </div>
+        <p class="q-text">{{ q.text }}</p>
+
+        <div class="options-list">
+          <div
+            class="option-item"
+            *ngFor="let ans of q.answers"
+            [class.selected]="isSelected(qi, ans.id!)"
+            (click)="toggleAnswer(qi, ans.id!, q.type)"
+          >
+            <div class="option-indicator" [class.multi]="q.type === 'MULTIPLE_CHOICE'"></div>
+            <span>{{ ans.text }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn btn-primary btn-large btn-icon" (click)="submitQuiz()">
+        <span class="material-symbols-rounded">send</span> Submit Answers
+      </button>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div *ngIf="submitted && result" class="centered-state">
+    <div class="result-card glass-card">
+      <div class="result-badge" [class.pass]="result.passed" [class.fail]="!result.passed">
+        <span class="material-symbols-rounded">{{ result.passed ? 'verified' : 'cancel' }}</span>
+      </div>
+      <h2>{{ result.passed ? 'Congratulations! 🎉' : 'Not quite there yet.' }}</h2>
+
+      <div class="score-ring-area">
+        <div class="score-circle" [class.pass]="result.passed" [class.fail]="!result.passed">
+          <span class="score-pct">{{ result.percentage | number:'1.0-0' }}%</span>
+          <span class="score-label">Score</span>
+        </div>
+      </div>
+
+      <div class="result-stats">
+        <div class="r-stat">
+          <span class="r-val">{{ result.score }}</span>
+          <span class="r-lbl">Points earned</span>
+        </div>
+        <div class="r-stat">
+          <span class="r-val">{{ result.maxScore }}</span>
+          <span class="r-lbl">Total points</span>
+        </div>
+        <div class="r-stat">
+          <span class="r-val pass-score">{{ quiz?.passingScore }}%</span>
+          <span class="r-lbl">Required</span>
+        </div>
+      </div>
+
+      <p class="result-msg" *ngIf="result.passed">You've passed! You can now apply to this job.</p>
+      <p class="result-msg fail-msg" *ngIf="!result.passed">You need {{ quiz?.passingScore }}% to pass. Keep learning and try again!</p>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" (click)="goApply()" *ngIf="result.passed">Apply to this Job →</button>
+        <a routerLink="/freelancer/dashboard" class="btn btn-outline">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>

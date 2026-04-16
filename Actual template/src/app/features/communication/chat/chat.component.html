@@ -1,0 +1,104 @@
+<div class="chat-layout" [attr.data-theme]="selectedConversation?.theme || 'default'">
+
+  <!-- Sidebar -->
+  <aside class="chat-sidebar" [class.open]="sidebarOpen">
+    <app-conversation-list
+      [selectedConversationId]="selectedConversation?.id"
+      (conversationSelected)="onConversationSelected($event)"
+    ></app-conversation-list>
+  </aside>
+
+  <!-- Main panel -->
+  <main class="chat-main">
+    @if (!selectedConversation) {
+      <!-- Welcome state -->
+      <div class="welcome-state">
+        <div class="welcome-icon">
+          <span class="material-symbols-rounded">forum</span>
+        </div>
+        <h2>Bienvenue dans vos Messages</h2>
+        <p>Sélectionnez une conversation ou créez-en une nouvelle pour commencer.</p>
+      </div>
+    } @else {
+      <!-- Chat header -->
+      <div class="chat-header" [style.border-bottom-color]="getThemeColor()">
+        <!-- Mobile sidebar toggle -->
+        <button class="sidebar-toggle" (click)="toggleSidebar()">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+
+        <!-- Conversation info -->
+        <div class="partner-info">
+          <div class="partner-avatar">
+            <span>{{ partnerId }}</span>
+            <div class="presence-dot" [class.online]="partnerPresence?.online"></div>
+          </div>
+          <div class="partner-details">
+            <h3 class="partner-name">Freelance #{{ selectedConversation.freelanceId }}</h3>
+            <span class="partner-status">{{ formatPresence(partnerPresence) }}</span>
+          </div>
+        </div>
+
+        <!-- Sentiment stats -->
+        @if (sentimentStats) {
+          <div class="sentiment-bar">
+            <span class="stat positive" title="Messages positifs">🟢 {{ sentimentStats.positive }}</span>
+            <span class="stat neutral" title="Messages neutres">⚪ {{ sentimentStats.neutral }}</span>
+            <span class="stat negative" title="Messages négatifs">🔴 {{ sentimentStats.negative }}</span>
+          </div>
+        }
+
+        <!-- Header actions -->
+        <div class="header-actions">
+          <!-- Urgent count -->
+          @if ((selectedConversation.urgentCount ?? 0) > 0) {
+            <div class="urgent-count" title="Messages urgents">
+              <span class="material-symbols-rounded">warning</span>
+              {{ selectedConversation.urgentCount }}
+            </div>
+          }
+
+          <!-- Theme picker -->
+          <div class="theme-picker-wrap">
+            <button class="theme-btn" (click)="showThemeMenu = !showThemeMenu" title="Changer le thème">
+              <span class="material-symbols-rounded">palette</span>
+            </button>
+            @if (showThemeMenu) {
+              <div class="theme-menu">
+                <h4>Thème de la conversation</h4>
+                <div class="theme-grid">
+                  @for (t of THEMES; track t.key) {
+                    <button
+                      class="theme-swatch"
+                      [style.background]="t.color"
+                      [class.active]="selectedConversation.theme === t.key"
+                      (click)="setTheme(t.key)"
+                      [title]="t.label"
+                    ></button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Message thread -->
+      <div class="thread-area">
+        <app-message-thread
+          [conversationId]="selectedConversation.id"
+          (messageDeleted)="onMessageSent()"
+        ></app-message-thread>
+      </div>
+
+      <!-- Input -->
+      <div class="input-area">
+        <app-message-input
+          [conversationId]="selectedConversation.id!"
+          (messageSent)="onMessageSent()"
+        ></app-message-input>
+      </div>
+    }
+
+  </main>
+</div>

@@ -1,0 +1,167 @@
+<section class="learning-page-shell">
+  <section class="page-header">
+    <div>
+      <h1 class="page-title">Titles & Achievements</h1>
+      <p class="page-subtitle">Review unlocked titles and check eligibility from completed trainings.</p>
+    </div>
+    <button mat-raised-button color="primary" type="button" (click)="checkForNewTitles()" [disabled]="loading">
+      <mat-icon>auto_awesome</mat-icon>
+      Check titles
+    </button>
+  </section>
+
+  <section class="admin-module-shell">
+    <div class="glass-panel admin-module-banner">
+      <div>
+        <p class="section-eyebrow">Titles module</p>
+        <h2>Track achievements with the same polished learning layout as the rest of the module.</h2>
+        <p>Check what has been unlocked, review what is still available, and keep the presentation flow consistent from training through titles.</p>
+      </div>
+    </div>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h3 class="section-title">Client context</h3>
+        <p class="section-summary">Choose the client profile whose unlocked titles should be displayed.</p>
+      </div>
+
+      <div class="dashboard-card titles-panel-card">
+        <form class="form-grid" (ngSubmit)="loadUserTitles()">
+          <mat-form-field appearance="outline">
+            <mat-label>Client Id</mat-label>
+            <input matInput type="number" [(ngModel)]="currentClientId" name="currentClientId" />
+          </mat-form-field>
+          <div class="actions">
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>refresh</mat-icon>
+              Load titles
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h3 class="section-title">Unlocked titles</h3>
+        <p class="section-summary">{{ userTitles.length }} titles unlocked for client {{ currentClientId }}.</p>
+      </div>
+
+      <div class="dashboard-card titles-panel-card">
+      <div *ngIf="loading" class="loading-state">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading titles...</span>
+      </div>
+
+      <div class="titles-grid content-grid-four" *ngIf="userTitles.length > 0 && !loading">
+        <article
+          *ngFor="let userTitle of pagedUserTitles"
+          class="title-card unlocked"
+          [style.border-color]="getRarityColor(userTitle.title.rarity)"
+        >
+          <div class="title-header">
+            <mat-icon [style.color]="getRarityColor(userTitle.title.rarity)">
+              {{ getRarityIcon(userTitle.title.rarity) }}
+            </mat-icon>
+            <div>
+              <strong>{{ userTitle.title.name }}</strong>
+              <span>Unlocked {{ userTitle.unlockedAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <p>{{ userTitle.title.description }}</p>
+          <span class="rarity-pill" [style.color]="getRarityColor(userTitle.title.rarity)">
+            {{ userTitle.title.rarity }}
+          </span>
+        </article>
+      </div>
+
+      <div *ngIf="userTitles.length === 0 && !loading" class="empty-state">
+        No titles unlocked yet. Complete trainings to earn titles.
+      </div>
+
+      <div class="pagination-container" *ngIf="userTitles.length > 0 && !loading">
+        <div class="pagination-info">
+          Showing {{ (userTitlesPage - 1) * pageSize + 1 }} to {{ Math.min(userTitlesPage * pageSize, userTitles.length) }} of {{ userTitles.length }} unlocked titles
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" type="button" (click)="goToUserTitlesPage(userTitlesPage - 1)" [disabled]="userTitlesPage === 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button *ngFor="let page of userTitlePageNumbers" class="page-btn" type="button" [class.active]="page === userTitlesPage" (click)="goToUserTitlesPage(page)">
+            {{ page }}
+          </button>
+          <button class="page-btn" type="button" (click)="goToUserTitlesPage(userTitlesPage + 1)" [disabled]="userTitlesPage === userTitlesTotalPages">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h3 class="section-title">Available titles</h3>
+        <p class="section-summary">{{ availableTitles.length }} active title definitions.</p>
+      </div>
+
+      <div class="dashboard-card titles-panel-card">
+      <div class="titles-grid content-grid-four">
+        <article
+          *ngFor="let title of pagedAvailableTitles"
+          class="title-card"
+          [class.locked]="!isTitleUnlocked(title.id!)"
+          [class.unlocked]="isTitleUnlocked(title.id!)"
+          [style.border-color]="getRarityColor(title.rarity)"
+        >
+          <div class="title-header">
+            <mat-icon [style.color]="getRarityColor(title.rarity)">
+              {{ getRarityIcon(title.rarity) }}
+            </mat-icon>
+            <div>
+              <strong>{{ title.name }}</strong>
+              <span>{{ isTitleUnlocked(title.id!) ? 'Unlocked' : 'Locked' }}</span>
+            </div>
+            <mat-icon *ngIf="isTitleUnlocked(title.id!)" class="unlocked-icon">check_circle</mat-icon>
+          </div>
+
+          <p>{{ title.description }}</p>
+
+          <div class="requirements" *ngIf="!isTitleUnlocked(title.id!)">
+            <strong>Requirements</strong>
+            <span *ngIf="title.requiredTrainingCount">
+              Complete {{ title.requiredTrainingCount }} trainings
+            </span>
+            <span *ngIf="title.requiredCategories">
+              Categories: {{ title.requiredCategories }}
+            </span>
+            <span *ngIf="title.requiredTrainingIds">
+              Specific trainings required
+            </span>
+          </div>
+
+          <span class="rarity-pill" [style.color]="getRarityColor(title.rarity)">
+            {{ title.rarity }}
+          </span>
+        </article>
+      </div>
+
+      <div class="pagination-container" *ngIf="availableTitles.length > 0">
+        <div class="pagination-info">
+          Showing {{ (availableTitlesPage - 1) * pageSize + 1 }} to {{ Math.min(availableTitlesPage * pageSize, availableTitles.length) }} of {{ availableTitles.length }} title definitions
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" type="button" (click)="goToAvailableTitlesPage(availableTitlesPage - 1)" [disabled]="availableTitlesPage === 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button *ngFor="let page of availableTitlePageNumbers" class="page-btn" type="button" [class.active]="page === availableTitlesPage" (click)="goToAvailableTitlesPage(page)">
+            {{ page }}
+          </button>
+          <button class="page-btn" type="button" (click)="goToAvailableTitlesPage(availableTitlesPage + 1)" [disabled]="availableTitlesPage === availableTitlesTotalPages">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      </div>
+    </section>
+  </section>
+</section>

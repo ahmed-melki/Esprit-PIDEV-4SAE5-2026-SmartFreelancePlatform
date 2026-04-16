@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+.nested-git-backups/
+Back/src/main/resources/application-dev.properties
+**/target/
+**/.angular/
+**/dist/
+**/node_modules/
+*.log

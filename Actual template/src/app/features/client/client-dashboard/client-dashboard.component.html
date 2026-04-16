@@ -1,0 +1,187 @@
+<div class="dashboard-wrapper container">
+  <div class="dashboard-banner glass-panel">
+    <div class="banner-content">
+      <div class="banner-title">
+        <span class="material-symbols-rounded block-icon">dashboard</span>
+        <h2>Client Dashboard</h2>
+      </div>
+      <p>Manage your active listings, review applicants, and build your dream team with ease.</p>
+    </div>
+    <div class="banner-actions">
+      <a routerLink="/client/post-job" class="btn btn-primary btn-icon">
+        <span class="material-symbols-rounded">add_circle</span> Post a Job
+      </a>
+      <a routerLink="/client/post-project" class="btn btn-outline btn-icon bg-white">
+        <span class="material-symbols-rounded">add_task</span> Post a Project
+      </a>
+    </div>
+  </div>
+
+  <div class="dashboard-stats">
+    <div class="glass-card stat-card">
+      <div class="stat-icon-wrapper success-bg">
+        <span class="material-symbols-rounded">work</span>
+      </div>
+      <div class="stat-info">
+        <p class="stat-subtitle">Active Jobs</p>
+        <h3 class="stat-value">{{ myJobs.length }}</h3>
+      </div>
+    </div>
+    <div class="glass-card stat-card">
+      <div class="stat-icon-wrapper secondary-bg">
+        <span class="material-symbols-rounded">rocket_launch</span>
+      </div>
+      <div class="stat-info">
+        <p class="stat-subtitle">Active Projects</p>
+        <h3 class="stat-value">{{ myProjects.length }}</h3>
+      </div>
+    </div>
+    <div class="glass-card stat-card">
+      <div class="stat-icon-wrapper warning-bg">
+        <span class="material-symbols-rounded">groups</span>
+      </div>
+      <div class="stat-info">
+        <p class="stat-subtitle">Total Applicants</p>
+        <h3 class="stat-value">14</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h3 class="section-title">Your Job Listings</h3>
+        <button class="btn btn-text">View All</button>
+      </div>
+      
+      <div class="listing-grid">
+        <div class="glass-card item-card" *ngFor="let job of paginatedJobs">
+          <div class="card-head">
+            <span class="badge" [ngClass]="job.status === 'OPEN' ? 'badge-success' : 'badge-neutral'">
+              <span class="material-symbols-rounded indicator">radio_button_checked</span>
+              {{ job.status | titlecase }}
+            </span>
+            <div class="card-menu">
+              <span class="material-symbols-rounded">more_horiz</span>
+            </div>
+          </div>
+          
+          <h4 class="card-title">{{ job.title }}</h4>
+          <p class="card-desc">{{ job.company }} · {{ job.location || 'Remote' }}</p>
+          <p class="card-desc">{{ job.description | slice:0:80 }}...</p>
+
+          <div class="skills-mini" *ngIf="job.requiredSkills?.length">
+            <span class="skill-dot" *ngFor="let s of job.requiredSkills | slice:0:3">{{ s }}</span>
+            <span class="skill-dot" *ngIf="job.requiredSkills!.length > 3">+{{ job.requiredSkills!.length - 3 }}</span>
+          </div>
+
+          <div class="card-footer">
+            <div class="footer-block">
+              <span class="meta-label">Salary Range</span>
+              <span class="meta-value text-primary">{{ job.salaryMin | number }} – {{ job.salaryMax | number }} TND</span>
+            </div>
+            <div class="footer-block">
+              <span class="meta-label">Applicants</span>
+              <a [routerLink]="['/client/job-applicants', job.id]" class="meta-value hover-link">
+                {{ job.applicantIds?.length || 0 }} 
+                <span class="material-symbols-rounded icon-sm text-warning">groups</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="card-overlay-action">
+            <div class="action-buttons-stack">
+              <a [routerLink]="['/client/job-applicants', job.id]" class="btn btn-primary full-width">
+                <span class="material-symbols-rounded">groups</span> View Applicants
+              </a>
+              <a [routerLink]="['/client/post-quiz', job.id]" class="btn btn-outline full-width">
+                <span class="material-symbols-rounded">quiz</span> Manage Quiz
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs Pagination -->
+      <div class="pagination-container" *ngIf="myJobs.length > pageSize">
+        <div class="pagination-info">
+          Showing {{ (jobsPage - 1) * pageSize + 1 }} - {{ Math.min(jobsPage * pageSize, myJobs.length) }} of {{ myJobs.length }} jobs
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="jobsPage === 1" (click)="jobsPage = jobsPage - 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="page-btn" *ngFor="let p of [].constructor(totalJobPages); let i = index" 
+            [class.active]="jobsPage === i + 1" (click)="jobsPage = i + 1">
+            {{ i + 1 }}
+          </button>
+          <button class="page-btn" [disabled]="jobsPage === totalJobPages" (click)="jobsPage = jobsPage + 1">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-section" style="margin-top: 4rem;">
+      <div class="section-header">
+        <h3 class="section-title">Your Technical Projects</h3>
+        <button class="btn btn-text">View All</button>
+      </div>
+
+      <div class="listing-grid">
+        <div class="glass-card item-card" *ngFor="let proj of paginatedProjects">
+          <div class="card-head">
+            <span class="badge" [ngClass]="proj.status === 'OPEN' ? 'badge-success' : 'badge-neutral'">
+              <span class="material-symbols-rounded indicator">radio_button_checked</span>
+              {{ proj.status | titlecase }}
+            </span>
+            <div class="card-menu">
+              <span class="material-symbols-rounded">more_horiz</span>
+            </div>
+          </div>
+          
+          <h4 class="card-title">{{ proj.title }}</h4>
+
+          <div class="card-footer">
+            <div class="footer-block">
+              <span class="meta-label">Total Budget</span>
+              <span class="meta-value text-secondary">${{ proj.budget }}</span>
+            </div>
+            <div class="footer-block">
+              <span class="meta-label">Bids</span>
+              <span class="meta-value">9</span>
+            </div>
+          </div>
+          
+          <div class="card-overlay-action">
+            <button class="btn btn-outline full-width">Review Bids</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="myProjects.length === 0" class="empty-state glass-card">
+        <span class="material-symbols-rounded empty-icon">rocket</span>
+        <p>You haven't posted any projects yet.</p>
+        <a routerLink="/client/post-project" class="btn btn-primary btn-sm">Create One</a>
+      </div>
+
+      <!-- Projects Pagination -->
+      <div class="pagination-container" *ngIf="myProjects.length > pageSize">
+        <div class="pagination-info">
+          Showing {{ (projectsPage - 1) * pageSize + 1 }} - {{ Math.min(projectsPage * pageSize, myProjects.length) }} of {{ myProjects.length }} projects
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="projectsPage === 1" (click)="projectsPage = projectsPage - 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="page-btn" *ngFor="let p of [].constructor(totalProjectPages); let i = index" 
+            [class.active]="projectsPage === i + 1" (click)="projectsPage = i + 1">
+            {{ i + 1 }}
+          </button>
+          <button class="page-btn" [disabled]="projectsPage === totalProjectPages" (click)="projectsPage = projectsPage + 1">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+        </div>
+    </div>
+  </div>
+</div>

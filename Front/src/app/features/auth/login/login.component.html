@@ -1,0 +1,27 @@
+<div class="auth-wrapper">
+  <div class="glass-panel auth-card">
+    <div class="auth-header">
+      <h2>Welcome Back</h2>
+      <p>Use the demo login to generate the admin or user token expected by the backend.</p>
+    </div>
+    <form class="auth-form" (ngSubmit)="onSubmit($event)">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" placeholder="admin@example.com or user@example.com" [(ngModel)]="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" placeholder="Any value for demo mode" [(ngModel)]="password" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading">Log In</button>
+    </form>
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/register">Sign up</a></p>
+      <div class="demo-links">
+        <p>Demo Quick Access:</p>
+        <button type="button" class="btn btn-outline btn-sm" (click)="loginAs('ADMIN')">Login as Admin</button>
+        <button type="button" class="btn btn-outline btn-sm" (click)="loginAs('USER')">Login as User</button>
+      </div>
+    </div>
+  </div>
+</div>

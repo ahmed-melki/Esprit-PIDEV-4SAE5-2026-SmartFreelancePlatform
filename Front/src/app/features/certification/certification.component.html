@@ -1,0 +1,287 @@
+<section class="learning-page-shell">
+  <section class="page-header">
+    <div>
+      <h1 class="page-title">{{ isAdmin ? 'Certification Administration' : 'My Certifications' }}</h1>
+      <p class="page-subtitle">
+        {{ isAdmin ? 'Issue, update, and manage certification records in one focused workspace.' : 'Review issued certificates, scores, and validity dates.' }}
+      </p>
+    </div>
+  </section>
+
+  <section class="learning-shell-switch" aria-label="Certification views">
+    <a mat-stroked-button [routerLink]="viewRoutes.USER" [class.active-view]="!isAdmin">
+      <mat-icon>person</mat-icon>
+      User view
+    </a>
+    <a mat-stroked-button [routerLink]="viewRoutes.ADMIN" [class.active-view]="isAdmin">
+      <mat-icon>admin_panel_settings</mat-icon>
+      Admin view
+    </a>
+  </section>
+
+@if (isAdmin) {
+  <section class="stats-grid" aria-label="Certification statistics">
+    <article class="stat-card">
+      <mat-icon>workspace_premium</mat-icon>
+      <span>Total certifications</span>
+      <strong>{{ certifications.length }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>verified</mat-icon>
+      <span>Issued</span>
+      <strong>{{ issuedCertificationsCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>pending_actions</mat-icon>
+      <span>Pending</span>
+      <strong>{{ pendingCertificationsCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>leaderboard</mat-icon>
+      <span>Average score</span>
+      <strong>{{ averageScore }}</strong>
+    </article>
+  </section>
+}
+
+@if (!isAdmin) {
+  <section class="catalog-grid content-grid-four">
+    @for (c of pagedUserCertifications; track c.id || c.certificateNumber) {
+      <article class="learning-card certificate-card">
+        <div class="learning-card-head">
+          <span class="status-pill">{{ c.status || 'Pending' }}</span>
+          <mat-icon>workspace_premium</mat-icon>
+        </div>
+        <h2>{{ c.certificateNumber || 'Certification #' + c.id }}</h2>
+        <p>{{ c.training?.title || 'The linked training will appear here once the record is completed.' }}</p>
+        <div class="score-row">
+          <strong>{{ c.score ?? '-' }}</strong>
+          <span>Score</span>
+          <strong>{{ c.grade || '-' }}</strong>
+          <span>Grade</span>
+        </div>
+        <div class="learning-meta">
+          <span><mat-icon>event_available</mat-icon>{{ formatDate(c.issueDate) }}</span>
+          <span><mat-icon>event_busy</mat-icon>{{ formatDate(c.expiryDate) }}</span>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">No certifications are available for this user yet.</div>
+    }
+  </section>
+
+  @if (userCertifications.length) {
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ (userPage - 1) * pageSize + 1 }} to {{ Math.min(userPage * pageSize, userCertifications.length) }} of {{ userCertifications.length }} certifications
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" type="button" (click)="goToUserPage(userPage - 1)" [disabled]="userPage === 1">
+          <span class="material-symbols-rounded">chevron_left</span>
+        </button>
+        @for (page of userCertificationPageNumbers; track page) {
+          <button class="page-btn" type="button" [class.active]="page === userPage" (click)="goToUserPage(page)">
+            {{ page }}
+          </button>
+        }
+        <button class="page-btn" type="button" (click)="goToUserPage(userPage + 1)" [disabled]="userPage === userCertificationsTotalPages">
+          <span class="material-symbols-rounded">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  }
+}
+
+@if (isAdmin) {
+<section class="admin-module-shell">
+  <div class="glass-panel admin-module-banner">
+    <div>
+      <p class="section-eyebrow">Certification module</p>
+      <h2>Keep certification records clear, consistent, and ready to present.</h2>
+      <p>Open a certificate to update it, review its status, and move to the user view from the switch above when needed.</p>
+    </div>
+  </div>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Certification records</h3>
+      @if (!showForm) {
+        <div class="section-header-actions">
+          <button mat-raised-button color="primary" type="button" (click)="startCreate()">
+            <mat-icon>add</mat-icon>
+            Add certification
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (deleteError) {
+      <div class="form-feedback error">{{ deleteError }}</div>
+    }
+
+    <div class="listing-grid admin-listing-grid content-grid-four">
+      @for (c of pagedAdminCertifications; track c.id || c.certificateNumber) {
+        <article class="glass-card item-card admin-item-card">
+          <div class="card-head">
+            <span class="badge" [ngClass]="c.status === 'ISSUED' ? 'badge-success' : 'badge-neutral'">
+              <span class="material-symbols-rounded indicator">radio_button_checked</span>
+              {{ c.status || 'Pending' }}
+            </span>
+          </div>
+
+          <h4 class="card-title">{{ c.certificateNumber || 'Certificate draft' }}</h4>
+          <p class="card-desc">{{ c.training?.title || 'Assign a training to complete this certificate record.' }}</p>
+
+          <div class="score-row compact-score">
+            <strong>{{ c.score ?? '-' }}</strong>
+            <span>Score</span>
+            <strong>{{ c.grade || '-' }}</strong>
+            <span>Grade</span>
+          </div>
+
+          <div class="learning-meta compact-meta">
+            <span><mat-icon>badge</mat-icon>Client #{{ c.clientId || '-' }}</span>
+            <span><mat-icon>event_available</mat-icon>{{ formatDate(c.issueDate) }}</span>
+            <span><mat-icon>event_busy</mat-icon>{{ formatDate(c.expiryDate) }}</span>
+          </div>
+
+          <div class="card-overlay-action visible-actions">
+            <div class="action-buttons-stack">
+              <button mat-flat-button color="primary" type="button" (click)="edit(c)">
+                <mat-icon>edit</mat-icon>
+                Update
+              </button>
+              <button mat-stroked-button color="warn" type="button" (click)="delete(c.id)">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state glass-card">
+          <p>No certification record has been created yet.</p>
+        </div>
+      }
+    </div>
+
+    @if (adminCertifications.length) {
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ (adminPage - 1) * pageSize + 1 }} to {{ Math.min(adminPage * pageSize, adminCertifications.length) }} of {{ adminCertifications.length }} certifications
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" type="button" (click)="goToAdminPage(adminPage - 1)" [disabled]="adminPage === 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          @for (page of adminCertificationPageNumbers; track page) {
+            <button class="page-btn" type="button" [class.active]="page === adminPage" (click)="goToAdminPage(page)">
+              {{ page }}
+            </button>
+          }
+          <button class="page-btn" type="button" (click)="goToAdminPage(adminPage + 1)" [disabled]="adminPage === adminCertificationsTotalPages">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+</section>
+}
+
+@if (showForm) {
+  <div class="modal-overlay" (click)="resetForm()">
+    <div class="modal-content learning-modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <h3>{{ certification.id ? 'Update certification' : 'Add certification' }}</h3>
+          <p class="modal-subtitle">Assign the training, set the client id, and save from the same popup flow as the template modules.</p>
+        </div>
+        <button class="btn-close" type="button" (click)="resetForm()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </header>
+
+      <form (ngSubmit)="save()" class="form-grid modal-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Client Id</mat-label>
+          <input matInput type="number" [(ngModel)]="selectedClientId" name="clientId" />
+          <mat-hint>Defaults to the current demo user so you can save right away.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Training</mat-label>
+          <mat-select [(ngModel)]="selectedTrainingId" name="training" required>
+            <mat-option [value]="null">Select a training</mat-option>
+            <mat-option *ngFor="let t of trainings" [value]="t.id">{{ t.title }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Certificate Number</mat-label>
+          <input matInput [(ngModel)]="certification.certificateNumber" name="certificateNumber" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="certification.status" name="status">
+            <mat-option value="PENDING">Pending</mat-option>
+            <mat-option value="ISSUED">Issued</mat-option>
+            <mat-option value="REVOKED">Revoked</mat-option>
+            <mat-option value="EXPIRED">Expired</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Issue Date</mat-label>
+          <input matInput [matDatepicker]="issueDatePicker" [ngModel]="issueDate" (ngModelChange)="onIssueDateChange($event)" name="issueDate" />
+          <mat-datepicker-toggle matIconSuffix [for]="issueDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #issueDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Validity</mat-label>
+          <input matInput type="number" min="1" [(ngModel)]="validityAmount" (ngModelChange)="onValidityChange()" name="validityAmount" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Validity unit</mat-label>
+          <mat-select [(ngModel)]="validityUnit" (ngModelChange)="onValidityChange()" name="validityUnit">
+            <mat-option value="MONTHS">Months</mat-option>
+            <mat-option value="YEARS">Years</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Expiry Date (auto)</mat-label>
+          <input matInput [matDatepicker]="expiryDatePicker" [ngModel]="expiryDate" name="expiryDate" disabled />
+          <mat-datepicker-toggle matIconSuffix [for]="expiryDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #expiryDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Grade</mat-label>
+          <input matInput [(ngModel)]="certification.grade" name="grade" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Score</mat-label>
+          <input matInput type="number" [(ngModel)]="certification.score" name="score" />
+        </mat-form-field>
+
+        @if (saveError) {
+          <div class="form-feedback error full-row">{{ saveError }}</div>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving">
+            {{ isSaving ? 'Saving...' : (certification.id ? 'Update certification' : 'Create certification') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+</section>

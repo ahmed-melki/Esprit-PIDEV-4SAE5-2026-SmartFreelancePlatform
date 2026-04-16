@@ -1,0 +1,131 @@
+<div class="thread-container" #scrollContainer>
+  @if (messages.length === 0) {
+    <div class="empty-thread">
+      <span class="material-symbols-rounded">chat</span>
+      <p>Aucun message. Démarrez la conversation !</p>
+    </div>
+  }
+
+  @for (msg of messages; track msg.id) {
+    <!-- Skip completely deleted bot messages -->
+    <div
+      class="msg-wrapper"
+      [class.mine]="isMine(msg)"
+      [class.theirs]="!isMine(msg)"
+      [class.bot-msg]="isBot(msg)"
+      [class.deleted-msg]="msg.deleted"
+      [class.urgent-msg]="msg.urgent && !msg.deleted"
+    >
+      <!-- Bubble -->
+      <div class="msg-bubble" [class.inappropriate-blur]="msg.inappropriate && msg.deleted">
+        <!-- Urgent indicator -->
+        @if (msg.urgent && !msg.deleted) {
+          <div class="urgent-indicator">
+            <span class="urgent-dot"></span>
+            <span class="urgent-label">URGENT</span>
+          </div>
+        }
+
+        <!-- Deleted message -->
+        @if (msg.deleted) {
+          <p class="deleted-text">
+            <span class="material-symbols-rounded">delete</span>
+            @if (msg.inappropriate) {
+              Ce message a été supprimé (contenu inapproprié)
+            } @else {
+              Message supprimé
+            }
+          </p>
+        } @else if (msg.isLocation) {
+          <!-- Location message -->
+          <div class="location-msg" (click)="openMapLink(msg.locationLat, msg.locationLng)">
+            <span class="material-symbols-rounded location-icon">location_on</span>
+            <div class="location-text">
+              <strong>Position partagée</strong>
+              <small>{{ msg.locationLat?.toFixed(4) }}, {{ msg.locationLng?.toFixed(4) }}</small>
+              <span class="map-link">Ouvrir dans Google Maps →</span>
+            </div>
+          </div>
+        } @else if (msg.fileUrl) {
+          <!-- File message -->
+          <div class="file-msg">
+            <span class="material-symbols-rounded file-icon">{{ getFileIcon(msg.fileName) }}</span>
+            <div class="file-info">
+              <a [href]="'http://localhost:8085' + msg.fileUrl" target="_blank" class="file-name">
+                {{ msg.fileName }}
+              </a>
+              <small class="file-size">{{ formatSize(msg.fileSize ?? 0) }}</small>
+            </div>
+            <a [href]="'http://localhost:8085' + msg.fileUrl" download class="download-btn">
+              <span class="material-symbols-rounded">download</span>
+            </a>
+          </div>
+          @if (msg.content && msg.content !== '📎 Fichier joint') {
+            <p class="msg-text">{{ msg.content }}</p>
+          }
+        } @else {
+          <!-- Regular text message -->
+          <p class="msg-text" [class.bot-text]="isBot(msg)">{{ msg.content }}</p>
+        }
+
+        <!-- Sentiment badge -->
+        @if (!msg.deleted && msg.sentiment && msg.sentiment !== 'NEUTRAL') {
+          <div class="sentiment-badge" [class]="'sentiment-' + msg.sentiment.toLowerCase()">
+            {{ getSentimentEmoji(msg.sentiment) }} {{ msg.sentiment }}
+          </div>
+        }
+
+        <!-- Meta row -->
+        <div class="msg-meta">
+          <span class="msg-time">{{ formatTime(msg.createdAt) }}</span>
+          @if (msg.readAt && isMine(msg)) {
+            <span class="read-indicator" title="Lu">
+              <span class="material-symbols-rounded">done_all</span>
+            </span>
+          } @else if (isMine(msg) && !msg.deleted) {
+            <span class="material-symbols-rounded sent-indicator">done</span>
+          }
+        </div>
+
+        <!-- Action buttons -->
+        @if (!msg.deleted) {
+          <div class="msg-actions">
+            <button class="action-btn" (click)="toggleReactionPicker(msg.id)" title="Réagir">
+              <span class="material-symbols-rounded">add_reaction</span>
+            </button>
+            @if (isMine(msg)) {
+              <button class="action-btn danger" (click)="deleteMessage(msg.id)" title="Supprimer">
+                <span class="material-symbols-rounded">delete</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Reactions row -->
+      @if (!msg.deleted) {
+        <div class="reactions-row">
+          @for (rxn of getGroupedReactions(msg.id); track rxn.emoji) {
+            <button
+              class="reaction-chip"
+              [class.mine]="rxn.mine"
+              (click)="rxn.mine ? removeReaction(msg.id, rxn.emoji) : addReaction(msg.id, rxn.emoji)"
+              [title]="rxn.mine ? 'Retirer ma réaction' : 'Réagir'"
+            >
+              {{ rxn.emoji }} <span class="rxn-count">{{ rxn.count }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- Emoji Picker -->
+        @if (showReactionPicker === msg.id) {
+          <div class="emoji-picker-popup" [class.mine]="isMine(msg)">
+            @for (emoji of EMOJIS; track emoji) {
+              <button class="emoji-btn" (click)="addReaction(msg.id, emoji)">{{ emoji }}</button>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,58 @@
+<div class="input-container">
+  <!-- Emoji Picker -->
+  @if (showEmojiPicker) {
+    <div class="emoji-tray">
+      @for (emoji of EMOJIS; track emoji) {
+        <button class="emoji-item" (click)="appendEmoji(emoji)">{{ emoji }}</button>
+      }
+    </div>
+  }
+
+  <div class="input-row">
+    <!-- Left action buttons -->
+    <div class="left-actions">
+      <!-- Emoji toggle -->
+      <button class="tool-btn" (click)="showEmojiPicker = !showEmojiPicker" title="Emojis">
+        <span class="material-symbols-rounded">sentiment_satisfied</span>
+      </button>
+
+      <!-- File upload -->
+      <label class="tool-btn" title="Joindre un fichier">
+        @if (isUploading) {
+          <span class="material-symbols-rounded spin">sync</span>
+        } @else {
+          <span class="material-symbols-rounded">attach_file</span>
+        }
+        <input type="file" (change)="onFileSelected($event)" hidden [disabled]="isUploading" />
+      </label>
+
+      <!-- Location share -->
+      <button class="tool-btn" (click)="shareLocation()" [disabled]="locationLoading" title="Partager position">
+        @if (locationLoading) {
+          <span class="material-symbols-rounded spin">my_location</span>
+        } @else {
+          <span class="material-symbols-rounded">location_on</span>
+        }
+      </button>
+    </div>
+
+    <!-- Text area -->
+    <textarea
+      [(ngModel)]="content"
+      (keydown)="onKeydown($event)"
+      placeholder="Écrivez votre message... (Entrée pour envoyer)"
+      class="msg-textarea"
+      rows="1"
+    ></textarea>
+
+    <!-- Send button -->
+    <button
+      class="send-btn"
+      (click)="send()"
+      [disabled]="!content.trim()"
+      title="Envoyer"
+    >
+      <span class="material-symbols-rounded">send</span>
+    </button>
+  </div>
+</div>

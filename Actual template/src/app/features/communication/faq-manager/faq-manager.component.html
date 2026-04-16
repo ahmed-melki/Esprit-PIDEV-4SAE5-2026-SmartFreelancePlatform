@@ -1,0 +1,125 @@
+<div class="faq-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <span class="material-symbols-rounded page-icon">quiz</span>
+      <div>
+        <h1>Gestion des FAQs</h1>
+        <p>Réponses automatiques par mots-clés</p>
+      </div>
+    </div>
+    <button class="btn-add" (click)="showCreateForm = !showCreateForm">
+      <span class="material-symbols-rounded">add</span>
+      Nouvelle FAQ
+    </button>
+  </div>
+
+  <!-- Success toast -->
+  @if (successMessage) {
+    <div class="toast success">
+      <span class="material-symbols-rounded">check_circle</span>
+      {{ successMessage }}
+    </div>
+  }
+
+  <!-- Create form -->
+  @if (showCreateForm) {
+    <div class="create-card">
+      <h3>Nouvelle entrée FAQ</h3>
+      <div class="form-row-two">
+        <div class="form-group">
+          <label class="form-label">Mot-clé</label>
+          <input
+            type="text"
+            [(ngModel)]="newFaq.keyword"
+            placeholder="ex: prix, délai, paiement..."
+            class="form-control"
+          />
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Réponse automatique</label>
+          <textarea
+            [(ngModel)]="newFaq.answer"
+            placeholder="La réponse qui sera suggérée quand ce mot est détecté..."
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-ghost" (click)="showCreateForm = false">Annuler</button>
+        <button class="btn-primary" (click)="createFaq()" [disabled]="!newFaq.keyword || !newFaq.answer">
+          <span class="material-symbols-rounded">save</span>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Search -->
+  <div class="search-bar">
+    <span class="material-symbols-rounded">search</span>
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher dans les FAQs..." class="search-input" />
+    <span class="count-badge">{{ filteredFaqs.length }} FAQ(s)</span>
+  </div>
+
+  <!-- Table -->
+  @if (loading) {
+    <div class="loading-state">
+      <span class="material-symbols-rounded spin">sync</span>
+      Chargement...
+    </div>
+  } @else if (filteredFaqs.length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-rounded">quiz</span>
+      <p>Aucune FAQ trouvée</p>
+    </div>
+  } @else {
+    <div class="table-card">
+      <table class="faq-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mot-clé</th>
+            <th>Réponse automatique</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (faq of filteredFaqs; track faq.id) {
+            <tr>
+              <td class="id-cell">{{ faq.id }}</td>
+              @if (editingFaq?.id === faq.id) {
+                <td>
+                  <input type="text" [(ngModel)]="editingFaq!.keyword" class="inline-input" />
+                </td>
+                <td>
+                  <textarea [(ngModel)]="editingFaq!.answer" class="inline-textarea" rows="2"></textarea>
+                </td>
+                <td class="actions-cell">
+                  <button class="btn-save" (click)="saveEdit()">
+                    <span class="material-symbols-rounded">save</span>
+                  </button>
+                  <button class="btn-cancel-edit" (click)="cancelEdit()">
+                    <span class="material-symbols-rounded">close</span>
+                  </button>
+                </td>
+              } @else {
+                <td><span class="keyword-chip">{{ faq.keyword }}</span></td>
+                <td class="answer-cell">{{ faq.answer }}</td>
+                <td class="actions-cell">
+                  <button class="btn-edit" (click)="startEdit(faq)">
+                    <span class="material-symbols-rounded">edit</span>
+                  </button>
+                  <button class="btn-del" (click)="deleteFaq(faq)">
+                    <span class="material-symbols-rounded">delete</span>
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

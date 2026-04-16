@@ -1,0 +1,6 @@
+.main-content {
+  flex-grow: 1; /* Helps push footer to bottom if body is display flex */
+  min-height: calc(100vh - 140px); /* rough estimate of navbar + footer height */
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}

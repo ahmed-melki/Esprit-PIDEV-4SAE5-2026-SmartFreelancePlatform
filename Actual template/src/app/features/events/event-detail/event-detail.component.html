@@ -1,0 +1,93 @@
+<div class="detail-container">
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="premium-loader"></div>
+    </div>
+  } @else if (event) {
+    <nav class="breadcrumb">
+      <button class="btn-back" routerLink="/events">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Retour à la liste
+      </button>
+    </nav>
+
+    <div class="detail-layout">
+      <!-- Main Content -->
+      <main class="main-content">
+        <section class="event-hero card">
+          <img [src]="event.photoUrl || 'assets/images/event-placeholder.jpg'" [alt]="event.title" class="hero-image">
+          <div class="hero-overlay">
+            <span class="type-pill">{{ event.type }}</span>
+            <h1>{{ event.title }}</h1>
+            <div class="meta-row">
+              <span><span class="material-symbols-rounded">location_on</span> {{ event.location }}</span>
+              <span><span class="material-symbols-rounded">category</span> {{ event.category }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="event-description card">
+          <h2>À propos de cet événement</h2>
+          <p>{{ event.description }}</p>
+        </section>
+
+        <!-- Reactions Panel -->
+        <section class="reactions-panel card">
+          <div class="panel-header">
+            <h2>Êtes-vous intéressé ?</h2>
+            <p>Donnez votre avis pour aider les organisateurs.</p>
+          </div>
+          
+          <div class="reactions-grid">
+            @for (type of reactionTypes; track type) {
+              <button class="reaction-btn" 
+                      [class.active]="isReacting"
+                      (click)="onReact(type)">
+                <span class="label">{{ reactionLabels[type] }}</span>
+                <span class="count">{{ getStatValue(type) }}</span>
+              </button>
+            }
+          </div>
+        </section>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="info-card card sticky">
+          <div class="price-tag" [class.free]="event.price === 0">
+            {{ event.price === 0 ? 'Gratuit' : (event.price | currency:'TND':'symbol') }}
+          </div>
+          
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="material-symbols-rounded">calendar_today</span>
+              <div>
+                <label>Date de début</label>
+                <span>{{ event.startDate | date:'fullDate' }}</span>
+                <small>{{ event.startDate | date:'HH:mm' }}</small>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <span class="material-symbols-rounded">event_busy</span>
+              <div>
+                <label>Date de fin</label>
+                <span>{{ event.endDate | date:'fullDate' }}</span>
+                <small>{{ event.endDate | date:'HH:mm' }}</small>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary main-action" [routerLink]="['/events', event.id, 'sponsor']">
+            <span class="material-symbols-rounded">handshake</span>
+            Sponsoriser l'événement
+          </button>
+          
+          <p class="sponsorship-note">
+            Soutenez cet événement et boostez la visibilité de votre entreprise. Un contrat PDF sera généré automatiquement.
+          </p>
+        </div>
+      </aside>
+    </div>
+  }
+</div>

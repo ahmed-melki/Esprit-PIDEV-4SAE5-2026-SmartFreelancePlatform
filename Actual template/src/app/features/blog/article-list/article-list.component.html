@@ -1,0 +1,68 @@
+<div class="blog-container">
+  <div class="header-section">
+    <h1>Insightful Stories & Knowledge</h1>
+    <p>Explore the latest trends, tips, and deeper dives into the freelance world.</p>
+  </div>
+
+  <div class="search-filter-bar">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Search articles..." 
+      [(ngModel)]="searchTerm"
+      (input)="filterArticles()"
+    >
+    <div class="category-chips">
+      <div 
+        *ngFor="let cat of categories" 
+        class="chip"
+        [class.active]="selectedCategory === cat"
+        (click)="selectCategory(cat)"
+      >
+        {{ cat }}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <!-- Skeleton or Spinner -->
+    <p>Loading the best insights for you...</p>
+  </div>
+
+  <div class="article-grid" *ngIf="!isLoading">
+    <div class="article-card" *ngFor="let article of filteredArticles">
+      <div class="badge-container" *ngIf="article.badge">
+        <span class="badge" [style.background]="article.badgeColor || '#6366f1'">
+          {{ article.badge }}
+        </span>
+      </div>
+
+      <div class="article-category">{{ article.category }}</div>
+      <h2 class="article-title">{{ article.title }}</h2>
+      <p class="article-summary">{{ article.summary }}</p>
+
+      <div class="card-footer">
+        <div class="author-info">
+          <div class="author-avatar"></div>
+          <span class="author-name">By {{ article.author }}</span>
+        </div>
+        <div class="stats">
+          <div class="stat-item">
+            <span>👍</span> {{ article.likeCount }}
+          </div>
+          <div class="stat-item">
+            <span>👎</span> {{ article.dislikeCount }}
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-read" [routerLink]="['/blog', article.id]">
+        Read Full Story
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && filteredArticles.length === 0" class="empty-state">
+    <p>No articles found matching your criteria.</p>
+  </div>
+</div>

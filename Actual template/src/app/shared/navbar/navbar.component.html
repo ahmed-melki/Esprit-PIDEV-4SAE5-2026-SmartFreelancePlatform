@@ -1,0 +1,67 @@
+<nav class="navbar">
+  <div class="container navbar-container">
+    <a routerLink="/" class="navbar-brand">
+      <span class="material-symbols-rounded logo-icon">work</span>
+      <span class="logo-text">FreeFlow</span>
+    </a>
+    
+    <div class="navbar-links">
+      <a routerLink="/freelancer/dashboard" routerLinkActive="active" class="nav-link">Freelancers</a>
+      <a routerLink="/client/dashboard" routerLinkActive="active" class="nav-link">Clients</a>
+      <!-- Communication dropdown -->
+      <div class="nav-dropdown">
+        <a routerLink="/communication" routerLinkActive="active" class="nav-link nav-link-icon">
+          <span class="material-symbols-rounded nav-icon">forum</span>
+          Messages
+        </a>
+        <div class="dropdown-menu">
+          <a routerLink="/communication" class="dropdown-item">
+            <span class="material-symbols-rounded">chat</span> Chat
+          </a>
+          <a routerLink="/communication/faq" class="dropdown-item">
+            <span class="material-symbols-rounded">quiz</span> FAQ Manager
+          </a>
+          <a routerLink="/communication/bad-words" class="dropdown-item">
+            <span class="material-symbols-rounded">block</span> Mots Interdits
+          </a>
+        </div>
+      </div>
+
+      <!-- Marketing dropdown -->
+      <div class="nav-dropdown">
+        <a routerLink="/marketing" routerLinkActive="active" class="nav-link nav-link-icon">
+          <span class="material-symbols-rounded nav-icon">insights</span>
+          Marketing
+        </a>
+        <div class="dropdown-menu">
+          <a routerLink="/marketing/dashboard" class="dropdown-item">
+            <span class="material-symbols-rounded">dashboard</span> Dashboard
+          </a>
+          <a routerLink="/marketing/campaigns" class="dropdown-item">
+            <span class="material-symbols-rounded">campaign</span> Campagnes
+          </a>
+        </div>
+      </div>
+
+      <a routerLink="/events" routerLinkActive="active" class="nav-link nav-link-icon">
+        <span class="material-symbols-rounded nav-icon">event</span>
+        Événements
+      </a>
+
+      <a routerLink="/blog" routerLinkActive="active" class="nav-link nav-link-icon">
+        <span class="material-symbols-rounded nav-icon">article</span>
+        Blog
+      </a>
+
+      <a routerLink="/competence" routerLinkActive="active" class="nav-link nav-link-icon">
+        <span class="material-symbols-rounded nav-icon">military_tech</span>
+        Skills
+      </a>
+    </div>
+
+    <div class="navbar-actions">
+      <a routerLink="/login" class="nav-link">Log In</a>
+      <a routerLink="/register" class="btn btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>

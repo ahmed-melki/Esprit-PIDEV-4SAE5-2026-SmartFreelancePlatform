@@ -1,0 +1,273 @@
+<section class="learning-page-shell">
+  <section class="page-header">
+    <div>
+      <h1 class="page-title">{{ isAdmin ? 'Training Administration' : 'Training Catalog' }}</h1>
+      <p class="page-subtitle">
+        {{ isAdmin ? 'Create, update, and manage the training catalog from one focused workspace.' : 'Browse the programs available to your learning path.' }}
+      </p>
+    </div>
+  </section>
+
+  <section class="learning-shell-switch" aria-label="Training views">
+    <a mat-stroked-button [routerLink]="viewRoutes.USER" [class.active-view]="!isAdmin">
+      <mat-icon>person</mat-icon>
+      User view
+    </a>
+    <a mat-stroked-button [routerLink]="viewRoutes.ADMIN" [class.active-view]="isAdmin">
+      <mat-icon>admin_panel_settings</mat-icon>
+      Admin view
+    </a>
+  </section>
+
+@if (isAdmin) {
+  <section class="stats-grid" aria-label="Training statistics">
+    <article class="stat-card">
+      <mat-icon>school</mat-icon>
+      <span>Total trainings</span>
+      <strong>{{ trainings.length }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>play_circle</mat-icon>
+      <span>Active or upcoming</span>
+      <strong>{{ activeTrainingsCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>task_alt</mat-icon>
+      <span>Completed</span>
+      <strong>{{ completedTrainingsCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <mat-icon>workspace_premium</mat-icon>
+      <span>Linked certificates</span>
+      <strong>{{ linkedCertificationCount }}</strong>
+    </article>
+  </section>
+}
+
+@if (!isAdmin) {
+  <section class="catalog-grid content-grid-four">
+    @for (t of pagedUpcomingTrainings; track t.id || t.title) {
+      <article class="learning-card">
+        <div class="learning-card-head">
+          <span class="status-pill">{{ t.status || 'Draft' }}</span>
+          <mat-icon>school</mat-icon>
+        </div>
+        <h2>{{ t.title }}</h2>
+        <p>{{ t.description || 'Program details will appear here once the agenda is finalized.' }}</p>
+        <div class="learning-meta">
+          <span><mat-icon>category</mat-icon>{{ t.category || 'General' }}</span>
+          <span><mat-icon>schedule</mat-icon>{{ formatDuration(t.durationHours) }}</span>
+          <span><mat-icon>event</mat-icon>{{ formatDate(t.startDate) }}</span>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">No trainings are available for users yet.</div>
+    }
+  </section>
+
+  @if (upcomingTrainings.length) {
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ (userPage - 1) * pageSize + 1 }} to {{ Math.min(userPage * pageSize, upcomingTrainings.length) }} of {{ upcomingTrainings.length }} trainings
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" type="button" (click)="goToUserPage(userPage - 1)" [disabled]="userPage === 1">
+          <span class="material-symbols-rounded">chevron_left</span>
+        </button>
+        @for (page of upcomingTrainingPageNumbers; track page) {
+          <button class="page-btn" type="button" [class.active]="page === userPage" (click)="goToUserPage(page)">
+            {{ page }}
+          </button>
+        }
+        <button class="page-btn" type="button" (click)="goToUserPage(userPage + 1)" [disabled]="userPage === upcomingTrainingsTotalPages">
+          <span class="material-symbols-rounded">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  }
+}
+
+@if (isAdmin) {
+<section class="admin-module-shell">
+  <div class="glass-panel admin-module-banner">
+    <div>
+      <p class="section-eyebrow">Training module</p>
+      <h2>Manage every training from one clean, presentation-ready admin view.</h2>
+      <p>Review the catalog, open a record to edit it, and switch to the user view anytime from the toggle above.</p>
+    </div>
+  </div>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Training programs</h3>
+      @if (!showForm) {
+        <div class="section-header-actions">
+          <button mat-raised-button color="primary" type="button" (click)="startCreate()">
+            <mat-icon>add</mat-icon>
+            Add training
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (deleteError) {
+      <div class="form-feedback error">{{ deleteError }}</div>
+    }
+
+    <div class="listing-grid admin-listing-grid content-grid-four">
+      @for (t of pagedAdminTrainings; track t.id || t.title) {
+        <article class="glass-card item-card admin-item-card">
+          <div class="card-head">
+            <span class="badge" [ngClass]="t.status === 'COMPLETED' ? 'badge-success' : 'badge-neutral'">
+              <span class="material-symbols-rounded indicator">radio_button_checked</span>
+              {{ t.status || 'Draft' }}
+            </span>
+          </div>
+
+          <h4 class="card-title">{{ t.title }}</h4>
+          <p class="card-desc">{{ t.description || 'Outline the agenda, the target audience, and the learning outcomes.' }}</p>
+
+          <div class="learning-meta compact-meta">
+            <span><mat-icon>category</mat-icon>{{ t.category || 'General track' }}</span>
+            <span><mat-icon>schedule</mat-icon>{{ formatDuration(t.durationHours) }}</span>
+            <span><mat-icon>event</mat-icon>{{ formatDate(t.startDate) }}</span>
+          </div>
+
+          <div class="card-footer">
+            <div class="footer-block">
+              <span class="meta-label">End date</span>
+              <span class="meta-value">{{ formatDate(t.endDate) }}</span>
+            </div>
+            <div class="footer-block">
+              <span class="meta-label">Certificates</span>
+              <span class="meta-value">{{ t.certifications?.length || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="card-overlay-action visible-actions">
+            <div class="action-buttons-stack">
+              <button mat-flat-button color="primary" type="button" (click)="edit(t)">
+                <mat-icon>edit</mat-icon>
+                Update
+              </button>
+              <button mat-stroked-button color="warn" type="button" (click)="delete(t.id)">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state glass-card">
+          <p>No training program has been created yet.</p>
+        </div>
+      }
+    </div>
+
+    @if (adminTrainings.length) {
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ (adminPage - 1) * pageSize + 1 }} to {{ Math.min(adminPage * pageSize, adminTrainings.length) }} of {{ adminTrainings.length }} trainings
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" type="button" (click)="goToAdminPage(adminPage - 1)" [disabled]="adminPage === 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          @for (page of adminTrainingPageNumbers; track page) {
+            <button class="page-btn" type="button" [class.active]="page === adminPage" (click)="goToAdminPage(page)">
+              {{ page }}
+            </button>
+          }
+          <button class="page-btn" type="button" (click)="goToAdminPage(adminPage + 1)" [disabled]="adminPage === adminTrainingsTotalPages">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+</section>
+}
+
+@if (showForm) {
+  <div class="modal-overlay" (click)="resetForm()">
+    <div class="modal-content learning-modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <h3>{{ training.id ? 'Update training' : 'Add training' }}</h3>
+          <p class="modal-subtitle">Capture the program details, then return to the listing once it is saved.</p>
+        </div>
+        <button class="btn-close" type="button" (click)="resetForm()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </header>
+
+      <form (ngSubmit)="save()" class="form-grid modal-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Title</mat-label>
+          <input matInput [(ngModel)]="training.title" name="title" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <input matInput [(ngModel)]="training.category" name="category" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Duration</mat-label>
+          <input matInput type="number" min="1" [(ngModel)]="durationAmount" (ngModelChange)="onDurationChange()" name="durationAmount" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Duration unit</mat-label>
+          <mat-select [(ngModel)]="durationUnit" (ngModelChange)="onDurationChange()" name="durationUnit">
+            <mat-option value="HOURS">Hours</mat-option>
+            <mat-option value="DAYS">Training days</mat-option>
+            <mat-option value="WEEKS">Training weeks</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="training.status" name="status">
+            <mat-option value="UPCOMING">Upcoming</mat-option>
+            <mat-option value="ONGOING">Ongoing</mat-option>
+            <mat-option value="COMPLETED">Completed</mat-option>
+            <mat-option value="CANCELLED">Cancelled</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="trainingStartPicker" [ngModel]="trainingStartDate" (ngModelChange)="onTrainingStartDateChange($event)" name="startDate" />
+          <mat-datepicker-toggle matIconSuffix [for]="trainingStartPicker"></mat-datepicker-toggle>
+          <mat-datepicker #trainingStartPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End Date (auto)</mat-label>
+          <input matInput [matDatepicker]="trainingEndPicker" [ngModel]="trainingEndDate" name="endDate" disabled />
+          <mat-datepicker-toggle matIconSuffix [for]="trainingEndPicker"></mat-datepicker-toggle>
+          <mat-datepicker #trainingEndPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-row">
+          <mat-label>Description</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="training.description" name="description"></textarea>
+        </mat-form-field>
+
+        @if (saveError) {
+          <div class="form-feedback error full-row">{{ saveError }}</div>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="resetForm()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving">
+            {{ isSaving ? 'Saving...' : (training.id ? 'Update training' : 'Create training') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+</section>

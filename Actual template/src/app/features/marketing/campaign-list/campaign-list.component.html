@@ -1,0 +1,185 @@
+<div class="list-container">
+  <header class="list-header">
+    <div class="title-group">
+      <h2>Campagnes Marketing</h2>
+      <p>{{ campaigns.length }} campagnes configurées</p>
+    </div>
+    
+    <div class="header-actions">
+      <div class="search-wrap">
+        <span class="material-symbols-rounded">search</span>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher...">
+      </div>
+      
+      <select [(ngModel)]="statusFilter" class="status-select">
+        <option value="">Tous les statuts</option>
+        <option value="PENDING">Pending</option>
+        <option value="ACTIVE">Active</option>
+        <option value="EXPIRED">Expired</option>
+      </select>
+
+      <button class="btn-primary" (click)="showCreateModal = true">
+        <span class="material-symbols-rounded">add</span>
+        Nouvelle Campagne
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="premium-loader"></div>
+    </div>
+  } @else if (filteredCampaigns.length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-rounded">campaign_off</span>
+      <h3>Aucune campagne trouvée</h3>
+      <p>Commencez par créer votre première campagne marketing.</p>
+    </div>
+  } @else {
+    <div class="campaign-grid">
+      @for (c of filteredCampaigns; track c.id) {
+        <div class="campaign-card" [routerLink]="['/marketing/campaign', c.id]">
+          <div class="card-header">
+            <span class="status-badge" [class]="getStatusClass(getCampaignStatus(c))">
+              {{ getCampaignStatus(c) }}
+            </span>
+            <div class="actions-group" (click)="$event.stopPropagation()">
+              <button class="btn-icon" (click)="duplicate(c.id!)" title="Dupliquer">
+                <span class="material-symbols-rounded">content_copy</span>
+              </button>
+              <button class="btn-icon delete" (click)="deleteCampaign(c.id!)" title="Supprimer">
+                <span class="material-symbols-rounded">delete</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <h3>{{ c.name }}</h3>
+            <p class="description">{{ c.description | slice:0:80 }}{{ c.description.length > 80 ? '...' : '' }}</p>
+          </div>
+          
+          <div class="card-footer">
+            <div class="date-info">
+              <span class="material-symbols-rounded">calendar_today</span>
+              <span>{{ c.startDate | date:'dd MMM' }} - {{ c.endDate | date:'dd MMM yyyy' }}</span>
+            </div>
+            @if (c.promotions && c.promotions.length > 0) {
+              <div class="promo-count">
+                <span class="material-symbols-rounded">confirmation_number</span>
+                {{ c.promotions.length }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Creation Modal -->
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="showCreateModal = false">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>Nouvelle Campagne</h3>
+          <button class="btn-close" (click)="showCreateModal = false">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </header>
+        
+        <form (ngSubmit)="onSubmit()" class="campaign-form">
+          <div class="form-group">
+            <label>Nom de la campagne</label>
+            <input type="text" [(ngModel)]="newCampaign.name" name="name" required placeholder="Ex: Soldes d'Hiver 2025">
+          </div>
+          
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="newCampaign.description" name="description" rows="3" placeholder="Objectifs et détails..."></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date de début</label>
+              <input type="datetime-local" [(ngModel)]="newCampaign.startDate" name="startDate" required>
+              @if (isStartDateInPast()) {
+                <p class="field-error">La date de début ne peut pas être dans le passé.</p>
+              }
+            </div>
+            <div class="form-group">
+              <label>Date de fin</label>
+              <input type="datetime-local" [(ngModel)]="newCampaign.endDate" name="endDate" required>
+              @if (!isDateRangeValid() && newCampaign.startDate && newCampaign.endDate) {
+                <p class="field-error">La date de fin doit être après la date de début.</p>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Remises prévues (optionnel)</label>
+            <div class="input-with-action">
+              <input type="number" min="0" max="100" step="0.1" [(ngModel)]="draftDiscount" name="draftDiscount" placeholder="Ex: 20">
+              <button type="button" class="btn-add-discount" (click)="addAnalyzeDiscount()">
+                <span class="material-symbols-rounded">add</span>
+                Ajouter
+              </button>
+            </div>
+            @if (analyzeDiscounts.length > 0) {
+              <div class="discount-chip-wrap">
+                @for (d of analyzeDiscounts; track $index) {
+                  <button type="button" class="discount-chip" (click)="removeAnalyzeDiscount($index)">
+                    {{ d }}% ×
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <button type="button" class="btn-analyze-inline" [disabled]="!canAnalyzeNewCampaign() || isAnalyzingNewCampaign" (click)="analyzeNewCampaign()">
+            <span class="material-symbols-rounded">{{ isAnalyzingNewCampaign ? 'sync' : 'auto_awesome' }}</span>
+            {{ isAnalyzingNewCampaign ? 'Analyse en cours...' : 'Analyser' }}
+          </button>
+
+          @if (newCampaignAnalyzeError) {
+            <p class="analyze-error">{{ newCampaignAnalyzeError }}</p>
+          }
+
+          @if (newCampaignAnalysis) {
+            <div class="analyze-preview">
+              <div class="score-preview">
+                <span class="score-value" [style.color]="getScoreColor(newCampaignAnalysis.successScore)">
+                  {{ newCampaignAnalysis.successScore }}/100
+                </span>
+                <span class="score-label">{{ newCampaignAnalysis.scoreLabel }}</span>
+              </div>
+              @if (newCampaignAnalysis.warnings.length) {
+                <div>
+                  <strong>Warnings:</strong>
+                  <ul>
+                    @for (w of newCampaignAnalysis.warnings; track $index) {
+                      <li>{{ w }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+              @if (newCampaignAnalysis.suggestions.length) {
+                <div>
+                  <strong>Suggestions:</strong>
+                  <ul>
+                    @for (s of newCampaignAnalysis.suggestions; track $index) {
+                      <li>{{ s }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+          
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="showCreateModal = false">Annuler</button>
+            <button type="submit" class="btn-primary" [disabled]="!canSaveNewCampaign()">Créer la Campagne</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
