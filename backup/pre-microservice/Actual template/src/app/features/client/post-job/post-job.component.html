@@ -1,0 +1,102 @@
+<div class="form-wrapper container">
+  <div class="form-header">
+    <a routerLink="/client/dashboard" class="back-link">
+      <span class="material-symbols-rounded">arrow_back</span> Back to Dashboard
+    </a>
+    <h2>Post a New Job</h2>
+    <p>Fill in the details below. After posting, you'll be prompted to create a qualification quiz.</p>
+    <div class="step-bar">
+      <div class="step active"><span class="step-num">1</span> Job Details</div>
+      <div class="step-connector"></div>
+      <div class="step"><span class="step-num">2</span> Create Quiz</div>
+    </div>
+  </div>
+
+  <div class="glass-panel form-card">
+    <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Job Title *</label>
+          <input type="text" formControlName="title" class="form-control" placeholder="e.g. Senior Angular Developer">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Contract Type *</label>
+          <select formControlName="contractType" class="form-control">
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="STAGE">Stage</option>
+            <option value="FREELANCE">Freelance</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Company *</label>
+          <input type="text" formControlName="company" class="form-control" placeholder="e.g. TechCorp SA">
+        </div>
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Location</label>
+          <input type="text" formControlName="location" class="form-control" placeholder="e.g. Tunis, Tunisia">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description *</label>
+        <textarea formControlName="description" class="form-control" rows="5" placeholder="Describe the role, responsibilities and requirements..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Salary Min (TND)</label>
+          <input type="number" formControlName="salaryMin" class="form-control" placeholder="e.g. 2000">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Salary Max (TND)</label>
+          <input type="number" formControlName="salaryMax" class="form-control" placeholder="e.g. 4000">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Positions *</label>
+          <input type="number" formControlName="numberOfPositions" class="form-control" min="1">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Deadline *</label>
+          <input type="date" formControlName="deadline" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Required Skills (comma separated)</label>
+          <input type="text" formControlName="requiredSkills" class="form-control" placeholder="e.g. Angular, TypeScript, Git">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Experience Level</label>
+          <input type="text" formControlName="experienceLevel" class="form-control" placeholder="e.g. Mid-level">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Benefits</label>
+        <input type="text" formControlName="benefits" class="form-control" placeholder="e.g. Mutuelle, Tickets restaurant, Remote...">
+      </div>
+
+      <div class="remote-toggle">
+        <label class="toggle-label">
+          <input type="checkbox" formControlName="remotePossible">
+          <span class="toggle-switch"></span>
+          Remote work possible
+        </label>
+      </div>
+
+      <p class="error-msg" *ngIf="submitError">{{ submitError }}</p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-icon" [disabled]="jobForm.invalid || isSubmitting">
+          <span class="material-symbols-rounded">arrow_forward</span>
+          {{ isSubmitting ? 'Posting...' : 'Post Job & Create Quiz →' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

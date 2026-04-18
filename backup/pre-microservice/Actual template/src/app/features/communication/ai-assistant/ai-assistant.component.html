@@ -1,0 +1,72 @@
+<!-- Floating toggle button -->
+<button class="ai-fab" (click)="toggle()" [class.open]="isOpen" title="Assistant IA">
+  @if (isOpen) {
+    <span class="material-symbols-rounded">close</span>
+  } @else {
+    <span class="material-symbols-rounded">smart_toy</span>
+  }
+</button>
+
+<!-- Chat panel -->
+@if (isOpen) {
+  <div class="ai-panel">
+    <!-- Header -->
+    <div class="ai-header">
+      <div class="ai-header-left">
+        <div class="ai-avatar">
+          <span class="material-symbols-rounded">smart_toy</span>
+        </div>
+        <div>
+          <h3>Assistant IA</h3>
+          <span class="ai-subtitle">Propulsé par Spring AI</span>
+        </div>
+      </div>
+      <button class="clear-btn" (click)="clearConversation()" title="Effacer la conversation">
+        <span class="material-symbols-rounded">restart_alt</span>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="ai-messages">
+      @for (msg of messages; track $index) {
+        <div class="ai-msg" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'ai'">
+          @if (msg.role === 'ai') {
+            <div class="bot-icon">
+              <span class="material-symbols-rounded">smart_toy</span>
+            </div>
+          }
+          <div class="msg-content">
+            <p>{{ msg.content }}</p>
+            <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+          </div>
+        </div>
+      }
+
+      @if (isLoading) {
+        <div class="ai-msg bot-msg">
+          <div class="bot-icon">
+            <span class="material-symbols-rounded">smart_toy</span>
+          </div>
+          <div class="msg-content typing">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input -->
+    <div class="ai-input-row">
+      <textarea
+        [(ngModel)]="input"
+        (keydown)="onKeydown($event)"
+        placeholder="Posez votre question..."
+        class="ai-textarea"
+        rows="1"
+        [disabled]="isLoading"
+      ></textarea>
+      <button class="ai-send" (click)="send()" [disabled]="!input.trim() || isLoading">
+        <span class="material-symbols-rounded">send</span>
+      </button>
+    </div>
+  </div>
+}

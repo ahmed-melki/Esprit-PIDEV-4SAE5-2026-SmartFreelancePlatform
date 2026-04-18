@@ -1,0 +1,222 @@
+<div class="detail-container">
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="premium-loader"></div>
+    </div>
+  } @else if (campaign) {
+    <nav class="breadcrumb">
+      <button class="btn-back" routerLink="/marketing">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Retour au tableau de bord
+      </button>
+    </nav>
+
+    <div class="detail-layout">
+      <!-- Sidebar: Campaign Info & AI Analysis -->
+      <aside class="detail-sidebar">
+        <section class="campaign-info card">
+          <div class="info-header">
+            <span class="status-pill status-{{ campaign.status.toLowerCase() }}">
+              {{ campaign.status }}
+            </span>
+            <h1>{{ campaign.name }}</h1>
+          </div>
+          <p class="description">{{ campaign.description }}</p>
+          
+          <div class="meta-info">
+            <div class="meta-item">
+              <span class="material-symbols-rounded">event</span>
+              <div>
+                <label>Période</label>
+                <span>{{ campaign.startDate | date:'dd/MM/yyyy' }} - {{ campaign.endDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-analyze" [disabled]="isAnalyzing" (click)="analyze()">
+            <span class="material-symbols-rounded">{{ isAnalyzing ? 'sync' : 'auto_awesome' }}</span>
+            {{ isAnalyzing ? 'Analyse en cours...' : 'Analyser avec l\'IA' }}
+          </button>
+        </section>
+
+        @if (analysis) {
+          <section class="analysis-results card">
+            <h3>Score de Succès</h3>
+            <div class="score-dial">
+              <div class="inner-dial" [style.border-color]="getScoreColor(analysis.successScore)">
+                <span class="score-value">{{ analysis.successScore }}%</span>
+                <span class="score-label">{{ analysis.scoreLabel }}</span>
+              </div>
+            </div>
+            
+            <div class="analysis-metrics">
+              <div class="metric">
+                <span class="label">Période</span>
+                <span class="value">{{ analysis.durationDays }} j</span>
+              </div>
+              <div class="metric">
+                <span class="label">Remise Moy.</span>
+                <span class="value">{{ analysis.averageDiscount }}%</span>
+              </div>
+            </div>
+          </section>
+        }
+      </aside>
+
+      <!-- Main Content: Promotions & AI Suggestions -->
+      <main class="detail-content">
+        <section class="promotions-list card">
+          <div class="section-header">
+            <h2>Promotions Actives</h2>
+            <button class="btn-add-promo" (click)="showPromoModal = true">
+              <span class="material-symbols-rounded">add</span>
+              Ajouter
+            </button>
+          </div>
+
+          @if (expiringCount > 0 && showExpiringBanner) {
+            <div class="expiring-banner" role="status" aria-live="polite" [attr.title]="getExpiringTooltip()">
+              <span class="material-symbols-rounded">warning</span>
+              <span>{{ expiringCount }} promotion(s) expirent dans les 7 prochains jours.</span>
+              <button type="button" class="btn-text-icon" (click)="showExpiringBanner = false" aria-label="Fermer l'alerte">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
+          }
+
+          @if (!promotions || promotions.length === 0) {
+            <div class="empty-promos">
+              <span class="material-symbols-rounded">confirmation_number</span>
+              <p>Aucune promotion associée à cette campagne.</p>
+            </div>
+          } @else {
+            <div class="promo-grid">
+              @for (p of promotions; track p.id) {
+                <div class="promo-card" [class]="getPromotionCardClass(p)">
+                  <div class="promo-header">
+                    <span class="promo-code">{{ p.code }}</span>
+                    <span class="promo-discount">{{ p.discountPercentage }}%</span>
+                  </div>
+                  
+                  <div class="promo-usage">
+                    <div class="usage-bar">
+                      <div class="usage-fill" [style.width]="getPromotionHealthById(p.id)?.usageRate || '0%'"></div>
+                    </div>
+                    <div class="usage-stats">
+                      <span>{{ p.usedCount }} / {{ p.maxUses }} utilisés</span>
+                      <span class="health-label health-badge" [class]="getHealthBadgeClass(getPromotionHealthById(p.id)?.status)">
+                        {{ getPromotionHealthById(p.id)?.status ?? 'N/A' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  @if (getPromotionHealthById(p.id)?.recommendation) {
+                    <p class="health-hint">{{ getPromotionHealthById(p.id)?.recommendation }}</p>
+                  }
+
+                  <div class="promo-actions">
+                    <button class="btn-text-icon" (click)="editPromotion(p)">
+                      <span class="material-symbols-rounded">edit</span>
+                    </button>
+                    <button class="btn-text-icon delete" (click)="deletePromotion(p.id!)">
+                      <span class="material-symbols-rounded">delete</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        @if (analysis) {
+          <section class="ai-suggestions">
+            @if (analysis.warnings.length > 0) {
+              <div class="advice-card warning">
+                <div class="advice-header">
+                  <span class="material-symbols-rounded">warning</span>
+                  <h3>Alertes d'IA</h3>
+                </div>
+                <ul>
+                  @for (w of analysis.warnings; track $index) {
+                    <li>{{ w }}</li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (analysis.suggestions.length > 0) {
+              <div class="advice-card suggestion">
+                <div class="advice-header">
+                  <span class="material-symbols-rounded">lightbulb</span>
+                  <h3>Recommandations</h3>
+                </div>
+                <ul>
+                  @for (s of analysis.suggestions; track $index) {
+                    <li>{{ s }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </section>
+        } @else {
+          <div class="ai-empty-state card">
+            <span class="material-symbols-rounded">psychology</span>
+            <h3>Analyseur de Campagne</h3>
+            <p>Cliquez sur "Analyser avec l'IA" pour obtenir des prédictions sur le succès de votre campagne et des conseils d'optimisation.</p>
+          </div>
+        }
+      </main>
+    </div>
+  }
+
+  <!-- Promotion Modal -->
+  @if (showPromoModal) {
+    <div class="modal-overlay" (click)="showPromoModal = false">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>{{ editingPromotion.id ? 'Modifier' : 'Ajouter' }} une Promotion</h3>
+          <button class="btn-close" (click)="showPromoModal = false">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </header>
+
+        <form (ngSubmit)="savePromotion()" class="modal-form">
+          <div class="form-group">
+            <label>Code Promotionnel</label>
+            <div class="input-with-action">
+              <input type="text" [(ngModel)]="editingPromotion.code" name="code" required>
+              <button type="button" class="btn-mini" (click)="generatePromoCode()">Générer</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Remise (%)</label>
+              <input type="number" [(ngModel)]="editingPromotion.discountPercentage" name="discount" required min="1" max="100">
+            </div>
+            <div class="form-group">
+              <label>Limite d'utilisation</label>
+              <input type="number" [(ngModel)]="editingPromotion.maxUses" name="maxUses" required min="1">
+            </div>
+          </div>
+
+          <div class="form-row form-row--datetime">
+            <div class="form-group">
+              <label>Date et heure de début</label>
+              <input type="datetime-local" [(ngModel)]="editingPromotion.validFrom" name="validFrom" required>
+            </div>
+            <div class="form-group">
+              <label>Date et heure d'expiration</label>
+              <input type="datetime-local" [(ngModel)]="editingPromotion.validUntil" name="validUntil" required>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="showPromoModal = false">Annuler</button>
+            <button type="submit" class="btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

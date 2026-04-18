@@ -1,0 +1,119 @@
+<div class="applicants-wrapper container">
+  <!-- Header Section -->
+  <div class="header-section glass-panel">
+    <div class="header-content">
+      <a routerLink="/client/dashboard" class="back-link">
+        <span class="material-symbols-rounded">arrow_back</span> Back to Dashboard
+      </a>
+      <div class="title-row">
+        <div class="job-badge">JOB APPLICANTS</div>
+        <h1>{{ job?.title || 'Loading Job...' }}</h1>
+        <p class="job-meta">
+          <span class="material-symbols-rounded">business</span> {{ job?.company }} · 
+          <span class="material-symbols-rounded">location_on</span> {{ job?.location || 'Remote' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Mini Bar -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <span class="label">Total</span>
+        <span class="value">{{ candidatures.length }}</span>
+      </div>
+      <div class="stat-pill success">
+        <span class="label">Accepted</span>
+        <span class="value">{{ acceptedCount }}</span>
+      </div>
+      <div class="stat-pill warning">
+        <span class="label">Pending</span>
+        <span class="value">{{ pendingCount }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Area -->
+  <div class="filter-area glass-card">
+    <div class="search-box">
+      <span class="material-symbols-rounded">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by ID or motivation text...">
+    </div>
+    <div class="filter-group">
+      <label>Status:</label>
+      <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="status-select">
+        <option value="ALL">All Applicants</option>
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Applicants Table/List -->
+  <div class="applicants-content">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Fetching applicants...</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCandidatures.length === 0" class="empty-state glass-card">
+      <span class="material-symbols-rounded">group_off</span>
+      <h3>No applicants found</h3>
+      <p>Try adjusting your search or filters.</p>
+    </div>
+
+    <div class="applicant-grid" *ngIf="!isLoading && paginatedApplicants.length > 0">
+      <div class="applicant-card glass-card" *ngFor="let cand of paginatedApplicants">
+        <div class="applicant-header">
+          <div class="user-info">
+            <div class="user-avatar">{{ cand.candidatId }}</div>
+            <div>
+              <h4>Candidate #{{ cand.candidatId }}</h4>
+              <p class="apply-date">Applied on {{ formatDate(cand.datePostulation) }}</p>
+            </div>
+          </div>
+          <div class="status-badge" [ngClass]="getStatusOption(cand.statut).color">
+            <span class="material-symbols-rounded">{{ getStatusOption(cand.statut).icon }}</span>
+            {{ getStatusOption(cand.statut).label }}
+          </div>
+        </div>
+
+        <div class="motivation-text">
+          <h5>Cover Letter</h5>
+          <p>{{ cand.lettreMotivation }}</p>
+        </div>
+
+        <div class="applicant-footer">
+          <div class="actions">
+            <button class="btn-action" (click)="downloadCV(cand.cvUrl!)" *ngIf="cand.cvUrl">
+              <span class="material-symbols-rounded">description</span>
+              View CV
+            </button>
+          </div>
+          <div class="status-updater">
+            <select [ngModel]="cand.statut" (ngModelChange)="updateStatus(cand, $event)" class="update-select">
+              <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="filteredCandidatures.length > pageSize">
+        <div class="pagination-info">
+          Showing {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredCandidatures.length) }} of {{ filteredCandidatures.length }} applicants
+        </div>
+        <div class="pagination-controls">
+          <button class="page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="page-btn" *ngFor="let p of [].constructor(totalPages); let i = index" 
+            [class.active]="currentPage === i + 1" (click)="currentPage = i + 1">
+            {{ i + 1 }}
+          </button>
+          <button class="page-btn" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+            <span class="material-symbols-rounded">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

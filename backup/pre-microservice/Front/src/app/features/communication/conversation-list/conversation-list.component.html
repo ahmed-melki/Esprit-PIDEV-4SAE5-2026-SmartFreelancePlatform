@@ -1,0 +1,79 @@
+<div class="conv-sidebar">
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="header-top">
+      <h2 class="sidebar-title">
+        <span class="material-symbols-rounded">forum</span>
+        Messages
+      </h2>
+      <button class="btn-icon" (click)="createConversation()" title="Nouvelle conversation">
+        <span class="material-symbols-rounded">add</span>
+      </button>
+    </div>
+    <!-- Search -->
+    <div class="search-box">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Rechercher..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="conv-list">
+    @if (filteredConversations.length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-rounded">chat_bubble_outline</span>
+        <p>Aucune conversation</p>
+      </div>
+    }
+
+    @for (conv of filteredConversations; track conv.id) {
+      <div
+        class="conv-item"
+        [class.selected]="conv.id === selectedConversationId"
+        [class.has-urgent]="(conv.urgentCount ?? 0) > 0"
+        (click)="selectConversation(conv)"
+      >
+        <!-- Avatar -->
+        <div class="conv-avatar">
+          <div class="avatar-circle">
+            {{ conv.freelanceId }}
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="conv-info">
+          <div class="conv-top">
+            <span class="conv-name">{{ getConvLabel(conv) }}</span>
+            <span class="conv-time">{{ getTimeAgo(conv.lastMessageTime) }}</span>
+          </div>
+          <div class="conv-bottom">
+            <span class="conv-preview">
+              {{ conv.lastMessageContent || 'Démarrer la conversation...' }}
+            </span>
+            @if ((conv.urgentCount ?? 0) > 0) {
+              <span class="urgent-badge" title="Messages urgents">
+                🚨 {{ conv.urgentCount }}
+              </span>
+            }
+          </div>
+          <!-- Status badge -->
+          @if (conv.status) {
+            <span class="status-pill" [class]="'status-' + conv.status.toLowerCase()">
+              {{ conv.status }}
+            </span>
+          }
+        </div>
+
+        <!-- Delete -->
+        <button class="btn-delete-conv" (click)="deleteConversation(conv, $event)" title="Supprimer">
+          <span class="material-symbols-rounded">delete</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="competence-container">
+  <div class="header-section">
+    <h1>Competence Matrix</h1>
+    <p>Discover and evaluate specialized skills in our network.</p>
+  </div>
+
+  <div class="control-panel">
+    <div class="search-box">
+      <span class="material-symbols-rounded">search</span>
+      <input 
+        type="text" 
+        placeholder="Search skills by name..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      >
+    </div>
+    
+    <div class="filter-group">
+      <button 
+        *ngFor="let lvl of niveauOptions" 
+        class="filter-btn"
+        [class.active]="selectedNiveau === lvl"
+        (click)="filterByNiveau(lvl)"
+      >
+        {{ lvl }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="skills-grid" *ngIf="!isLoading">
+    <div class="skill-card" *ngFor="let skill of skills" [routerLink]="['/competence', skill.idSkill]">
+      <div class="skill-header">
+        <span class="level-badge" [ngClass]="skill.niveau.toLowerCase()">
+          {{ skill.niveau }}
+        </span>
+        <div class="skill-rating" *ngIf="skillStats[skill.idSkill!]">
+          <span class="star">★</span>
+          <span class="score">{{ skillStats[skill.idSkill!].noteMoyenne | number:'1.1-1' }}</span>
+        </div>
+      </div>
+
+      <h3 class="skill-title">{{ skill.nomSkill }}</h3>
+      <p class="skill-desc">{{ skill.description | slice:0:100 }}{{ skill.description.length > 100 ? '...' : '' }}</p>
+
+      <div class="skill-footer">
+        <span class="votes" *ngIf="skillStats[skill.idSkill!]">
+          {{ skillStats[skill.idSkill!].nombreNotes }} reviews
+        </span>
+        <span class="id-tag">#{{ skill.idSkill }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && skills.length === 0">
+    <span class="material-symbols-rounded">sentiment_dissatisfied</span>
+    <p>No skills found matching your search criteria.</p>
+  </div>
+</div>

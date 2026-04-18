@@ -1,0 +1,76 @@
+.titles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.title-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 190px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-left-width: 4px;
+  border-radius: 8px;
+}
+
+.title-card.locked {
+  background: #f8fafc;
+  opacity: 0.82;
+}
+
+.title-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.title-header strong,
+.title-header span {
+  display: block;
+}
+
+.title-header strong {
+  font-size: 16px;
+}
+
+.title-header span,
+.title-card p,
+.requirements span {
+  color: #667085;
+}
+
+.title-card p {
+  flex: 1;
+  margin: 0;
+}
+
+.unlocked-icon {
+  margin-left: auto;
+  color: #0f9f6e;
+}
+
+.requirements {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.rarity-pill {
+  align-self: flex-start;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.loading-state {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 20px;
+  color: #667085;
+}

@@ -1,0 +1,82 @@
+<div class="events-container">
+  <header class="events-header">
+    <div class="header-content">
+      <h1>Découvrez nos Événements</h1>
+      <p>Participez à des hackathons, workshops et meetups passionnants.</p>
+    </div>
+    
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-symbols-rounded">search</span>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un événement...">
+      </div>
+      
+      <div class="filter-group">
+        <select [(ngModel)]="typeFilter">
+          <option value="">Tous les types</option>
+          @for (type of eventTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="premium-loader"></div>
+      <p>Chargement des événements...</p>
+    </div>
+  } @else {
+    @if (filteredEvents.length === 0) {
+      <div class="empty-state card">
+        <span class="material-symbols-rounded">event_busy</span>
+        <h3>Aucun événement trouvé</h3>
+        <p>Essayez de modifier vos filtres ou votre recherche.</p>
+      </div>
+    } @else {
+      <div class="events-grid">
+        @for (event of filteredEvents; track event.id) {
+          <div class="event-card card" [routerLink]="['/events', event.id]">
+            <div class="card-image">
+              <img [src]="event.photoUrl || 'assets/images/event-placeholder.jpg'" [alt]="event.title">
+              <div class="category-badge">{{ event.category }}</div>
+              <div class="type-pill" [class]="getTypeClass(event.type)">{{ event.type }}</div>
+            </div>
+            
+            <div class="card-content">
+              <div class="date-badge">
+                <span class="day">{{ event.startDate | date:'dd' }}</span>
+                <span class="month">{{ event.startDate | date:'MMM' }}</span>
+              </div>
+              
+              <div class="event-info">
+                <h3>{{ event.title }}</h3>
+                <div class="meta">
+                  <span class="location">
+                    <span class="material-symbols-rounded">location_on</span>
+                    {{ event.location || 'Location Non Spécifiée' }}
+                  </span>
+                </div>
+                
+                <p class="description">
+                  {{ (event.description || '') | slice:0:100 }}{{ (event.description.length || 0) > 100 ? '...' : '' }}
+                </p>
+                
+                <div class="card-footer">
+                  <span class="price" [class.free]="(event.price || 0) === 0">
+                    {{ (event.price || 0) === 0 ? 'Gratuit' : (event.price | currency:'TND':'symbol') }}
+                  </span>
+                  <button class="btn-more">
+                    Détails
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
