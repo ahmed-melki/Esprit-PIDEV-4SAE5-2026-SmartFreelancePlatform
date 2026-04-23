@@ -1,0 +1,213 @@
+// En-tête carte : spacer pour pousser le bouton à droite
+mat-card-header {
+  .spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.filter-group {
+  margin-bottom: 12px;
+}
+
+.search-field {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.conversation-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .mat-list-item {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.conversation-item {
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: 8px;
+  min-height: 72px;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  &.selected {
+    background-color: rgba(63, 81, 181, 0.12);
+  }
+
+  .avatar-slot {
+    margin-right: 16px;
+    align-self: center;
+  }
+
+  .list-item-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 8px;
+  }
+
+  .item-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 8px;
+
+    .participant-names {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 4px;
+    }
+
+    .participant-name {
+      flex: 1 1 0;
+      font-weight: 500;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .separator {
+      flex: 0 0 auto;
+      margin: 0 4px;
+      color: #999;
+    }
+
+    .urgent-indicator {
+      margin-left: 8px;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+  }
+
+  .item-subtitle.last-message,
+  .last-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    line-height: normal;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .last-message-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    min-width: 0;
+  }
+
+  .last-message-time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .file-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 4px;
+    vertical-align: middle;
+    color: #666;
+  }
+
+  .file-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+
+    .mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+// Zone meta : forcer visibilité du bouton supprimer (contournement layout Material 15)
+.conversation-item-meta {
+  min-width: 48px;
+  margin-left: auto;
+  flex-shrink: 0;
+
+  button.mat-mdc-icon-button {
+    color: var(--mat-icon-button-foreground-color, inherit);
+  }
+  button[color='warn'] .mat-icon {
+    color: var(--mat-warn-contrast, #f44336);
+  }
+}
+
+// Slot avatar + badge de notification (matBadge)
+.avatar-slot {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  position: relative;
+
+  ::ng-deep .mat-badge-content {
+    font-size: 0.65rem;
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+// Avatar : image ronde
+.avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+// Fallback avatar (initiales) quand l'image ne charge pas
+.avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-primary, #1976d2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+// Badge de statut
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #e0e0e0;
+  color: #333;
+  margin-left: 8px;
+
+  &.active {
+    background-color: #4caf50; // Vert Material
+    color: white;
+  }
+}

@@ -1,0 +1,57 @@
+[33m❯[39m Building...
+[32m✔[39m Building...
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m               [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-2FRNLT7Q.js[39m     [2m | [22m[2mmain[22m                [2m | [22m[36m553.41 kB[39m[2m | [22m              [36m109.30 kB[39m
+[32mchunk-K67WRF76.js[39m    [2m | [22m[2m-[22m                   [2m | [22m[36m448.10 kB[39m[2m | [22m               [36m82.51 kB[39m
+[32mchunk-7Y2BDKCF.js[39m    [2m | [22m[2m-[22m                   [2m | [22m[36m185.48 kB[39m[2m | [22m               [36m52.46 kB[39m
+[32mstyles-LINIHKOO.css[39m  [2m | [22m[2mstyles[22m              [2m | [22m[36m151.19 kB[39m[2m | [22m               [36m16.68 kB[39m
+[32mpolyfills-FFHMD2TL.js[39m[2m | [22m[2mpolyfills[22m           [2m | [22m [36m34.52 kB[39m[2m | [22m               [36m11.28 kB[39m
+
+[1m [22m                    [2m | [22m[1mInitial total[22m       [2m | [22m  [1m[91m1.37 MB[39m[22m[2m | [22m              [1m272.23 kB[22m
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m               [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-GVPFXLLN.js[39m    [2m | [22m[2mbrowser[22m             [2m | [22m [36m63.57 kB[39m[2m | [22m               [36m16.84 kB[39m
+[32mchunk-MST5P5WF.js[39m    [2m | [22m[2mcommunication-module[22m[2m | [22m [36m12.59 kB[39m[2m | [22m                [36m3.30 kB[39m
+
+Application bundle generation failed. [13.382 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/communication/pages/conversation-list/conversation-list.component.html:15:59:
+[37m      15 │ ...dge" [class]="conv.status?.[32mtoLowerCase[37m()">{{ conv.status }}</span>
+         ╵                               [32m~~~~~~~~~~~[0m
+
+  Error occurs in the template of component ConversationListComponent.
+
+    src/app/features/communication/pages/conversation-list/conversation-list.component.ts:24:15:
+[37m      24 │   templateUrl: [32m'./conversation-list.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 512.00 kB was not met by 860.70 kB with a total of 1.37 MB.[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/theme/sidemenu/sidemenu.component.scss exceeded maximum budget. Budget 2.05 kB was not met by 798 bytes with a total of 2.85 kB.[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/theme/admin-layout/admin-layout.component.scss exceeded maximum budget. Budget 2.05 kB was not met by 1.77 kB with a total of 3.82 kB.[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mModule 'moment' used by 'node_modules/@angular/material-moment-adapter/fesm2022/material-moment-adapter.mjs' is not ESM[0m
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: [4mhttps://angular.dev/tools/cli/build#configuring-commonjs-dependencies[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mModule 'base64-js' used by 'src/app/core/authentication/helpers.ts' is not ESM[0m
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: [4mhttps://angular.dev/tools/cli/build#configuring-commonjs-dependencies[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mUnable to locate stylesheet: C:\fonts\Material_Icons.css[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mbundle initial exceeded maximum budget. Budget 1.05 MB was not met by 324.13 kB with a total of 1.37 MB.[0m
+
+[39m[22m

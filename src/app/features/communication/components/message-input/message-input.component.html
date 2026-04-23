@@ -1,0 +1,65 @@
+<div class="input-area">
+  <textarea
+    #messageInput
+    id="message-input"
+    name="message"
+    class="message-input"
+    rows="1"
+    cdkTextareaAutosize
+    cdkAutosizeMinRows="1"
+    cdkAutosizeMaxRows="5"
+    placeholder="Écrire un message…"
+    [(ngModel)]="messageText"
+    (keydown)="handleKeydown($event)"
+  ></textarea>
+
+  <button
+    mat-icon-button
+    type="button"
+    class="icon-btn mic-btn"
+    (click)="startVoiceInput()"
+    [disabled]="isListening"
+    [matTooltip]="isListening ? 'Écoute en cours…' : 'Saisie vocale'"
+    aria-label="Saisie vocale"
+  >
+    <mat-icon>{{ isListening ? 'stop_circle' : 'mic' }}</mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    type="button"
+    class="icon-btn location-btn"
+    (click)="shareLocation()"
+    [disabled]="isSharingLocation"
+    [matTooltip]="isSharingLocation ? 'Partage de position…' : 'Partager ma position'"
+    aria-label="Partager ma position"
+  >
+    <span aria-hidden="true">📍</span>
+  </button>
+
+  <!-- On conserve l'upload fichier existant, même s'il n'est pas mentionné dans le brief. -->
+  <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+  <button
+    mat-icon-button
+    type="button"
+    class="icon-btn attach-btn"
+    (click)="fileInput.click()"
+    matTooltip="Joindre un fichier"
+    aria-label="Joindre un fichier"
+  >
+    <mat-icon>attach_file</mat-icon>
+  </button>
+
+  <button
+    mat-mini-fab
+    color="primary"
+    class="send-btn"
+    (click)="sendAndClear()"
+    type="button"
+    aria-label="Envoyer"
+  >
+    <mat-icon>send</mat-icon>
+  </button>
+
+  <div class="voice-hint" *ngIf="voiceHint">{{ voiceHint }}</div>
+</div>

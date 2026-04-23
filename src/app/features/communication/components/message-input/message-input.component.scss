@@ -1,0 +1,71 @@
+
+.input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  position: relative;
+  background-color: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+}
+
+.message-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 0 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 38px;
+  background: #fff;
+  resize: none;
+  outline: none;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #3f51b5;
+  }
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: #757575;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.voice-hint {
+  position: absolute;
+  left: 16px;
+  bottom: -18px;
+  font-size: 12px;
+  line-height: 1;
+  color: #757575;
+  pointer-events: none;
+}

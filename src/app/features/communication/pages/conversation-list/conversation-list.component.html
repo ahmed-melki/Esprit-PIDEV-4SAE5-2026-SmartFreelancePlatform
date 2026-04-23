@@ -1,0 +1,76 @@
+<page-header title="Communication" [subtitle]="conversations.length + ' conversation(s)'" />
+
+<mat-card class="conversation-card">
+  <mat-card-header>
+    <mat-card-title>Conversations</mat-card-title>
+    <mat-card-subtitle>{{ conversations.length }} conversation(s)</mat-card-subtitle>
+    <span class="spacer"></span>
+    <button mat-mini-fab color="primary" (click)="openNewConversationDialog()" matTooltip="Nouvelle conversation" type="button">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-button-toggle-group #filterGroup value="all" (change)="onFilterChange($event.value)" class="filter-group">
+      <mat-button-toggle value="all">Toutes</mat-button-toggle>
+      <mat-button-toggle value="unread">Non lues</mat-button-toggle>
+    </mat-button-toggle-group>
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Rechercher une conversation</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Nom, message..." />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-nav-list>
+      <mat-list-item
+        *ngFor="let conv of filteredConversations"
+        class="conversation-item"
+        [class.selected]="conv.id === selectedId"
+        (click)="selectAndGo(conv)"
+      >
+        <div
+          matListItemAvatar
+          class="avatar-slot"
+          [matBadge]="conv.unreadCount ?? 0"
+          [matBadgeHidden]="(conv.unreadCount ?? 0) === 0"
+          matBadgePosition="above after"
+          matBadgeOverlap="true"
+          matBadgeColor="warn"
+        >
+          <img
+            *ngIf="!avatarFailed(conv.id)"
+            class="avatar-img"
+            src="https://api.dicebear.com/7.x/initials/svg?seed={{ conv.clientId }}"
+            alt=""
+            (error)="setAvatarFailed(conv.id!)"
+          />
+          <div *ngIf="avatarFailed(conv.id)" class="avatar-fallback">{{ getInitials(conv) }}</div>
+        </div>
+        <div matListItemTitle class="list-item-content">
+          <div class="item-title">
+            <div class="participant-names">
+              <span class="participant-name">{{ mockDataService.getClientName(conv.clientId) }}</span>
+              <span class="separator">↔</span>
+              <span class="participant-name">{{ mockDataService.getFreelanceName(conv.freelanceId) }}</span>
+              <span *ngIf="(conv.urgentCount ?? 0) > 0" class="urgent-indicator" matTooltip="Messages urgents">🔴</span>
+            </div>
+          </div>
+          <div class="item-subtitle last-message">
+            @if (isFileMessage(conv.lastMessageContent)) {
+              <span class="file-indicator">
+                <mat-icon>attach_file</mat-icon> Fichier
+              </span>
+            } @else {
+              <span class="last-message-content">{{ conv.lastMessageContent || 'Aucun message' }}</span>
+            }
+            <span class="last-message-time">{{ conv.lastMessageTime ? (conv.lastMessageTime | date:'shortTime') : '' }}</span>
+          </div>
+        </div>
+        <div matListItemMeta class="conversation-item-meta">
+          <button mat-icon-button color="warn" (click)="deleteConversation(conv.id!, $event)" matTooltip="Supprimer" type="button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-card-content>
+</mat-card>

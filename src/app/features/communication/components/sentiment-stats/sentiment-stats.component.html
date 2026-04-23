@@ -1,0 +1,29 @@
+<div class="sentiment-dashboard">
+  <h5>Analyse des messages</h5>
+
+  <ngx-charts-pie-chart
+    [view]="[200, 150]"
+    [results]="chartData"
+    [scheme]="colorScheme"
+    [gradient]="false"
+    [legend]="false"
+    [labels]="false"
+    [doughnut]="true"
+    [trimLabels]="false"
+  ></ngx-charts-pie-chart>
+
+  <div class="stats-legend">
+    <div class="legend-item positive">
+      <span class="dot"></span>
+      <span>Positifs: {{ positive }}</span>
+    </div>
+    <div class="legend-item neutral">
+      <span class="dot"></span>
+      <span>Neutres: {{ neutral }}</span>
+    </div>
+    <div class="legend-item negative">
+      <span class="dot"></span>
+      <span>Négatifs: {{ negative }}</span>
+    </div>
+  </div>
+</div>

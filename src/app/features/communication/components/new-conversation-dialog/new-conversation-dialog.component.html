@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>Nouvelle conversation</h2>
+<mat-dialog-content>
+  <form [formGroup]="conversationForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Client</mat-label>
+      <mat-select formControlName="clientId" placeholder="Choisir un client">
+        <mat-option *ngFor="let client of clients" [value]="client.id">
+          {{ client.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="conversationForm.get('clientId')?.hasError('required')">
+        Le client est requis.
+      </mat-error>
+      <mat-error *ngIf="conversationForm.get('clientId')?.hasError('min')">
+        Valeur invalide.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Freelance</mat-label>
+      <mat-select formControlName="freelanceId" placeholder="Choisir un freelance">
+        <mat-option *ngFor="let freelance of freelances" [value]="freelance.id">
+          {{ freelance.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="conversationForm.get('freelanceId')?.hasError('required')">
+        Le freelance est requis.
+      </mat-error>
+      <mat-error *ngIf="conversationForm.get('freelanceId')?.hasError('min')">
+        Valeur invalide.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Projet</mat-label>
+      <mat-select formControlName="projectId" placeholder="Choisir un projet" [disabled]="!conversationForm.get('freelanceId')?.value">
+        <mat-option *ngFor="let projet of filteredProjets" [value]="projet.id">
+          {{ projet.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="conversationForm.get('projectId')?.hasError('required')">
+        Le projet est requis.
+      </mat-error>
+      <mat-error *ngIf="conversationForm.get('projectId')?.hasError('min')">
+        Valeur invalide.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" type="button">Annuler</button>
+  <button mat-button color="primary" (click)="onSubmit()" [disabled]="!conversationForm.valid" type="button">Créer</button>
+</mat-dialog-actions>

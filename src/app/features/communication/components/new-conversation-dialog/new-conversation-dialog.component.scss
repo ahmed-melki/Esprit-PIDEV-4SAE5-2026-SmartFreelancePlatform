@@ -1,0 +1,14 @@
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+}
+
+::ng-deep .mat-select-panel {
+  max-height: 300px !important;
+}

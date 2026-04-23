@@ -1,0 +1,169 @@
+<mat-toolbar color="primary" class="chat-header">
+  <button mat-icon-button (click)="goBack()" type="button" aria-label="Retour">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <img class="header-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ otherParticipantId }}" alt="" />
+  <span class="header-name">{{ otherParticipantName || 'Participant' }}</span>
+  <span class="online-status" *ngIf="otherParticipantOnline" title="En ligne" aria-label="En ligne"></span>
+  <span class="spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="themeMenu" type="button" aria-label="Changer le thème" matTooltip="Changer le thème">
+    <mat-icon>palette</mat-icon>
+  </button>
+  <mat-menu #themeMenu="matMenu">
+    @for (t of themes; track t.value) {
+      <button mat-menu-item (click)="changeTheme(t.value)">
+        <span [style.backgroundColor]="t.color" class="theme-dot"></span>
+        <span>{{ t.name }}</span>
+      </button>
+    }
+  </mat-menu>
+
+  <button
+    mat-icon-button
+    type="button"
+    [color]="useAiMode ? 'accent' : undefined"
+    (click)="toggleAiMode()"
+    [matTooltip]="useAiMode ? 'Mode IA activé' : 'Mode normal activé'"
+    aria-label="Basculer le mode IA"
+  >
+    <mat-icon>{{ useAiMode ? 'smart_toy' : 'forum' }}</mat-icon>
+  </button>
+
+  <button mat-icon-button type="button" matTooltip="Appeler" aria-label="Appeler">
+    <mat-icon>call</mat-icon>
+  </button>
+  <button mat-icon-button type="button" matTooltip="Vidéo" aria-label="Vidéo">
+    <mat-icon>videocam</mat-icon>
+  </button>
+  <button mat-icon-button type="button" aria-label="Plus d’options">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="chat-layout">
+  <div class="chat-main">
+    <mat-card class="chat-card" [ngClass]="'theme-' + currentTheme">
+      <mat-card-content #chatContainer class="messages-container">
+          <div *ngFor="let msg of messages" class="message-row" [class.my-message]="isMyMessage(msg)" [class.other-message]="!isMyMessage(msg)">
+          <img *ngIf="!isMyMessage(msg)" class="message-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ msg.senderId }}" alt="Avatar" />
+          <div class="message-bubble-wrapper">
+            <div class="message-bubble">
+              <div class="message-header">
+                <span class="sender-name">Expéditeur {{ msg.senderId }}</span>
+                <span *ngIf="msg.urgent" class="urgent-badge" matTooltip="Message urgent">🚨</span>
+                <span class="status-icon" *ngIf="isSentByCurrentUser(msg.senderId)" [class.read]="!!msg.readAt">
+                  <mat-icon>{{ getReadReceiptIcon(msg) }}</mat-icon>
+                </span>
+                <span
+                  *ngIf="msg.id != null && sentimentMap.get(msg.id) as sentiment"
+                  class="sentiment-badge"
+                  [ngClass]="'sentiment-' + sentiment.toLowerCase()"
+                >
+                  {{ sentiment }}
+                </span>
+                @if (isMyMessage(msg) && !msg.deleted) {
+                  <div class="message-actions">
+                    <button mat-icon-button [matMenuTriggerFor]="messageMenu" (click)="selectedMessageForMenu = msg" class="more-button" type="button" aria-label="Actions">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+              <div class="message-content">
+                @if (!msg.deleted) {
+                  @if (msg.fileUrl) {
+                    <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer" class="file-link">
+                      <mat-icon>attach_file</mat-icon>
+                      {{ msg.fileName || 'Fichier joint' }}
+                    </a>
+                  } @else {
+                    @if (msg.location && msg.locationLat != null && msg.locationLng != null) {
+                      <a
+                        class="file-link"
+                        [href]="'https://www.google.com/maps?q=' + msg.locationLat + ',' + msg.locationLng"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        📍 Voir sur Google Maps
+                      </a>
+                    } @else {
+                      {{ msg.content }}
+                    }
+                  }
+                } @else {
+                  <span class="deleted-message">
+                    @if (msg.inappropriate) {
+                      Message supprimé (langage inapproprié)
+                    } @else {
+                      Ce message a été supprimé
+                    }
+                  </span>
+                }
+              </div>
+
+              @if (msg.id != null) {
+                <div class="message-reactions" *ngIf="getReactionsForMessage(msg.id).length">
+                  <span
+                    *ngFor="let r of getReactionsForMessage(msg.id)"
+                    class="reaction-badge"
+                    [class.active]="isUserReacted(msg.id, r.emoji)"
+                    (click)="toggleReaction(msg.id, r.emoji)"
+                  >
+                    {{ r.emoji }} {{ r.count }}
+                  </span>
+                </div>
+                <button mat-icon-button class="add-reaction-btn" (click)="openEmojiPicker(msg.id)" type="button" aria-label="Ajouter une réaction">
+                  <mat-icon>add_reaction</mat-icon>
+                </button>
+              }
+              <div class="message-time">{{ msg.createdAt ? (msg.createdAt | date:'shortTime') : '' }}</div>
+            </div>
+          </div>
+          <img *ngIf="isMyMessage(msg)" class="message-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ msg.senderId }}" alt="Avatar" />
+          </div>
+
+
+        <mat-menu #messageMenu="matMenu">
+          <button mat-menu-item (click)="editMessage(selectedMessageForMenu!)">
+            <mat-icon>edit</mat-icon>
+            <span>Modifier</span>
+          </button>
+          <button mat-menu-item (click)="deleteMessage(selectedMessageForMenu!.id!)">
+            <mat-icon color="warn">delete</mat-icon>
+            <span>Supprimer</span>
+          </button>
+        </mat-menu>
+      </mat-card-content>
+      <mat-card-actions class="message-input-area">
+        <div class="mode-indicator" [class.ai]="useAiMode">
+          <mat-icon class="mode-icon">{{ useAiMode ? 'smart_toy' : 'edit_note' }}</mat-icon>
+          <span class="mode-text">{{ useAiMode ? 'Mode IA' : 'Mode normal' }}</span>
+        </div>
+        <app-message-input
+          #messageInputRef
+          [conversationId]="conversationId"
+          [senderId]="currentUserId"
+          (messageSubmitted)="onMessageSubmitted($event)"
+          (messageSent)="loadMessages(); loadSentimentStats(); showSuggestions = false"
+        ></app-message-input>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  <aside class="chat-sidebar">
+    <div class="suggestions-panel">
+      <h4>Suggestions</h4>
+      @if (showSuggestions) {
+        <mat-chip-listbox class="suggestion-chips" (change)="insertSuggestion($event.value ?? '')">
+          <mat-chip-option *ngFor="let s of suggestions" [value]="s">{{ s }}</mat-chip-option>
+        </mat-chip-listbox>
+      }
+
+      <app-sentiment-stats
+        *ngIf="sentimentStats"
+        [positive]="sentimentStats.positive"
+        [neutral]="sentimentStats.neutral"
+        [negative]="sentimentStats.negative"
+      ></app-sentiment-stats>
+    </div>
+  </aside>
+</div>
