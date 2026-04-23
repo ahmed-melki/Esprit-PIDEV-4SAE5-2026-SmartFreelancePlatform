@@ -1,5 +1,6 @@
 package tn.esprit.projetpi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class User {
     private Role role;
     @ElementCollection
     private List<String> skills;
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<Project> projects;
 

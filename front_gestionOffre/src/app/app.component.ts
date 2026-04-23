@@ -1,26 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { HeaderComponent } from './shared/header/header.component';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NavbarComponent } from './shared/navbar/navbar.component';
 import { FooterComponent } from './shared/footer/footer.component';
+import { AiAssistantComponent } from './features/communication/ai-assistant/ai-assistant.component';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'] // ✅ corrigé
-    ,
-    standalone: true,
-    imports: [HeaderComponent, RouterOutlet, FooterComponent]
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, AiAssistantComponent],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
-  title = 'projetpi';
-
-  ngOnInit() {
-    const loader = document.getElementById('globalLoader');
-    if (loader) {
-      loader.classList.add('global-loader-fade-out');
-      setTimeout(() => {
-        loader.classList.add('global-loader-hidden');
-      }, 500); // correspond à la transition CSS
-    }
-  }
+export class AppComponent {
+  title = 'Freelancer Platform';
 }

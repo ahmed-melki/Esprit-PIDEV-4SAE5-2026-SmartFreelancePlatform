@@ -1,0 +1,94 @@
+<div class="find-job-wrapper container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Explore Career Opportunities</h1>
+      <p class="page-subtitle">Find the perfect job that matches your skills and passion from top companies.</p>
+    </div>
+    <div class="header-illustration">
+      <span class="material-symbols-rounded hero-icon">work</span>
+    </div>
+  </div>
+
+  <div class="search-section glass-panel">
+    <div class="search-box">
+      <label for="jobSearchInput" style="display: none;">Search Jobs</label>
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input id="jobSearchInput" name="search" type="text" placeholder="Search by job title, description or company..." (input)="onSearch($event)">
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-outline btn-icon">
+        <span class="material-symbols-rounded">tune</span> Category
+      </button>
+    </div>
+  </div>
+
+  <!-- States -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading jobs...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-container glass-card">
+    <span class="material-symbols-rounded error-icon">warning</span>
+    <h3>Connection Error</h3>
+    <p>Could not load jobs. Please ensure the job service is running on port 8052.</p>
+    <button class="btn btn-primary" (click)="fetchJobs()">Retry</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && filteredJobs.length === 0" class="empty-container glass-card">
+    <span class="material-symbols-rounded empty-icon">search_off</span>
+    <h3>No jobs matched your search</h3>
+    <p>Try using different keywords or clearing your filters.</p>
+  </div>
+
+  <!-- Job List -->
+  <div *ngIf="!isLoading && !error && filteredJobs.length > 0" class="job-list">
+    <div class="job-card glass-card" *ngFor="let job of paginatedJobs">
+      <div class="job-card-main">
+        <div class="company-brand">
+          <div class="logo-placeholder">{{ job.company.charAt(0) }}</div>
+          <div class="company-info">
+            <h4 class="company-name">{{ job.company }}</h4>
+            <span class="location-badge">
+              <span class="material-symbols-rounded">location_on</span>
+              {{ job.location || 'Remote' }}
+            </span>
+          </div>
+        </div>
+        
+        <h3 class="job-title">{{ job.title }}</h3>
+        <p class="job-description">{{ job.description | slice:0:120 }}...</p>
+        
+        <div class="job-tags">
+          <span class="tag tag-salary" *ngIf="job.salaryMin || job.salaryMax">
+            {{ job.salaryMin | number }} – {{ job.salaryMax | number }} TND
+          </span>
+          <span class="tag tag-type">{{ job.contractType }}</span>
+          <span class="tag tag-skill" *ngFor="let skill of job.requiredSkills | slice:0:2">{{ skill }}</span>
+        </div>
+      </div>
+
+      <div class="job-card-actions">
+        <a [routerLink]="['/freelancer/quiz', job.id]" class="btn btn-primary full-width">
+          <span class="material-symbols-rounded">quiz</span> Apply Now
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoading && !error && totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <div class="page-numbers">
+      <button class="num-btn" *ngFor="let p of [].constructor(totalPages); let i = index"
+        [class.active]="currentPage === i + 1" (click)="currentPage = i + 1">
+        {{ i + 1 }}
+      </button>
+    </div>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+      <span class="material-symbols-rounded">arrow_forward</span>
+    </button>
+  </div>
+</div>

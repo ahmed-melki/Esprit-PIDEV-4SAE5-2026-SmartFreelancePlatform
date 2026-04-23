@@ -1,0 +1,72 @@
+<div class="bw-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <span class="material-symbols-rounded page-icon">block</span>
+      <div>
+        <h1>Mots Interdits</h1>
+        <p>Gestion de la liste de filtrage automatique</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  @if (successMessage) {
+    <div class="toast success">
+      <span class="material-symbols-rounded">check_circle</span>
+      {{ successMessage }}
+    </div>
+  }
+  @if (errorMessage) {
+    <div class="toast error">
+      <span class="material-symbols-rounded">error</span>
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Add form -->
+  <div class="add-card">
+    <h3>Ajouter un mot interdit</h3>
+    <div class="add-row">
+      <input
+        type="text"
+        [(ngModel)]="newWord"
+        placeholder="Entrez le mot à interdire..."
+        class="form-control"
+        (keydown.enter)="add()"
+      />
+      <button class="btn-add" (click)="add()" [disabled]="!newWord.trim()">
+        <span class="material-symbols-rounded">add</span>
+        Ajouter
+      </button>
+    </div>
+    <p class="hint">
+      <span class="material-symbols-rounded">info</span>
+      Les messages contenant ces mots seront automatiquement supprimés et marqués comme inappropriés.
+    </p>
+  </div>
+
+  <!-- Words list -->
+  @if (loading) {
+    <div class="loading-state">
+      <span class="material-symbols-rounded spin">sync</span> Chargement...
+    </div>
+  } @else if (badWords.length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-rounded">check_circle</span>
+      <p>Aucun mot interdit enregistré</p>
+    </div>
+  } @else {
+    <div class="words-grid">
+      @for (bw of badWords; track bw.id) {
+        <div class="word-chip">
+          <span class="word-text">{{ bw.word }}</span>
+          <button class="remove-btn" (click)="delete(bw)" title="Supprimer">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+      }
+    </div>
+    <p class="total-count">{{ badWords.length }} mot(s) interdit(s) au total</p>
+  }
+</div>

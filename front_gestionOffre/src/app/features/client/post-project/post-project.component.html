@@ -1,0 +1,48 @@
+<div class="form-wrapper container">
+  <div class="form-header">
+    <a routerLink="/client/dashboard" class="back-link">
+      <span class="material-symbols-rounded">arrow_back</span> Back to Dashboard
+    </a>
+    <h2>Post a New Project</h2>
+    <p>Describe your project in detail to attract top-tier freelancers.</p>
+  </div>
+
+  <div class="glass-panel form-card">
+    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="projectTitle" class="form-label">Project Title</label>
+        <input type="text" id="projectTitle" name="title" formControlName="title" class="form-control" placeholder="e.g. Build a SaaS MVP">
+      </div>
+
+      <div class="form-group">
+        <label for="projectDescription" class="form-label">Project Description & Scope</label>
+        <textarea id="projectDescription" name="description" formControlName="description" class="form-control" rows="6" placeholder="Explain the project scope, deliverables, and timeline..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group third-width">
+          <label for="projectBudget" class="form-label">Total Budget ($)</label>
+          <input type="number" id="projectBudget" name="budget" formControlName="budget" class="form-control" placeholder="e.g. 15000">
+        </div>
+        
+        <div class="form-group third-width">
+          <label for="projectDeadline" class="form-label">Deadline</label>
+          <input type="date" id="projectDeadline" name="deadline" formControlName="deadline" class="form-control">
+        </div>
+
+        <div class="form-group third-width">
+          <label for="projectSkills" class="form-label">Required Skills (Comma separated)</label>
+          <input type="text" id="projectSkills" name="skills" formControlName="skills" class="form-control" placeholder="e.g. React, Node.js">
+        </div>
+      </div>
+
+      <p class="error-msg" *ngIf="submitError">{{ submitError }}</p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="projectForm.invalid || isSubmitting">
+          {{ isSubmitting ? 'Posting...' : 'Post Project' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

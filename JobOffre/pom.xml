@@ -16,9 +16,8 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<spring-cloud.version>2024.0.0</spring-cloud.version>  <!-- ← AJOUTER -->
+		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
-
 	<dependencies>
 		<!-- Spring Boot Web -->
 		<dependency>
@@ -75,7 +74,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

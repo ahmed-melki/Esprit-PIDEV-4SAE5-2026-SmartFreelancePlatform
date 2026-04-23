@@ -1,0 +1,92 @@
+<div class="detail-container" *ngIf="skill">
+  <div class="top-nav">
+    <button class="back-link" routerLink="/competence">
+      <span class="material-symbols-rounded">arrow_back</span>
+      Back to Matrix
+    </button>
+  </div>
+
+  <div class="skill-hero">
+    <div class="hero-content">
+      <div class="level-indicator" [ngClass]="skill.niveau.toLowerCase()">
+        {{ skill.niveau }}
+      </div>
+      <h1>{{ skill.nomSkill }}</h1>
+      <p class="description">{{ skill.description }}</p>
+    </div>
+
+    <div class="hero-stats" *ngIf="stats">
+      <div class="stat-card">
+        <span class="stat-val">{{ stats.noteMoyenne | number:'1.1-1' }}</span>
+        <span class="stat-lbl">Average Score</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val">{{ stats.nombreNotes }}</span>
+        <span class="stat-lbl">Evaluations</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="reviews-section">
+      <div class="section-header">
+        <h2>Recent Reviews</h2>
+      </div>
+
+      <div class="review-list">
+        <div class="review-item" *ngFor="let r of ratings">
+          <div class="review-header">
+            <div class="review-stars">
+              <span class="star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= r.note">★</span>
+            </div>
+            <span class="review-date">{{ r.dateEvaluation | date }}</span>
+          </div>
+          <p class="review-comment">{{ r.commentaire }}</p>
+        </div>
+
+        <div class="empty-reviews" *ngIf="ratings.length === 0">
+          <p>No evaluations yet. Be the first to rate this skill!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rating-sidebar">
+      <div class="rating-card">
+        <h3>Rate this Skill</h3>
+        <p>Your feedback helps our community identify top experts.</p>
+
+        <div class="star-picker">
+          <button 
+            *ngFor="let s of [1,2,3,4,5]" 
+            (click)="setNote(s)"
+            (mouseenter)="hoverNote = s"
+            (mouseleave)="hoverNote = 0"
+            [class.active]="s <= newRating.note"
+            [class.hover]="s <= hoverNote"
+          >
+            ★
+          </button>
+        </div>
+
+        <div class="form-group">
+          <textarea 
+            [(ngModel)]="newRating.commentaire" 
+            placeholder="Share your experience with this skill..."
+          ></textarea>
+        </div>
+
+        <button 
+          class="submit-btn" 
+          [disabled]="newRating.note === 0 || isSubmitting"
+          (click)="submitRating()"
+        >
+          {{ isSubmitting ? 'Posting...' : 'Submit Evaluation' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="full-loader">
+  <div class="spinner"></div>
+</div>

@@ -138,7 +138,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
             <!-- Plugin Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -1,5 +1,6 @@
 package tn.esprit.projetpi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,9 +33,9 @@ public class Project {
 
     private LocalDateTime createdAt;
 
-
     @ManyToOne
     @JoinColumn(name = "client_id")
+
     private User client;
 
 

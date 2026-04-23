@@ -1,0 +1,86 @@
+<div class="find-project-wrapper container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Find Your Next Big Project</h1>
+      <p class="page-subtitle">Browse through high-quality projects and take your career to the next level.</p>
+    </div>
+    <div class="header-illustration">
+      <span class="material-symbols-rounded hero-icon">rocket_launch</span>
+    </div>
+  </div>
+
+  <div class="search-section glass-panel">
+    <div class="search-box">
+      <label for="projectSearchInput" style="display: none;">Search Projects</label>
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input id="projectSearchInput" name="search" type="text" placeholder="Search projects by title or description..." (input)="onSearch($event)">
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-outline btn-icon">
+        <span class="material-symbols-rounded">filter_list</span> Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading projects...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container glass-card">
+    <span class="material-symbols-rounded error-icon">cloud_off</span>
+    <h3>Oops! Something went wrong</h3>
+    <p>We couldn't reach the project server. Please make sure the backend is running on port 8045.</p>
+    <button class="btn btn-primary" (click)="fetchProjects()">Try Again</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && filteredProjects.length === 0" class="empty-container glass-card">
+    <span class="material-symbols-rounded empty-icon">sentiment_dissatisfied</span>
+    <h3>No projects found</h3>
+    <p>Try adjusting your search terms to find what you're looking for.</p>
+  </div>
+
+  <!-- Project Grid -->
+  <div *ngIf="!isLoading && !error && filteredProjects.length > 0" class="project-grid">
+    <div class="project-card glass-card" *ngFor="let proj of paginatedProjects">
+      <div class="card-badges">
+        <span class="badge" [ngClass]="proj.status === 'OPEN' ? 'badge-success' : 'badge-neutral'">
+          {{ proj.status || 'OPEN' }}
+        </span>
+      </div>
+      
+      <div class="card-main">
+        <h3 class="project-title">{{ proj.title }}</h3>
+        <p class="project-desc">{{ proj.description | slice:0:150 }}{{ proj.description.length > 150 ? '...' : '' }}</p>
+      </div>
+
+      <div class="card-footer">
+        <div class="footer-stats">
+          <div class="stat-item">
+            <span class="meta-label">Budget</span>
+            <span class="stat-value text-secondary">${{ proj.budget }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="meta-label">Deadline</span>
+            <span class="stat-value">{{ proj.deadline || 'Flexible' }}</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm">View Details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoading && !error && totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+      <span class="material-symbols-rounded">chevron_left</span>
+    </button>
+    <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+      <span class="material-symbols-rounded">chevron_right</span>
+    </button>
+  </div>
+</div>

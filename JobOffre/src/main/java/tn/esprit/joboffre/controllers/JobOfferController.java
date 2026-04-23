@@ -80,4 +80,8 @@ public class JobOfferController {
     public List<JobOffer> getOpenJobs() {
         return jobOfferService.getOpenJobs();
     }
+    @PatchMapping("/{id}/close")
+    public JobOffer close(@PathVariable Long id) {
+        return jobOfferService.close(id);
+    }
 }

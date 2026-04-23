@@ -1,0 +1,89 @@
+<div class="chat-layout" [attr.data-theme]="selectedConversation?.theme || 'default'">
+
+  <!-- Sidebar -->
+  <aside class="chat-sidebar" [class.open]="sidebarOpen">
+    <app-conversation-list
+      [selectedConversationId]="selectedConversation?.id"
+      (conversationSelected)="onConversationSelected($event)"
+    ></app-conversation-list>
+  </aside>
+
+  <!-- Main panel -->
+  <main class="chat-main">
+    @if (!selectedConversation) {
+      <!-- Welcome state -->
+      <div class="welcome-state">
+        <div class="welcome-icon">
+          <span class="material-symbols-rounded">forum</span>
+        </div>
+        <h2>Bienvenue dans vos Messages</h2>
+        <p>Sélectionnez une conversation ou créez-en une nouvelle pour commencer.</p>
+      </div>
+    } @else {
+      <!-- Chat header -->
+      <div class="chat-header" [style.border-bottom-color]="getThemeColor()">
+        <button class="sidebar-toggle" (click)="toggleSidebar()" title="Afficher/Masquer la liste">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+
+        <div class="partner-info">
+          <div class="partner-avatar">
+            <span>{{ partnerId }}</span>
+            <span class="presence-dot" [class.online]="partnerOnline"></span>
+          </div>
+          <div class="partner-details">
+            <h3 class="partner-name">{{ conversationTitle }}</h3>
+            <div class="partner-status">
+              @if (partnerOnline) {
+                En ligne
+              } @else {
+                Hors ligne
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="theme-picker-wrap">
+            <button class="theme-btn" (click)="showThemeMenu = !showThemeMenu" title="Changer le thème">
+              <span class="material-symbols-rounded">palette</span>
+            </button>
+            @if (showThemeMenu) {
+              <div class="theme-menu">
+                <h4>Thème de la conversation</h4>
+                <div class="theme-grid">
+                  @for (t of THEMES; track t.key) {
+                    <button
+                      class="theme-swatch"
+                      [style.background]="t.color"
+                      [class.active]="selectedConversation.theme === t.key"
+                      (click)="setTheme(t.key)"
+                      [title]="t.label"
+                    ></button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="thread-area">
+        <app-message-thread
+          [conversationId]="selectedConversation.id"
+          [reloadTrigger]="threadReloadNonce"
+          (messageDeleted)="onMessageSent()"
+        ></app-message-thread>
+      </div>
+
+      <div class="input-area">
+        <app-message-input
+          [conversationId]="selectedConversation.id!"
+          [receiverId]="partnerId"
+          (messageSent)="onMessageSent()"
+        ></app-message-input>
+      </div>
+    }
+
+  </main>
+</div>

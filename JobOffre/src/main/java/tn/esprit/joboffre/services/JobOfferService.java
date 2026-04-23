@@ -2,6 +2,7 @@ package tn.esprit.joboffre.services;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.joboffre.entities.*;
 import tn.esprit.joboffre.repositories.JobOfferRepository;
 import java.time.LocalDateTime;
@@ -139,5 +140,12 @@ public class JobOfferService {
 
     public List<JobOffer> getOpenJobs() {
         return jobOfferRepository.findByStatusAndDeadlineAfter(JobStatus.OPEN, java.time.LocalDate.now());
+    }
+    @Transactional
+    public JobOffer close(Long id) {
+        JobOffer existing = getById(id);
+        existing.setStatus(JobStatus.CLOSED);
+        existing.setUpdatedAt(LocalDateTime.now());
+        return jobOfferRepository.save(existing);
     }
 }

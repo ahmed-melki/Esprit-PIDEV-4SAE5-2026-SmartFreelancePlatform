@@ -1,0 +1,96 @@
+<div class="conv-sidebar">
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="header-top">
+      <h2 class="sidebar-title">
+        <span class="material-symbols-rounded">forum</span>
+        Messages
+      </h2>
+      <button class="btn-icon" (click)="openNewModal()" title="Nouvelle conversation">
+        <span class="material-symbols-rounded">add</span>
+      </button>
+    </div>
+    <div class="search-box">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Rechercher..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="conv-list">
+    @if (filteredConversations.length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-rounded">chat_bubble_outline</span>
+        <p>Aucune conversation</p>
+      </div>
+    }
+
+    @for (conv of filteredConversations; track conv.id) {
+      <div
+        class="conv-item"
+        [class.selected]="conv.id === selectedConversationId"
+        (click)="selectConversation(conv)"
+      >
+        <div class="conv-avatar">
+          <div class="avatar-circle">
+            {{ (conv.title || 'C')[0].toUpperCase() }}
+          </div>
+        </div>
+        <div class="conv-info">
+          <div class="conv-top">
+            <span class="conv-name">{{ conv.title || 'Conv #' + conv.id }}</span>
+            <span class="conv-time">{{ getTimeAgo(conv.lastMessageTime) }}</span>
+          </div>
+          <div class="conv-bottom">
+            <span class="conv-preview">
+              {{ conv.lastMessageContent || 'Démarrer la conversation...' }}
+            </span>
+          </div>
+        </div>
+        <button class="btn-delete-conv" (click)="deleteConversation(conv, $event)" title="Supprimer">
+          <span class="material-symbols-rounded">delete</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- New Conversation Modal -->
+@if (showNewModal) {
+  <div class="modal-overlay" (click)="closeNewModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Nouvelle conversation</h3>
+        <button class="btn-icon" (click)="closeNewModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="modal-label">Nom de la conversation</label>
+        <input
+          type="text"
+          [(ngModel)]="newConvTitle"
+          placeholder="Ex: Projet web, Support client..."
+          class="modal-input"
+          (keydown.enter)="confirmCreate()"
+          autofocus
+        />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeNewModal()">Annuler</button>
+        <button
+          class="btn-confirm"
+          (click)="confirmCreate()"
+          [disabled]="!newConvTitle.trim() || creating"
+        >
+          {{ creating ? 'Création...' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
