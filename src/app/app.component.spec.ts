@@ -20,9 +20,9 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should have the freelance-platform title', () => {
+  it('should have the frontend title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('freelance-platform');
+    expect(app.title).toEqual('frontend');
   });
 });
