@@ -4,5 +4,5 @@ public enum ReactionType {
     VERY_INTERESTED,
     INTERESTED,
     MAYBE,
-    NOT_INTERESTED
+    LIKE, DISLIKE, NOT_INTERESTED
 }

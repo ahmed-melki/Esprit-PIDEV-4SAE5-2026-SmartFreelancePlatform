@@ -15,6 +15,8 @@ import java.util.List;
 @Setter
 public class Event {
 
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,4 +53,7 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Sponsorship> sponsorships;
+
+
+
 }

@@ -34,7 +34,7 @@ public class EventReaction {
 
     // ✅ Auto-remplir la date avant la persistance
     @PrePersist
-    protected void onCreate() {
+    public void onCreate() {
         createdAt = LocalDateTime.now();
     }
 }

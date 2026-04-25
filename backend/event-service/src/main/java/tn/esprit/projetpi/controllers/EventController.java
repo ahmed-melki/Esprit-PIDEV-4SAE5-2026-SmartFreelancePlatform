@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/events")
-
+@CrossOrigin(origins = "http://localhost:4200")
 public class EventController {
 
     private final EventService service;
