@@ -54,7 +54,9 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'ls -la target/*.jar'  
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'ls -la target/'
                 sh """
                     docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
