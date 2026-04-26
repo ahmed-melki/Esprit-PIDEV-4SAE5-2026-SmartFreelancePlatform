@@ -15,7 +15,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'project-offer-backend'
         SONAR_PROJECT_NAME = 'Project Offer Backend'
 	// ✅ AJOUTER LE TOKEN ICI
-        SONAR_TOKEN = credentials('sonar-token-project-offer')
+        SONAR_TOKEN = credentials('sonarToken')
     }
 
     options {
