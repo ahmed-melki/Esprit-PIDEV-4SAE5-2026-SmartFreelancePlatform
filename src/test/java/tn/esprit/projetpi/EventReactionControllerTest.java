@@ -90,7 +90,9 @@ class EventReactionControllerTest {
         mockMvc.perform(get("/api/events/1/user-vote")
                         .param("userId", "2"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("LIKE"));
+
+                // ✅ FIX IMPORTANT ICI
+                .andExpect(jsonPath("$").value("LIKE"));
     }
 
     // ---------------- RESET VOTES ----------------
