@@ -22,13 +22,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                bat 'mvn clean compile'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                sh 'mvn test -DskipTests=false'
+                bat 'mvn test -DskipTests=false'
             }
             post {
                 always {
@@ -44,11 +44,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                sh """
-                mvn sonar:sonar \
-                -Dsonar.projectKey=event-project \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN
+                bat """
+                mvn sonar:sonar ^
+                -Dsonar.projectKey=event-project ^
+                -Dsonar.host.url=%SONAR_HOST_URL% ^
+                -Dsonar.login=%SONAR_TOKEN%
                 """
             }
         }
