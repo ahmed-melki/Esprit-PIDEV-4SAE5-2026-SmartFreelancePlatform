@@ -13,22 +13,31 @@ pipeline {
 
     stages {
 
+        // ======================
+        // 1. Checkout
+        // ======================
         stage('Checkout Code') {
             steps {
                 git branch: 'blog+event',
-                    url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+                url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
             }
         }
 
+        // ======================
+        // 2. Build
+        // ======================
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                sh 'mvn clean compile'
             }
         }
 
+        // ======================
+        // 3. Tests
+        // ======================
         stage('Run Unit Tests') {
             steps {
-                bat 'mvn test -DskipTests=false'
+                sh 'mvn test'
             }
             post {
                 always {
@@ -37,17 +46,23 @@ pipeline {
             }
         }
 
+        // ======================
+        // 4. SonarQube Analysis
+        // ======================
         stage('SonarQube Analysis') {
             steps {
-                bat """
-                mvn sonar:sonar ^
-                -Dsonar.projectKey=event-project ^
-                -Dsonar.host.url=%SONAR_HOST_URL% ^
-                -Dsonar.login=%SONAR_TOKEN%
+                sh """
+                mvn sonar:sonar \
+                -Dsonar.projectKey=event-project \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN
                 """
             }
         }
 
+        // ======================
+        // 5. Quality Gate
+        // ======================
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -57,12 +72,15 @@ pipeline {
         }
     }
 
+    // ======================
+    // POST ACTIONS
+    // ======================
     post {
         success {
-            echo 'CI SUCCESS ✔'
+            echo 'CI SUCCESS ✔ Build OK'
         }
         failure {
-            echo 'CI FAILED ❌'
+            echo 'CI FAILED ❌ Check logs'
         }
         always {
             cleanWs()
