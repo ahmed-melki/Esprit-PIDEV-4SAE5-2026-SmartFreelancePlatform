@@ -25,13 +25,13 @@ pipeline {
 
         stage('Clean & Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'  // génère le JAR sans tests
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                sh 'mvn test'
+                sh 'mvn test'  // tests sur le target/ existant
             }
             post {
                 always {
@@ -40,20 +40,21 @@ pipeline {
             }
         }
 
-    stage('SonarQube Analysis') {
-        steps {
-            sh """
-                mvn sonar:sonar \
-                -Dsonar.projectKey=blog-event \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.login=${SONAR_TOKEN} \
-                -Dsonar.qualitygate.wait=false
-            """
+        stage('SonarQube Analysis') {
+            steps {
+                sh """
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=blog-event \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.login=${SONAR_TOKEN} \
+                    -Dsonar.qualitygate.wait=false
+                """
+            }
         }
-    }
 
         stage('Docker Build') {
             steps {
+                sh 'ls -la target/*.jar'  // vérifie que le JAR existe
                 sh """
                     docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
