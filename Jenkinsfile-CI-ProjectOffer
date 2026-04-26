@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        // ⭐ Build, Test et SonarQube dans un conteneur Docker (comme l'exemple)
+        // ⭐ Build, Test et SonarQube dans un conteneur Docker
         stage('Build, Test & SonarQube') {
             steps {
                 dir('ProjetPI') {
@@ -47,7 +47,7 @@ pipeline {
                                 mvn clean test package sonar:sonar \
                                     -DskipTests=false \
                                     -Dsonar.host.url=${SONAR_HOST_URL} \
-                                    -Dsonar.login=\$SONAR_TOKEN
+                                    -Dsonar.token=\$SONAR_TOKEN
                         """
                     }
                 }
@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        // ⭐ Docker Build (séparé car besoin d'accès au JAR)
+        // ⭐ Docker Build
         stage('Docker Build') {
             steps {
                 dir('ProjetPI') {
