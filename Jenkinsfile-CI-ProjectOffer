@@ -1,0 +1,139 @@
+// ============================================================
+// PIPELINE CI - PROJECT OFFER BACKEND (1er microservice)
+// Branche: gestionOffre
+// Dossier: projetPi/
+// ============================================================
+
+pipeline {
+    agent any
+
+    environment {
+        // DockerHub configuration
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKER_IMAGE = "amounete/project-offer-backend"
+        IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+
+        // SonarQube configuration
+        SONAR_HOST_URL = 'http://sonarqube:9000'
+        SONAR_PROJECT_KEY = 'project-offer-backend'
+        SONAR_PROJECT_NAME = 'Project Offer Backend'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+
+    triggers {
+        // Déclenchement automatique sur push sur la branche gestionOffre
+        pollSCM('')
+    }
+
+    stages {
+        // Étape 1: Récupération du code depuis GitHub (branche gestionOffre)
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "✅ Code récupéré depuis GitHub - Branche: ${env.BRANCH_NAME}"
+                script {
+                    // Afficher la structure des dossiers
+                    sh 'ls -la'
+                    sh 'ls -la ProjetPI/ || echo "Dossier ProjetPI non trouvé"'
+                }
+            }
+        }
+
+        // Étape 2: Tests unitaires (dans le dossier ProjetPI)
+        stage('Tests unitaires') {
+            steps {
+                dir('ProjetPI') {  // ← On entre dans le dossier du 1er microservice
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    dir('ProjetPI') {
+                        junit 'target/surefire-reports/**/*.xml'
+                    }
+                }
+            }
+        }
+
+        // Étape 3: Compilation et création du JAR
+        stage('Package JAR') {
+            steps {
+                dir('ProjetPI') {
+                    sh 'mvn package -DskipTests'
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        // Étape 4: Analyse statique SonarQube + JaCoCo
+        stage('SonarQube + JaCoCo') {
+            steps {
+                dir('ProjetPI') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                -Dsonar.host.url=${SONAR_HOST_URL}
+                        '''
+                    }
+                }
+            }
+        }
+
+        // Étape 5: Vérification du Quality Gate
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        // Étape 6: Création de l'image Docker
+        stage('Docker Build') {
+            steps {
+                dir('ProjetPI') {
+                    sh """
+                        docker build \
+                            -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
+                            -t ${DOCKER_IMAGE}:latest \
+                            .
+                    """
+                }
+            }
+        }
+
+        // Étape 7: Push de l'image sur DockerHub
+        stage('Push DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:latest").push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "========================================="
+            echo "✅ PIPELINE CI RÉUSSIE !"
+            echo "📦 Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            echo "========================================="
+        }
+        failure {
+            echo "❌ PIPELINE CI ÉCHOUÉE"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
