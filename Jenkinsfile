@@ -9,8 +9,9 @@ pipeline {
     environment {
         SONAR_TOKEN    = credentials('sonar-token')
         SONAR_HOST_URL = 'http://localhost:9000'
-       DOCKER_IMAGE = 'omayma13/gestion-event'
-        DOCKER_TAG     = "${BUILD_NUMBER}"
+
+        DOCKER_IMAGE = 'omayma13/gestion-event'
+        DOCKER_TAG   = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Clean & Build') {
             steps {
                 sh 'mvn clean compile'
             }
@@ -44,15 +45,13 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     sh """
                     mvn sonar:sonar \
-                    -Dsonar.projectKey=event-project \
+                    -Dsonar.projectKey=blog-event \
                     -Dsonar.host.url=$SONAR_HOST_URL \
                     -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
         }
-
-
 
         stage('Docker Build') {
             steps {
@@ -91,7 +90,7 @@ pipeline {
 
     post {
         success {
-            echo 'CI SUCCESS ✔ Image pushed to Docker Hub'
+            echo 'CI SUCCESS ✔ Build + Test + Sonar + Docker OK'
         }
         failure {
             echo 'CI FAILED ❌ Check logs'
