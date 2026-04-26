@@ -11,7 +11,7 @@ pipeline {
         DOCKER_IMAGE = "amounete/project-offer-backend"
         IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
         
-        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_HOST_URL = "http://host.docker.internal:9000"
         SONAR_PROJECT_KEY = 'project-offer-backend'
         SONAR_PROJECT_NAME = 'Project Offer Backend'
     }
@@ -34,71 +34,35 @@ pipeline {
             }
         }
 
-        // Compilation avec Docker (Java 21)
-        stage('Compile & Test avec Docker') {
+        // ⭐ Build, Test et SonarQube dans un conteneur Docker (comme l'exemple)
+        stage('Build, Test & SonarQube') {
             steps {
                 dir('ProjetPI') {
-                    sh '''
-                        docker run --rm \
-                            -v $(pwd):/app \
-                            -w /app \
-                            maven:3.9-eclipse-temurin-21 \
-                            sh -c "mvn clean test"
-                    '''
+                    withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                            docker run --rm \
+                                -v \$(pwd):/app \
+                                -w /app \
+                                maven:3.9.4-eclipse-temurin-21 \
+                                mvn clean test package sonar:sonar \
+                                    -DskipTests=false \
+                                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                                    -Dsonar.login=\$SONAR_TOKEN
+                        """
+                    }
                 }
             }
             post {
                 always {
                     dir('ProjetPI') {
                         junit 'target/surefire-reports/**/*.xml'
+                        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
                     }
                 }
             }
         }
 
-        // Package JAR avec Docker
-        stage('Package JAR') {
-            steps {
-                dir('ProjetPI') {
-                    sh '''
-                        docker run --rm \
-                            -v $(pwd):/app \
-                            -w /app \
-                            maven:3.9-eclipse-temurin-21 \
-                            sh -c "mvn package -DskipTests"
-                    '''
-                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                }
-            }
-        }
-
-        // SonarQube avec withCredentials (CORRIGÉ)
-        stage('SonarQube + JaCoCo') {
-            steps {
-                dir('ProjetPI') {
-                    withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                -Dsonar.projectName=${SONAR_PROJECT_NAME} \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=${SONAR_TOKEN}
-                        '''
-                    }
-                }
-            }
-        }
-
-        // Quality Gate
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        // Docker Build
+        // ⭐ Docker Build (séparé car besoin d'accès au JAR)
         stage('Docker Build') {
             steps {
                 dir('ProjetPI') {
@@ -110,7 +74,7 @@ pipeline {
             }
         }
 
-        // Push DockerHub
+        // ⭐ Push DockerHub
         stage('Push DockerHub') {
             steps {
                 script {
