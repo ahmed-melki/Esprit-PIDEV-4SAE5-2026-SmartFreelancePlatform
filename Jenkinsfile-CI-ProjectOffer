@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         // DockerHub configuration
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKER_IMAGE = "amounete/project-offer-backend"
         IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
 
@@ -133,7 +133,7 @@ pipeline {
             echo "❌ PIPELINE CI ÉCHOUÉE"
         }
         always {
-            cleanWs()
+            echo "Nettoyage terminé"
         }
     }
 }
