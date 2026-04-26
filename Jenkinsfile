@@ -40,19 +40,17 @@ pipeline {
             }
         }
 
-     stage('SonarQube Analysis') {
-         steps {
-             withSonarQubeEnv('SonarQube') {
-                 sh """
-                     mvn sonar:sonar \
-                     -Dsonar.projectKey=blog-event \
-                     -Dsonar.host.url=$SONAR_HOST_URL \
-                     -Dsonar.login=$SONAR_TOKEN \
-                     -Dsonar.qualitygate.wait=false
-                 """
-             }
-         }
-     }
+    stage('SonarQube Analysis') {
+        steps {
+            sh """
+                mvn sonar:sonar \
+                -Dsonar.projectKey=blog-event \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_TOKEN} \
+                -Dsonar.qualitygate.wait=false
+            """
+        }
+    }
 
         stage('Docker Build') {
             steps {
