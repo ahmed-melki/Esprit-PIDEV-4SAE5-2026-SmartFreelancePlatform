@@ -1,19 +1,16 @@
 // ============================================================
-// PIPELINE CI - PROJECT OFFER BACKEND (1er microservice)
+// PIPELINE CI - PROJECT OFFER BACKEND (Java 21)
 // Branche: gestionOffre
-// Dossier: projetPi/
 // ============================================================
 
 pipeline {
     agent any
 
     environment {
-        // DockerHub configuration
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKER_IMAGE = "amounete/project-offer-backend"
         IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
-
-        // SonarQube configuration
+        
         SONAR_HOST_URL = 'http://sonarqube:9000'
         SONAR_PROJECT_KEY = 'project-offer-backend'
         SONAR_PROJECT_NAME = 'Project Offer Backend'
@@ -26,29 +23,28 @@ pipeline {
     }
 
     triggers {
-        // Déclenchement automatique sur push sur la branche gestionOffre
         pollSCM('')
     }
 
     stages {
-        // Étape 1: Récupération du code depuis GitHub (branche gestionOffre)
         stage('Checkout') {
             steps {
                 checkout scm
                 echo "✅ Code récupéré depuis GitHub - Branche: ${env.BRANCH_NAME}"
-                script {
-                    // Afficher la structure des dossiers
-                    sh 'ls -la'
-                    sh 'ls -la ProjetPI/ || echo "Dossier ProjetPI non trouvé"'
-                }
             }
         }
 
-        // Étape 2: Tests unitaires (dans le dossier ProjetPI)
-        stage('Tests unitaires') {
+        // ⭐ NOUVEAU : Compiler avec Docker (Java 21)
+        stage('Compile & Test avec Docker') {
             steps {
-                dir('ProjetPI') {  // ← On entre dans le dossier du 1er microservice
-                    sh 'mvn test'
+                dir('ProjetPI') {
+                    sh '''
+                        docker run --rm \
+                            -v $(pwd):/app \
+                            -w /app \
+                            maven:3.9-eclipse-temurin-21 \
+                            sh -c "mvn clean test"
+                    '''
                 }
             }
             post {
@@ -60,33 +56,44 @@ pipeline {
             }
         }
 
-        // Étape 3: Compilation et création du JAR
+        // ⭐ Package JAR avec Docker
         stage('Package JAR') {
             steps {
                 dir('ProjetPI') {
-                    sh 'mvn package -DskipTests'
+                    sh '''
+                        docker run --rm \
+                            -v $(pwd):/app \
+                            -w /app \
+                            maven:3.9-eclipse-temurin-21 \
+                            sh -c "mvn package -DskipTests"
+                    '''
                     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
                 }
             }
         }
 
-        // Étape 4: Analyse statique SonarQube + JaCoCo
+        // ⭐ SonarQube avec Docker
         stage('SonarQube + JaCoCo') {
             steps {
                 dir('ProjetPI') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                -Dsonar.projectName=${SONAR_PROJECT_NAME} \
-                                -Dsonar.host.url=${SONAR_HOST_URL}
+                            docker run --rm \
+                                -v $(pwd):/app \
+                                -w /app \
+                                -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+                                maven:3.9-eclipse-temurin-21 \
+                                mvn sonar:sonar \
+                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                    -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                    -Dsonar.host.url=${SONAR_HOST_URL}
                         '''
                     }
                 }
             }
         }
 
-        // Étape 5: Vérification du Quality Gate
+        // Quality Gate
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -95,21 +102,19 @@ pipeline {
             }
         }
 
-        // Étape 6: Création de l'image Docker
+        // Docker Build (utilise le Dockerfile)
         stage('Docker Build') {
             steps {
                 dir('ProjetPI') {
                     sh """
-                        docker build \
-                            -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
-                            -t ${DOCKER_IMAGE}:latest \
-                            .
+                        docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
+                                     -t ${DOCKER_IMAGE}:latest .
                     """
                 }
             }
         }
 
-        // Étape 7: Push de l'image sur DockerHub
+        // Push DockerHub
         stage('Push DockerHub') {
             steps {
                 script {
@@ -124,13 +129,10 @@ pipeline {
 
     post {
         success {
-            echo "========================================="
-            echo "✅ PIPELINE CI RÉUSSIE !"
-            echo "📦 Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-            echo "========================================="
+            echo "✅ CI RÉUSSIE - Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
         }
         failure {
-            echo "❌ PIPELINE CI ÉCHOUÉE"
+            echo "❌ CI ÉCHOUÉE"
         }
         always {
             echo "Nettoyage terminé"
