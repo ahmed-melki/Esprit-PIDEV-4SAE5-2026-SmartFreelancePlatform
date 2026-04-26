@@ -14,8 +14,6 @@ pipeline {
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_PROJECT_KEY = 'project-offer-backend'
         SONAR_PROJECT_NAME = 'Project Offer Backend'
-	// ✅ AJOUTER LE TOKEN ICI
-        SONAR_TOKEN = credentials('sonarToken')
     }
 
     options {
@@ -36,7 +34,7 @@ pipeline {
             }
         }
 
-        // ⭐ NOUVEAU : Compiler avec Docker (Java 21)
+        // Compilation avec Docker (Java 21)
         stage('Compile & Test avec Docker') {
             steps {
                 dir('ProjetPI') {
@@ -58,7 +56,7 @@ pipeline {
             }
         }
 
-        // ⭐ Package JAR avec Docker
+        // Package JAR avec Docker
         stage('Package JAR') {
             steps {
                 dir('ProjetPI') {
@@ -74,22 +72,22 @@ pipeline {
             }
         }
 
-        // ⭐ SonarQube avec Docker
+        // SonarQube avec withCredentials (CORRIGÉ)
         stage('SonarQube + JaCoCo') {
-    steps {
-        dir('ProjetPI') {
-            withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
-                sh '''
-                    mvn sonar:sonar \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.projectName=${SONAR_PROJECT_NAME} \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}       
-                '''
+            steps {
+                dir('ProjetPI') {
+                    withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.login=${SONAR_TOKEN}
+                        '''
+                    }
+                }
             }
         }
-    }
-}
 
         // Quality Gate
         stage('Quality Gate') {
@@ -100,7 +98,7 @@ pipeline {
             }
         }
 
-        // Docker Build (utilise le Dockerfile)
+        // Docker Build
         stage('Docker Build') {
             steps {
                 dir('ProjetPI') {
