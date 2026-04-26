@@ -7,34 +7,27 @@ pipeline {
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN    = credentials('sonar-token')
         SONAR_HOST_URL = 'http://localhost:9000'
+       DOCKER_IMAGE = 'omayma13/gestion-event'
+        DOCKER_TAG     = "${BUILD_NUMBER}"
     }
 
     stages {
 
-        // ======================
-        // 1. Checkout
-        // ======================
         stage('Checkout Code') {
             steps {
                 git branch: 'blog+event',
-                url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+                    url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
             }
         }
 
-        // ======================
-        // 2. Build
-        // ======================
         stage('Build') {
             steps {
                 sh 'mvn clean compile'
             }
         }
 
-        // ======================
-        // 3. Tests
-        // ======================
         stage('Run Unit Tests') {
             steps {
                 sh 'mvn test'
@@ -46,9 +39,6 @@ pipeline {
             }
         }
 
-        // ======================
-        // 4. SonarQube Analysis
-        // ======================
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -62,9 +52,6 @@ pipeline {
             }
         }
 
-        // ======================
-        // 5. Quality Gate
-        // ======================
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -72,14 +59,45 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Build') {
+            steps {
+                sh """
+                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                """
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker push ${DOCKER_IMAGE}:latest
+                        docker logout
+                    """
+                }
+            }
+            post {
+                always {
+                    sh """
+                        docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+                        docker rmi ${DOCKER_IMAGE}:latest || true
+                    """
+                }
+            }
+        }
     }
 
-    // ======================
-    // POST ACTIONS
-    // ======================
     post {
         success {
-            echo 'CI SUCCESS ✔ Build OK'
+            echo 'CI SUCCESS ✔ Image pushed to Docker Hub'
         }
         failure {
             echo 'CI FAILED ❌ Check logs'
