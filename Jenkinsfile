@@ -22,13 +22,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                sh 'mvn clean compile'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                bat 'mvn test -DskipTests=false'
+               sh 'mvn test -DskipTests=false'
             }
             post {
                 always {
