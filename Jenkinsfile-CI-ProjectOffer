@@ -78,7 +78,7 @@ pipeline {
         stage('SonarQube + JaCoCo') {
     steps {
         dir('ProjetPI') {
-            withSonarQubeEnv('SonarQube') {
+            withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
                 sh '''
                     mvn sonar:sonar \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
