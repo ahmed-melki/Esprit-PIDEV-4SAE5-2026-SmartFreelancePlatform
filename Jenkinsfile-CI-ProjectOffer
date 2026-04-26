@@ -74,24 +74,20 @@ pipeline {
 
         // ⭐ SonarQube avec Docker
         stage('SonarQube + JaCoCo') {
-            steps {
-                dir('ProjetPI') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            docker run --rm \
-                                -v $(pwd):/app \
-                                -w /app \
-                                -e SONAR_HOST_URL=${SONAR_HOST_URL} \
-                                maven:3.9-eclipse-temurin-21 \
-                                mvn sonar:sonar \
-                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                    -Dsonar.projectName=${SONAR_PROJECT_NAME} \
-                                    -Dsonar.host.url=${SONAR_HOST_URL}
-                        '''
-                    }
-                }
+    steps {
+        dir('ProjetPI') {
+            withSonarQubeEnv('SonarQube') {
+                sh '''
+                    mvn sonar:sonar \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}       
+                '''
             }
         }
+    }
+}
 
         // Quality Gate
         stage('Quality Gate') {
