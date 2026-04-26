@@ -75,16 +75,17 @@ pipeline {
         }
 
         // ⭐ Push DockerHub
-       stage('Push DockerHub') {
-    steps {
-        script {
-            docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
-                docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
-                docker.image("${DOCKER_IMAGE}:latest").push()
+        stage('Push DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:latest").push()
+                    }
+                }
             }
         }
     }
-}
 
     post {
         success {
