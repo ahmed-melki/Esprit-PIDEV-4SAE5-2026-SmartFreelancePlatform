@@ -25,13 +25,13 @@ pipeline {
 
         stage('Clean & Build') {
             steps {
-                sh 'mvn clean package -DskipTests'  // génère le JAR sans tests
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                sh 'mvn test'  // tests sur le target/ existant
+                sh 'mvn test'
             }
             post {
                 always {
@@ -54,7 +54,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'ls -la target/*.jar'  // vérifie que le JAR existe
+                sh 'ls -la target/*.jar'  
                 sh """
                     docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
