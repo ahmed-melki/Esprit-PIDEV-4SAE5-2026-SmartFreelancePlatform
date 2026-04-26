@@ -44,7 +44,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                bat """
+                sh """
                 mvn sonar:sonar ^
                 -Dsonar.projectKey=event-project ^
                 -Dsonar.host.url=%SONAR_HOST_URL% ^
