@@ -31,7 +31,7 @@ spec:
               name: backend-config
               key: SPRING_PROFILES_ACTIVE
         - name: DB_URL
-          value: "jdbc:mysql://mysql:3306/projectdb?useSSL=false&serverTimezone=UTC"
+          value: "jdbc:mysql://mysql:3306/projectDB?useSSL=false&serverTimezone=UTC"
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
