@@ -15,6 +15,7 @@ spec:
       containers:
         - name: smartfreelance-frontend
           image: ahmedmelki/smartfreelance-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
 ---
