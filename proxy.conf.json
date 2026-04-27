@@ -1,0 +1,14 @@
+{
+  "/api/communication": {
+    "target": "http://localhost:8089/Communication",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/communication": "" }
+  },
+  "/api": {
+    "target": "http://localhost:8092",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
+ 

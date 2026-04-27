@@ -1,0 +1,27 @@
+<div class="auth-wrapper">
+  <div class="glass-panel auth-card">
+    <div class="auth-header">
+      <h2>Welcome Back</h2>
+      <p>Log in to your FreeFlow account</p>
+    </div>
+    <form class="auth-form" (ngSubmit)="onSubmit($event)">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary full-width">Log In</button>
+    </form>
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/register">Sign up</a></p>
+      <div class="demo-links">
+        <p>Demo Quick Links:</p>
+        <a routerLink="/client/dashboard" class="btn btn-outline btn-sm">Client</a>
+        <a routerLink="/freelancer/dashboard" class="btn btn-outline btn-sm">Freelancer</a>
+      </div>
+    </div>
+  </div>
+</div>

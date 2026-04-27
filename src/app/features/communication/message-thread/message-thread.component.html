@@ -1,0 +1,101 @@
+<div class="thread-container" #scrollContainer (scroll)="onScroll()">
+  @if (messages.length === 0) {
+    <div class="empty-thread">
+      <span class="material-symbols-rounded">chat</span>
+      <p>Aucun message. Démarrez la conversation !</p>
+    </div>
+  }
+
+  @for (msg of messages; track msg.id) {
+    <div
+      class="msg-wrapper"
+      [class.mine]="isMine(msg)"
+      [class.theirs]="!isMine(msg)"
+      [class.deleted-msg]="!!msg.deleted"
+      [class.urgent-msg]="!!msg.urgent"
+    >
+      <div class="msg-bubble">
+        @if (msg.deleted) {
+          <div class="deleted-text">
+            <span class="material-symbols-rounded">block</span>
+            Message supprimé
+          </div>
+        } @else {
+          @if (isEditing(msg)) {
+            <textarea
+              class="edit-textarea"
+              [(ngModel)]="editContent"
+              (keydown)="onEditKeydown($event, msg)"
+              rows="1"
+            ></textarea>
+            <div class="edit-actions">
+              <button class="mini-btn" (click)="cancelEdit($event)">Annuler</button>
+              <button class="mini-btn primary" (click)="saveEdit(msg, $event)" [disabled]="savingEdit || !editContent.trim()">
+                {{ savingEdit ? '...' : 'OK' }}
+              </button>
+            </div>
+          } @else {
+            <p class="msg-text">{{ msg.content }}</p>
+          }
+
+          @if (msg.fileUrl || msg.fileName) {
+            <div class="file-msg">
+              <span class="material-symbols-rounded file-icon">attach_file</span>
+              <div class="file-info">
+                @if (msg.fileUrl) {
+                  <a class="file-name" [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
+                    {{ msg.fileName || 'Télécharger le fichier' }}
+                  </a>
+                } @else {
+                  <span class="file-name">{{ msg.fileName }}</span>
+                }
+                @if (msg.fileSize) {
+                  <span class="file-size">{{ formatBytes(msg.fileSize) }}</span>
+                }
+              </div>
+              @if (msg.fileUrl) {
+                <a class="download-btn" [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer" title="Télécharger">
+                  <span class="material-symbols-rounded">download</span>
+                </a>
+              }
+            </div>
+          }
+
+          @if (sentimentKey(msg)) {
+            <div class="sentiment-badge" [ngClass]="sentimentClass(msg)">
+              <span>{{ sentimentEmoji(msg) }}</span>
+              <span>{{ sentimentKey(msg) }}</span>
+            </div>
+          }
+
+          <div class="msg-meta">
+            <span class="msg-time">{{ formatTime(msg.createdAt) }}</span>
+          </div>
+
+          <div class="msg-actions">
+            @if (!sentimentKey(msg)) {
+              <button
+                class="action-btn"
+                (click)="analyzeSentiment(msg, $event)"
+                [disabled]="!msg.id || analyzingIds.has(msg.id)"
+                title="Analyser le sentiment"
+              >
+                <span class="material-symbols-rounded">psychology</span>
+              </button>
+            }
+
+            @if (isMine(msg) && !isEditing(msg)) {
+              <button class="action-btn" (click)="startEdit(msg, $event)" title="Modifier">
+                <span class="material-symbols-rounded">edit</span>
+              </button>
+            }
+
+            <button class="action-btn danger" (click)="deleteMessage(msg, $event)" title="Supprimer">
+              <span class="material-symbols-rounded">delete</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

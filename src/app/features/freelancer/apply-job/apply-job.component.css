@@ -1,0 +1,217 @@
+.form-wrapper { max-width: 750px; margin: 0 auto; padding: 2rem 0 5rem; }
+.back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; margin-bottom: 1.5rem; transition: color var(--transition-fast); }
+.back-link:hover { color: var(--accent-primary); }
+
+.job-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: white;
+}
+
+.job-info-logo {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, rgba(67,56,202,0.1), rgba(14,165,233,0.1));
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 800;
+  flex-shrink: 0;
+}
+
+.job-info-bar h3 { margin: 0 0 0.2rem; font-size: 1.1rem; }
+.job-info-bar p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+
+.form-header { margin-bottom: 2rem; }
+.form-header h2 { font-size: 2rem; margin-bottom: 0.25rem; }
+
+.form-card { padding: 2.5rem; }
+
+/* ================================ */
+/*  CV UPLOAD ZONE                  */
+/* ================================ */
+.upload-zone {
+  border: 2px dashed #e2e8f0;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone:hover {
+  border-color: var(--accent-primary);
+  background: rgba(67, 56, 202, 0.02);
+}
+
+.upload-zone.has-file {
+  border-style: solid;
+  border-color: var(--accent-primary);
+  background: rgba(67, 56, 202, 0.03);
+}
+
+.upload-zone.uploading {
+  border-color: var(--accent-secondary);
+}
+
+.file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 2rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(67, 56, 202, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon .material-symbols-rounded {
+  font-size: 32px;
+  color: var(--accent-primary);
+}
+
+.upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.upload-link {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* File selected state */
+.upload-file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.file-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(67, 56, 202, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-icon .material-symbols-rounded {
+  font-size: 24px;
+  color: var(--accent-primary);
+}
+
+.file-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.file-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.file-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.file-status.done {
+  color: var(--success);
+}
+
+.file-status.error {
+  color: var(--danger);
+}
+
+.btn-change {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-change:hover {
+  background: rgba(67, 56, 202, 0.1);
+}
+
+.btn-change .material-symbols-rounded {
+  font-size: 20px;
+  color: var(--text-muted);
+}
+
+/* Upload progress bar */
+.upload-bar {
+  height: 3px;
+  width: 100%;
+  background: rgba(0,0,0,0.05);
+}
+
+.upload-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  animation: progress-anim 1.5s ease-in-out infinite;
+  width: 40%;
+  border-radius: 2px;
+}
+
+@keyframes progress-anim {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* Other styles */
+.field-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  display: block;
+}
+
+.form-actions { display: flex; justify-content: flex-end; margin-top: 2rem; }
+.btn-icon { display: inline-flex; align-items: center; gap: 0.5rem; }
+.error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
+
+.centered-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; }
+.success-card { padding: 3.5rem; text-align: center; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+.success-icon { font-size: 4rem; color: var(--success); }
+.success-icon .material-symbols-rounded { font-size: 4rem; }

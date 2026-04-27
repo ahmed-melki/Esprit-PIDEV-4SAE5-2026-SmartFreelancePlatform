@@ -1,0 +1,51 @@
+<div class="input-container">
+  @if (selectedFile) {
+    <div class="file-pill">
+      <span class="material-symbols-rounded">attach_file</span>
+      <span class="file-pill-name">{{ selectedFile.name }}</span>
+      <button class="file-pill-remove" (click)="clearSelectedFile()" title="Retirer">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+  }
+
+  @if (aiMode) {
+    <div class="ai-pill" [class.busy]="aiBusy">
+      <span class="material-symbols-rounded">smart_toy</span>
+      <span>{{ aiBusy ? 'IA en train de répondre…' : 'Mode IA activé' }}</span>
+    </div>
+  }
+
+  <div class="input-row">
+    <div class="left-actions">
+      <button class="tool-btn" (click)="openFilePicker()" [disabled]="uploading" title="Joindre un fichier">
+        <span class="material-symbols-rounded">attach_file</span>
+      </button>
+      <button class="tool-btn" [class.active]="aiMode" (click)="toggleAiMode()" title="Mode IA">
+        <span class="material-symbols-rounded">smart_toy</span>
+      </button>
+      <input #fileInput type="file" (change)="onFileSelected($event)" hidden />
+    </div>
+
+    <textarea
+      [(ngModel)]="content"
+      (keydown)="onKeydown($event)"
+      placeholder="Écrivez votre message... (Entrée pour envoyer)"
+      class="msg-textarea"
+      rows="1"
+    ></textarea>
+
+    <button
+      class="send-btn"
+      (click)="send()"
+      [disabled]="(!content.trim() && !selectedFile) || sending"
+      title="Envoyer"
+    >
+      @if (sending) {
+        <span class="material-symbols-rounded spin">progress_activity</span>
+      } @else {
+        <span class="material-symbols-rounded">send</span>
+      }
+    </button>
+  </div>
+</div>

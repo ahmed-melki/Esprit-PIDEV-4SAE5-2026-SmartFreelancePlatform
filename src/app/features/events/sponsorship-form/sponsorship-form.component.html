@@ -1,0 +1,73 @@
+<div class="sponsorship-container">
+  <div class="form-card card">
+    @if (!successSponsorship) {
+      <header class="form-header">
+        <h1>Sponsoriser cet Événement</h1>
+        <p>Devenez partenaire et bénéficiez d'une visibilité premium auprès de notre communauté.</p>
+      </header>
+
+      <form (ngSubmit)="onSubmit()" #promoForm="ngForm" class="sponsorship-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" [(ngModel)]="sponsorship.sponsorFirstName" name="firstName" required placeholder="Ex: Jean">
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="sponsorship.sponsorLastName" name="lastName" required placeholder="Ex: Dupont">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email Professionnel</label>
+          <input type="email" [(ngModel)]="sponsorship.sponsorEmail" name="email" required email placeholder="Ex: jean.dupont@entreprise.com">
+        </div>
+
+        <div class="form-group">
+          <label>Montant du Sponsoring (TND)</label>
+          <div class="amount-input">
+            <input type="number" [(ngModel)]="sponsorship.amount" name="amount" required min="10">
+            <span class="currency">TND</span>
+          </div>
+          <small class="hint">Montant minimum : 10 TND</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" routerLink="/events">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="promoForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Génération...' : 'Générer le contrat' }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <div class="success-state">
+        <div class="success-icon">
+          <span class="material-symbols-rounded">check_circle</span>
+        </div>
+        <h2>Contrat Généré !</h2>
+        <p>Votre contrat de sponsoring a été préparé avec succès. Vous pouvez maintenant le télécharger et le signer électroniquement.</p>
+        
+        <div class="contract-preview">
+          <div class="doc-info">
+            <span class="material-symbols-rounded">description</span>
+            <div>
+              <strong>Contrat_Sponsoring_{{ successSponsorship.id }}.pdf</strong>
+              <span>Statut: {{ successSponsorship.contractStatus }}</span>
+            </div>
+          </div>
+          <button class="btn-download" (click)="downloadPDF()">
+            <span class="material-symbols-rounded">download</span>
+          </button>
+        </div>
+
+        <div class="final-actions">
+          <button class="btn-primary" (click)="signAndFinish()">
+            <span class="material-symbols-rounded">draw</span>
+            Signer le contrat
+          </button>
+          <button class="btn-text" routerLink="/events">Retour aux événements</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
