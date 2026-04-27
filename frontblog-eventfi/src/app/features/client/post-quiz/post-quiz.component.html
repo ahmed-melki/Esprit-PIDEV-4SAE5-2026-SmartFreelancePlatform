@@ -1,0 +1,84 @@
+<div class="form-wrapper container">
+  <div class="form-header">
+    <a routerLink="/client/dashboard" class="back-link">
+      <span class="material-symbols-rounded">arrow_back</span> Back to Dashboard
+    </a>
+    <h2>Create Qualification Quiz</h2>
+    <p>Freelancers must score ≥ the passing score before they can apply to this job.</p>
+    <div class="step-bar">
+      <div class="step"><span class="step-num done"><span class="material-symbols-rounded">check</span></span> Job Details</div>
+      <div class="step-connector"></div>
+      <div class="step active"><span class="step-num">2</span> Create Quiz</div>
+    </div>
+  </div>
+
+  <form [formGroup]="quizForm" (ngSubmit)="onSubmit()">
+    <!-- Quiz Settings -->
+    <div class="glass-panel form-card quiz-meta">
+      <h3 class="section-label">Quiz Settings</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex: 2">
+          <label class="form-label">Quiz Title</label>
+          <input type="text" formControlName="title" class="form-control">
+        </div>
+        <div class="form-group" style="flex: 1">
+          <label class="form-label">Passing Score (%)</label>
+          <input type="number" formControlName="passingScore" class="form-control" min="1" max="100">
+        </div>
+        <div class="form-group" style="flex: 1">
+          <label class="form-label">Time Limit (min)</label>
+          <input type="number" formControlName="timeLimitMinutes" class="form-control" min="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="questions-list" formArrayName="questions">
+      <div class="question-block glass-panel" *ngFor="let ctrl of questions.controls; let qi = index" [formGroupName]="qi">
+        <div class="question-header">
+          <span class="q-num">Q{{ qi + 1 }}</span>
+          <div class="form-group" style="flex: 1">
+            <input type="text" formControlName="text" class="form-control" placeholder="Enter question text...">
+          </div>
+          <div class="form-group" style="width: 120px">
+            <input type="number" formControlName="points" class="form-control" placeholder="Points" min="1">
+          </div>
+          <button type="button" class="btn btn-danger-soft btn-icon-only" (click)="removeQuestion(qi)" *ngIf="questions.length > 1">
+            <span class="material-symbols-rounded">delete</span>
+          </button>
+        </div>
+
+        <!-- Answers -->
+        <div class="answers-list" formArrayName="answers">
+          <div class="answer-row" *ngFor="let ans of getAnswers(qi).controls; let ai = index" [formGroupName]="ai">
+            <label class="correct-check" title="Mark as correct answer">
+              <input type="checkbox" formControlName="isCorrect">
+              <span class="check-box"></span>
+            </label>
+            <input type="text" formControlName="text" class="form-control answer-input" placeholder="Answer option {{ ai + 1 }}">
+            <button type="button" class="btn-remove-ans" (click)="removeAnswer(qi, ai)" *ngIf="getAnswers(qi).length > 2">
+              <span class="material-symbols-rounded">close</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-ghost btn-sm" (click)="addAnswer(qi)">
+          <span class="material-symbols-rounded">add</span> Add Option
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-outline btn-icon add-q-btn" (click)="addQuestion()">
+      <span class="material-symbols-rounded">add_circle</span> Add Question
+    </button>
+
+    <p class="error-msg" *ngIf="submitError">{{ submitError }}</p>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-icon" [disabled]="quizForm.invalid || isSubmitting">
+        <span class="material-symbols-rounded">save</span>
+        {{ isSubmitting ? 'Saving...' : 'Save Quiz & Finish' }}
+      </button>
+    </div>
+  </form>
+</div>

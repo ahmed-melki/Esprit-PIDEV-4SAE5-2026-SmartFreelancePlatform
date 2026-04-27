@@ -1,0 +1,224 @@
+<div class="freelance-container form-wrapper">
+  
+  <div class="form-header">
+    <h2>Organize a New Event</h2>
+    <p>Create engaging hackathons, workshops, and meetups for the community.</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="empty-state success-banner">
+    <div class="empty-icon">✅</div>
+    <p>{{ successMessage }}</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="empty-state error-banner">
+    <div class="empty-icon">⚠️</div>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <form #eventForm="ngForm" (ngSubmit)="saveEvent()" class="freelance-form">
+    
+    <!-- Image Upload Section -->
+    <div class="form-group image-upload-section">
+      <label class="form-label">Event Cover Photo</label>
+      <div class="upload-container" (click)="fileInput.click()">
+        <input 
+          #fileInput
+          type="file" 
+          (change)="onFileSelected($event)" 
+          accept="image/*" 
+          style="display: none;">
+        
+        <div *ngIf="!previewUrl" class="upload-placeholder">
+          <span class="material-symbols-rounded">add_a_photo</span>
+          <p>Click to upload event cover</p>
+          <span>Recommended: 1200x600px</span>
+        </div>
+
+        <div *ngIf="previewUrl" class="image-preview">
+          <img [src]="previewUrl" alt="Event preview">
+          <div class="change-overlay">
+            <span class="material-symbols-rounded">edit</span>
+            <p>Change Photo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label for="title" class="form-label">Event Title <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="title" 
+        name="title"
+        [(ngModel)]="event.title"
+        #title="ngModel"
+        required 
+        minlength="3"
+        class="form-control" 
+        [class.is-invalid]="title.invalid && title.touched"
+        placeholder="Enter a catchy title for your event"
+        (ngModelChange)="noOnlySpaces(title)">
+      <div *ngIf="title.invalid && title.touched" class="invalid-feedback">
+        <span *ngIf="title.errors?.['required']">Title is required.</span>
+        <span *ngIf="title.errors?.['minlength']">Minimum 3 characters.</span>
+      </div>
+    </div>
+
+    <!-- Type & Category -->
+    <div class="form-row">
+      <div class="form-group half-width">
+        <label for="type" class="form-label">Event Type <span class="required">*</span></label>
+        <select 
+          id="type" 
+          name="type"
+          [(ngModel)]="event.type"
+          #type="ngModel"
+          required
+          class="form-control" 
+          [class.is-invalid]="type.invalid && type.touched">
+          <option value="" disabled selected>Select a type</option>
+          <option value="HACKATHON">Hackathon</option>
+          <option value="WORKSHOP">Workshop</option>
+          <option value="MEETUP">Meetup</option>
+          <option value="WEBINAR">Webinar</option>
+          <option value="BOOTCAMP">Bootcamp</option>
+          <option value="CHALLENGE">Challenge</option>
+          <option value="PITCH_EVENT">Pitch Event</option>
+        </select>
+        <div *ngIf="type.invalid && type.touched" class="invalid-feedback">
+          <span>Event type is required.</span>
+        </div>
+      </div>
+
+      <div class="form-group half-width">
+        <label for="category" class="form-label">Category <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="category" 
+          name="category"
+          [(ngModel)]="event.category"
+          #category="ngModel"
+          required 
+          minlength="2"
+          class="form-control" 
+          [class.is-invalid]="category.invalid && category.touched"
+          placeholder="e.g., Tech, Design, AI"
+          (ngModelChange)="noOnlySpaces(category)">
+        <div *ngIf="category.invalid && category.touched" class="invalid-feedback">
+          <span>Category is required (min 2 chars).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dates Row -->
+    <div class="form-row">
+      <div class="form-group half-width">
+        <label for="startDate" class="form-label">Start Date & Time <span class="required">*</span></label>
+        <input 
+          type="datetime-local" 
+          id="startDate" 
+          name="startDate"
+          [(ngModel)]="event.startDate"
+          #startDate="ngModel"
+          required
+          class="form-control" 
+          [class.is-invalid]="startDate.invalid && startDate.touched">
+        <div *ngIf="startDate.invalid && startDate.touched" class="invalid-feedback">
+          <span>Start date is required.</span>
+        </div>
+      </div>
+
+      <div class="form-group half-width">
+        <label for="endDate" class="form-label">End Date & Time <span class="required">*</span></label>
+        <input 
+          type="datetime-local" 
+          id="endDate" 
+          name="endDate"
+          [(ngModel)]="event.endDate"
+          #endDate="ngModel"
+          required
+          class="form-control" 
+          [class.is-invalid]="endDate.invalid && endDate.touched">
+        <div *ngIf="endDate.invalid && endDate.touched" class="invalid-feedback">
+          <span>End date is required.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location & Price -->
+    <div class="form-row">
+      <div class="form-group half-width">
+        <label for="location" class="form-label">Location <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="location" 
+          name="location"
+          [(ngModel)]="event.location"
+          #location="ngModel"
+          required 
+          minlength="2"
+          class="form-control" 
+          [class.is-invalid]="location.invalid && location.touched"
+          placeholder="City, venue, or 'Remote'"
+          (ngModelChange)="noOnlySpaces(location)">
+        <div *ngIf="location.invalid && location.touched" class="invalid-feedback">
+          <span>Location is required.</span>
+        </div>
+      </div>
+
+      <div class="form-group half-width">
+        <label for="price" class="form-label">Registration Price (TND) <span class="required">*</span></label>
+        <div class="price-input-wrapper">
+          <input 
+            type="number" 
+            id="price" 
+            name="price"
+            [(ngModel)]="event.price"
+            #price="ngModel"
+            min="0"
+            step="1"
+            required
+            class="form-control" 
+            [class.is-invalid]="price.invalid && price.touched"
+            placeholder="0 for Free">
+        </div>
+        <div *ngIf="price.invalid && price.touched" class="invalid-feedback">
+          <span>Valid price is required (min 0).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description" class="form-label">
+        About this Event <span class="required">*</span>
+      </label>
+      <textarea 
+        id="description" 
+        name="description"
+        [(ngModel)]="event.description"
+        #description="ngModel"
+        rows="8" 
+        required
+        minlength="10"
+        class="form-control large-textarea" 
+        [class.is-invalid]="description.invalid && description.touched"
+        placeholder="Provide all details, rules, and expectations..."
+        (ngModelChange)="noOnlySpaces(description)"></textarea>
+      <div *ngIf="description.invalid && description.touched" class="invalid-feedback">
+        <span *ngIf="description.errors?.['required']">Description is required.</span>
+        <span *ngIf="description.errors?.['minlength']">Minimum 10 characters.</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="eventForm.invalid">
+        Create Event
+      </button>
+    </div>
+  </form>
+</div>

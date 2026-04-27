@@ -1,0 +1,114 @@
+<div class="article-detail-container" *ngIf="article">
+  <div class="hero-section">
+    <div class="container">
+      <div class="article-meta">
+        <span class="category-tag">{{ article.category }}</span>
+        <span class="dot">•</span>
+        <span class="reading-time">5 min read</span>
+      </div>
+      <h1 class="title">{{ article.title }}</h1>
+      <div class="author-bar">
+        <div class="author-img"></div>
+        <div class="author-details">
+          <span class="name">{{ article.author }}</span>
+          <span class="date">Published on May 12, 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div class="container">
+      <div class="main-content">
+        <div class="badge-row" *ngIf="article.badge">
+          <span class="badge" [style.background]="article.badgeColor || '#6366f1'">
+            {{ article.badge }}
+          </span>
+        </div>
+
+        <div class="article-body">
+          <!-- Lead Summary -->
+          <p class="summary-lead" *ngIf="article.summary">
+            {{ article.summary }}
+          </p>
+
+          <!-- Main Article Content -->
+          <div class="main-body" [innerHTML]="article.content"></div>
+          
+          <div *ngIf="!article.content" class="no-content">
+            <p>This article content is missing or empty.</p>
+          </div>
+        </div>
+
+        <div class="interaction-bar">
+          <div class="reactions">
+            <button 
+              class="reaction-btn like" 
+              [class.active]="userReaction === 'LIKE'"
+              (click)="onReaction('LIKE')"
+            >
+              <span class="icon">👍</span>
+              <span class="count">{{ article.likeCount }}</span>
+            </button>
+            <button 
+              class="reaction-btn dislike" 
+              [class.active]="userReaction === 'DISLIKE'"
+              (click)="onReaction('DISLIKE')"
+            >
+              <span class="icon">👎</span>
+              <span class="count">{{ article.dislikeCount }}</span>
+            </button>
+          </div>
+
+          <button class="report-btn" (click)="openReportModal()">
+            <span class="icon">🚩</span> Report Article
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="viral-sidebar" *ngIf="viralArticles.length > 0">
+          <h3>Viral Articles</h3>
+          <div class="mini-card" *ngFor="let v of viralArticles" [routerLink]="['/blog', v.id]">
+            <div class="mini-cat">{{ v.category }}</div>
+            <h4>{{ v.title }}</h4>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- Simple Report Modal -->
+<div class="modal-backdrop" *ngIf="showReportModal">
+  <div class="report-modal">
+    <h2>Report Article</h2>
+    <p>Why are you reporting this content?</p>
+    
+    <select [(ngModel)]="reportReason" class="report-select">
+      <option value="SPAM">Spam</option>
+      <option value="INAPPROPRIATE">Inappropriate Content</option>
+      <option value="HARASSMENT">Harassment</option>
+      <option value="MISINFORMATION">Misinformation</option>
+      <option value="OTHER">Other</option>
+    </select>
+
+    <textarea 
+      [(ngModel)]="reportDescription" 
+      placeholder="Briefly describe the issue (optional)..."
+      class="report-textarea"
+    ></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="closeReportModal()">Cancel</button>
+      <button class="btn-submit" [disabled]="!reportReason" (click)="submitReport()">
+        Submit Report
+      </button>
+    </div>
+  </div>
+</div>

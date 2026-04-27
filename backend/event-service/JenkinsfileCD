@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'omayma13/gestion-event'
+        DOCKER_TAG   = 'latest'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'blog+event',
+                    url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh """
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    kubectl rollout status deployment/gestion-event --timeout=120s
+                """
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh """
+                    kubectl get pods -l app=gestion-event
+                    kubectl get service gestion-event-service
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD SUCCESS ✔ gestion-event déployé sur Kubernetes'
+        }
+        failure {
+            echo 'CD FAILED ❌ Check logs'
+        }
+    }
+}
