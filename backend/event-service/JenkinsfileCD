@@ -14,15 +14,17 @@ pipeline {
             }
         }
 
-       stage('Deploy to Kubernetes') {
-           steps {
-               sh """
-                   kubectl apply -f backend/event-service/deployment.yaml
-                   kubectl apply -f backend/event-service/service.yaml
-                   kubectl rollout status deployment/gestion-event --timeout=120s
-               """
-           }
-       }
+     stage('Deploy to Kubernetes') {
+         steps {
+             sh """
+                 kubectl apply -f backend/event-service/mysql-deployment.yaml
+                 kubectl apply -f backend/event-service/deployment.yaml
+                 kubectl apply -f backend/event-service/service.yaml
+                 kubectl rollout status deployment/mysql --timeout=120s
+                 kubectl rollout status deployment/gestion-event --timeout=120s
+             """
+         }
+     }
 
        stage('Verify Deployment') {
            steps {
