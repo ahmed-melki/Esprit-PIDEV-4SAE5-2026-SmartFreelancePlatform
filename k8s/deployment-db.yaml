@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketing-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketing-db
+  template:
+    metadata:
+      labels:
+        app: marketing-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: "marketing"
+            - name: MYSQL_ROOT_PASSWORD
+              value: ""
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketing-db
+spec:
+  selector:
+    app: marketing-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketing-service
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: marketing-service
+  template:
+    metadata:
+      labels:
+        app: marketing-service
+    spec:
+      containers:
+        - name: marketing-service
+          image: ahmedmelki/marketing-service:latest
+          ports:
+            - containerPort: 8092
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketing-service-svc
+spec:
+  selector:
+    app: marketing-service
+  ports:
+    - port: 8092
+      targetPort: 8092
+  type: LoadBalancer
