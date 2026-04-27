@@ -1,0 +1,110 @@
+// ============================================================
+// PIPELINE CD - PROJECT OFFER BACKEND (Kubernetes kind)
+// AVEC CREDENTIALS JENKINS
+// ============================================================
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "amounete/project-offer-backend"
+        KUBECONFIG = credentials('kubeconfig-file')
+        NAMESPACE = "project-offer"
+        
+        // 🔒 Credentials pour les secrets (cachés dans Jenkins)
+        MYSQL_ROOT_PASSWORD = credentials('mysql-root-pass')
+        MYSQL_PASSWORD = credentials('mysql-pass')
+        DB_PASSWORD = credentials('db-pass')
+        JWT_SECRET = credentials('jwt-secret')
+    }
+
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag image Docker')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environnement')
+    }
+
+    stages {
+        stage('Check Parameters') {
+            steps {
+                echo "🚀 Déploiement de ${DOCKER_IMAGE}:${params.IMAGE_TAG} sur ${params.ENVIRONMENT}"
+            }
+        }
+
+        stage('Verify Cluster') {
+            steps {
+                sh 'kubectl get nodes'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Namespace
+                    sh "kubectl apply -f k8s/namespace.yaml"
+                    
+                    // 🔒 Création des secrets (avec credentials Jenkins)
+                    sh """
+                        kubectl create secret generic mysql-secret \
+                            --from-literal=MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+                            --from-literal=MYSQL_DATABASE=projectdb \
+                            --from-literal=MYSQL_USER=projectuser \
+                            --from-literal=MYSQL_PASSWORD=${MYSQL_PASSWORD} \
+                            -n ${NAMESPACE} \
+                            --dry-run=client -o yaml | kubectl apply -f -
+                            
+                        kubectl create secret generic backend-secret \
+                            --from-literal=DB_USERNAME=projectuser \
+                            --from-literal=DB_PASSWORD=${DB_PASSWORD} \
+                            --from-literal=JWT_SECRET=${JWT_SECRET} \
+                            -n ${NAMESPACE} \
+                            --dry-run=client -o yaml | kubectl apply -f -
+                    """
+                    
+                    // Déploiement MySQL
+                    sh """
+                        kubectl apply -f k8s/mysql/pvc.yaml
+                        kubectl apply -f k8s/mysql/deployment.yaml
+                        kubectl apply -f k8s/mysql/service.yaml
+                    """
+                    
+                    // Déploiement Backend
+                    sh """
+                        kubectl apply -f k8s/backend/configmap.yaml
+                        kubectl apply -f k8s/backend/deployment.yaml
+                        kubectl apply -f k8s/backend/service.yaml
+                    """
+                    
+                    // Mise à jour de l'image
+                    sh """
+                        kubectl set image deployment/project-offer-backend \
+                            backend=${DOCKER_IMAGE}:${params.IMAGE_TAG} \
+                            -n ${NAMESPACE}
+                    """
+                }
+            }
+        }
+
+        stage('Wait for Rollout') {
+            steps {
+                sh """
+                    kubectl rollout status deployment/mysql -n ${NAMESPACE} --timeout=180s || true
+                    kubectl rollout status deployment/project-offer-backend -n ${NAMESPACE} --timeout=300s
+                """
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh """
+                    kubectl get pods -n ${NAMESPACE}
+                    kubectl get svc -n ${NAMESPACE}
+                """
+            }
+        }
+    }
+
+    post {
+        success { echo "✅ CD RÉUSSIE - ${DOCKER_IMAGE}:${params.IMAGE_TAG}" }
+        failure { echo "❌ CD ÉCHOUÉE" }
+    }
+}

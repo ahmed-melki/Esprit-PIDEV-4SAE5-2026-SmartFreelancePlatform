@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: project-offer
+data:
+  SPRING_PROFILES_ACTIVE: "dev"
