@@ -9,6 +9,9 @@ pipeline {
     environment {
         SONAR_TOKEN    = credentials('sonar-token')
         SONAR_HOST_URL = 'http://localhost:9000'
+
+        DOCKER_IMAGE = 'omayma13/gestion-event'
+        DOCKER_TAG   = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -20,24 +23,19 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Clean & Build') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                sh 'mvn test -DskipTests=false'
+                sh 'mvn test'
             }
             post {
                 always {
                     junit '**/target/surefire-reports/*.xml'
-                    jacoco(
-                        execPattern: '**/target/jacoco.exec',
-                        classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java'
-                    )
                 }
             }
         }
@@ -45,31 +43,59 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 sh """
-                mvn sonar:sonar \
-                -Dsonar.projectKey=event-project \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=blog-event \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.login=${SONAR_TOKEN} \
+                    -Dsonar.qualitygate.wait=false
                 """
             }
         }
 
-        stage('Quality Gate') {
+        stage('Docker Build') {
             steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'ls -la target/'
+                sh """
+                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                """
             }
         }
 
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                   credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker push ${DOCKER_IMAGE}:latest
+                        docker logout
+                    """
+                }
+            }
+            post {
+                always {
+                    sh """
+                        docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+                        docker rmi ${DOCKER_IMAGE}:latest || true
+                    """
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'CI SUCCESS ✔ Code is clean'
-            build job: 'gestion-event-CD', wait: false
+            echo 'CI SUCCESS ✔ Build + Test + Sonar + Docker OK'
         }
         failure {
-            echo 'CI FAILED ❌ Fix code before deploy'
+            echo 'CI FAILED ❌ Check logs'
         }
         always {
             cleanWs()

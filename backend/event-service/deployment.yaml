@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-event
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-event
+  template:
+    metadata:
+      labels:
+        app: gestion-event
+    spec:
+      containers:
+        - name: gestion-event
+          image: omayma13/gestion-event:latest
+          ports:
+            - containerPort: 8081
+          imagePullPolicy: Always
