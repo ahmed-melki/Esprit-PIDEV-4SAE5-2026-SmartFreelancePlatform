@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
-@CrossOrigin("*")
+@CrossOrigin(origins = {"http://localhost:4200"})
 public class ProjectController {
 
     private final ProjectService projectService;
