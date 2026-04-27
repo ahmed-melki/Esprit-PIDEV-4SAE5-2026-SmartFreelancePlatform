@@ -1,0 +1,32 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartfreelance-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smartfreelance-frontend
+  template:
+    metadata:
+      labels:
+        app: smartfreelance-frontend
+    spec:
+      containers:
+        - name: smartfreelance-frontend
+          image: ahmedmelki/smartfreelance-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartfreelance-frontend-svc
+spec:
+  selector:
+    app: smartfreelance-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort
