@@ -14,26 +14,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh """
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
-                    kubectl rollout status deployment/gestion-event --timeout=120s
-                """
-            }
-        }
+       stage('Deploy to Kubernetes') {
+           steps {
+               sh """
+                   kubectl apply -f backend/event-service/deployment.yaml
+                   kubectl apply -f backend/event-service/service.yaml
+                   kubectl rollout status deployment/gestion-event --timeout=120s
+               """
+           }
+       }
 
-        stage('Verify Deployment') {
-            steps {
-                sh """
-                    kubectl get pods -l app=gestion-event
-                    kubectl get service gestion-event-service
-                """
-            }
-        }
-    }
-
+       stage('Verify Deployment') {
+           steps {
+               sh """
+                   kubectl get pods -l app=gestion-event
+                   kubectl get service gestion-event-service
+               """
+           }
+       }
     post {
         success {
             echo 'CD SUCCESS ✔ gestion-event déployé sur Kubernetes'
