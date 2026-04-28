@@ -25,18 +25,16 @@ spec:
         ports:
         - containerPort: 8045
         volumeMounts:
-        - name: app-config
+        - name: config
           mountPath: /app/config
           readOnly: true
         env:
-        - name: SPRING_CONFIG_NAME
-          value: "application"
         - name: SPRING_CONFIG_LOCATION
-          value: "file:/app/config/"
+          value: "file:/app/config/application.properties"
         - name: SPRING_PROFILES_ACTIVE
           valueFrom:
             configMapKeyRef:
-              name: backend-config
+              name: backend-profile
               key: SPRING_PROFILES_ACTIVE
         livenessProbe:
           httpGet:
@@ -58,6 +56,6 @@ spec:
             memory: "512Mi"
             cpu: "250m"
       volumes:
-      - name: app-config
+      - name: config
         configMap:
-          name: app-properties
+          name: backend-config
