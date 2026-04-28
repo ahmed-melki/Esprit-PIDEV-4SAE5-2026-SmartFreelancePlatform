@@ -1,23 +1,16 @@
 // ============================================================
 // PIPELINE CD - PROJECT OFFER BACKEND (Kubernetes kind)
-// AVEC CREDENTIALS JENKINS
+// SANS CREDENTIALS - Valeurs en clair
 // ============================================================
 
 pipeline {
     agent any
 
     environment {
-    DOCKER_IMAGE = "amounete/project-offer-backend"
-    KUBECONFIG = credentials('kubeconfig-file')
-    NAMESPACE = "project-offer"
-    
-    // 🔒 Credentials pour MySQL
-    MYSQL_ROOT_PASSWORD = credentials('mysql-root-pass')
-    MYSQL_PASSWORD = credentials('mysql-pass')
-    DB_USERNAME = credentials('db-username')
-    DB_PASSWORD = credentials('db-pass')
-    JWT_SECRET = credentials('jwt-secret')
-}
+        DOCKER_IMAGE = "amounete/project-offer-backend"
+        KUBECONFIG = credentials('kubeconfig-file')
+        NAMESPACE = "project-offer"
+    }
 
     parameters {
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag image Docker')
@@ -43,25 +36,7 @@ pipeline {
                     // Namespace
                     sh "kubectl apply -f k8s/namespace.yaml"
                     
-                    // 🔒 Création des secrets
-                    sh """
-                        kubectl create secret generic mysql-secret \
-                            --from-literal=MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                            --from-literal=MYSQL_DATABASE=projectDB \
-                            --from-literal=MYSQL_USER=root \
-                            --from-literal=MYSQL_PASSWORD=${MYSQL_PASSWORD} \
-                            -n ${NAMESPACE} \
-                            --dry-run=client -o yaml | kubectl apply -f -
-                            
-                        kubectl create secret generic backend-secret \
-                            --from-literal=DB_USERNAME=${DB_USERNAME} \
-                            --from-literal=DB_PASSWORD=${DB_PASSWORD} \
-                            --from-literal=JWT_SECRET=${JWT_SECRET} \
-                            -n ${NAMESPACE} \
-                            --dry-run=client -o yaml | kubectl apply -f -
-                    """
-                    
-                    // Déploiement MySQL
+                    // Déploiement MySQL (sans secrets)
                     sh """
                         kubectl apply -f k8s/mysql/pvc.yaml
                         kubectl apply -f k8s/mysql/deployment.yaml
@@ -110,7 +85,6 @@ pipeline {
     post {
         success { 
             echo "✅ CD RÉUSSIE - ${DOCKER_IMAGE}:${params.IMAGE_TAG}"
-            echo "🌍 ${params.ENVIRONMENT}"
         }
         failure { 
             echo "❌ CD ÉCHOUÉE"
