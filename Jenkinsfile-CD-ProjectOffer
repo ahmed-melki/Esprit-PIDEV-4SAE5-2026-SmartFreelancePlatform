@@ -7,17 +7,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "amounete/project-offer-backend"
-        KUBECONFIG = credentials('kubeconfig-file')
-        NAMESPACE = "project-offer"
-        
-        // 🔒 Credentials pour MySQL
-        MYSQL_ROOT_PASSWORD = credentials('mysql-root-pass')
-        MYSQL_PASSWORD = credentials('mysql-pass')
-        DB_USERNAME = credentials('db-username')
-        DB_PASSWORD = credentials('db-pass')
-        JWT_SECRET = credentials('jwt-secret')
-    }
+    DOCKER_IMAGE = "amounete/project-offer-backend"
+    KUBECONFIG = credentials('kubeconfig-file')
+    NAMESPACE = "project-offer"
+    
+    // 🔒 Credentials pour MySQL
+    MYSQL_ROOT_PASSWORD = credentials('mysql-root-pass')
+    MYSQL_PASSWORD = credentials('mysql-pass')
+    DB_USERNAME = credentials('db-username')
+    DB_PASSWORD = credentials('db-pass')
+    JWT_SECRET = credentials('jwt-secret')
+}
 
     parameters {
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag image Docker')
