@@ -23,25 +23,21 @@ spec:
       - name: backend
         image: amounete/project-offer-backend:latest
         ports:
-        - containerPort: 8045                 
+        - containerPort: 8045
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+          readOnly: true
         env:
+        - name: SPRING_CONFIG_NAME
+          value: "application"
+        - name: SPRING_CONFIG_LOCATION
+          value: "file:/app/config/"
         - name: SPRING_PROFILES_ACTIVE
           valueFrom:
             configMapKeyRef:
               name: backend-config
               key: SPRING_PROFILES_ACTIVE
-        - name: DB_URL
-          value: "jdbc:mysql://mysql:3306/projectDB?useSSL=false&serverTimezone=UTC"
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: backend-secret
-              key: DB_USERNAME
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secret
-              key: DB_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -50,13 +46,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8045                        
+            port: 8045
           initialDelaySeconds: 90
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 8045                        
+            port: 8045
           initialDelaySeconds: 60
           periodSeconds: 5
         resources:
@@ -66,3 +62,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "250m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-properties

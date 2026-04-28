@@ -11,9 +11,10 @@ pipeline {
         KUBECONFIG = credentials('kubeconfig-file')
         NAMESPACE = "project-offer"
         
-        // 🔒 Credentials pour les secrets (cachés dans Jenkins)
+        // 🔒 Credentials pour MySQL
         MYSQL_ROOT_PASSWORD = credentials('mysql-root-pass')
         MYSQL_PASSWORD = credentials('mysql-pass')
+        DB_USERNAME = credentials('db-username')
         DB_PASSWORD = credentials('db-pass')
         JWT_SECRET = credentials('jwt-secret')
     }
@@ -42,18 +43,18 @@ pipeline {
                     // Namespace
                     sh "kubectl apply -f k8s/namespace.yaml"
                     
-                    // 🔒 Création des secrets (avec credentials Jenkins)
+                    // 🔒 Création des secrets
                     sh """
                         kubectl create secret generic mysql-secret \
                             --from-literal=MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                            --from-literal=MYSQL_DATABASE=projectdb \
-                            --from-literal=MYSQL_USER=projectuser \
+                            --from-literal=MYSQL_DATABASE=projectDB \
+                            --from-literal=MYSQL_USER=root \
                             --from-literal=MYSQL_PASSWORD=${MYSQL_PASSWORD} \
                             -n ${NAMESPACE} \
                             --dry-run=client -o yaml | kubectl apply -f -
                             
                         kubectl create secret generic backend-secret \
-                            --from-literal=DB_USERNAME=projectuser \
+                            --from-literal=DB_USERNAME=${DB_USERNAME} \
                             --from-literal=DB_PASSWORD=${DB_PASSWORD} \
                             --from-literal=JWT_SECRET=${JWT_SECRET} \
                             -n ${NAMESPACE} \
@@ -96,7 +97,10 @@ pipeline {
         stage('Verify') {
             steps {
                 sh """
+                    echo "=== Pods ==="
                     kubectl get pods -n ${NAMESPACE}
+                    echo ""
+                    echo "=== Services ==="
                     kubectl get svc -n ${NAMESPACE}
                 """
             }
@@ -104,7 +108,13 @@ pipeline {
     }
 
     post {
-        success { echo "✅ CD RÉUSSIE - ${DOCKER_IMAGE}:${params.IMAGE_TAG}" }
-        failure { echo "❌ CD ÉCHOUÉE" }
+        success { 
+            echo "✅ CD RÉUSSIE - ${DOCKER_IMAGE}:${params.IMAGE_TAG}"
+            echo "🌍 ${params.ENVIRONMENT}"
+        }
+        failure { 
+            echo "❌ CD ÉCHOUÉE"
+            sh "kubectl logs -n ${NAMESPACE} -l app=project-offer-backend --tail=50 || true"
+        }
     }
 }
