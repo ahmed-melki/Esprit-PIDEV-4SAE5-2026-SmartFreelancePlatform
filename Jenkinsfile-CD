@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    environment {
+        APP_NAME = 'smartfreelance-frontend'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Cloning for deployment..."
+                checkout scm
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Deploying frontend to Kubernetes..."
+                dir("k8s") {
+                    bat 'kubectl apply -f deployment-frontend.yaml'
+                }
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                echo "Verifying frontend pod..."
+                bat 'kubectl get pods -l app=smartfreelance-frontend'
+                bat 'kubectl get services'
+            }
+        }
+    }
+    post {
+        success { echo "✅ smartfreelance-frontend CD SUCCESS — deployed to Kubernetes!" }
+        failure { echo "❌ smartfreelance-frontend CD FAILED" }
+    }
+}
