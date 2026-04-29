@@ -1,11 +1,5 @@
 pipeline {
     agent any
-
-    environment {
-        DOCKER_IMAGE = 'omayma13/gestion-event'
-        DOCKER_TAG   = 'latest'
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -13,33 +7,28 @@ pipeline {
                     url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
             }
         }
-
-     stage('Deploy to Kubernetes') {
-         steps {
-             sh """
-                 kubectl apply -f backend/event-service/mysql-deployment.yaml
-                 kubectl apply -f backend/event-service/deployment.yaml
-                 kubectl apply -f backend/event-service/service.yaml
-                 kubectl rollout status deployment/mysql --timeout=120s
-                 kubectl rollout status deployment/gestion-event --timeout=120s
-             """
-         }
-     }
-
-       stage('Verify Deployment') {
-           steps {
-               sh """
-                   kubectl get pods -l app=gestion-event
-                   kubectl get service gestion-event-service
-               """
-           }
-       }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f backend/event-service/mysql-deployment.yaml'
+                sh 'kubectl apply -f backend/event-service/deployment.yaml'
+                sh 'kubectl apply -f backend/event-service/service.yaml'
+                sh 'kubectl rollout status deployment/mysql --timeout=300s'
+                sh 'kubectl rollout status deployment/gestion-event --timeout=120s'
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                sh 'kubectl get pods -l app=gestion-event'
+                sh 'kubectl get service gestion-event-service'
+            }
+        }
+    }
     post {
         success {
-            echo 'CD SUCCESS ✔ gestion-event déployé sur Kubernetes'
+            echo 'CD SUCCESS'
         }
         failure {
-            echo 'CD FAILED ❌ Check logs'
+            echo 'CD FAILED'
         }
     }
 }
