@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    environment {
+        APP_NAME = 'marketing-service'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Cloning for deployment..."
+                checkout scm
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Deploying to Kubernetes..."
+                dir("k8s") {
+                    bat 'kubectl apply -f configmap-secret.yaml'
+                    bat 'kubectl apply -f deployment-db.yaml'
+                    bat 'kubectl apply -f deployment-backend.yaml'
+                }
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                echo "Verifying pods..."
+                bat 'kubectl get pods -l app=marketing-service'
+                bat 'kubectl get pods -l app=marketing-db'
+                bat 'kubectl get services'
+            }
+        }
+    }
+    post {
+        success { echo "✅ marketing-service CD SUCCESS — deployed to Kubernetes!" }
+        failure { echo "❌ marketing-service CD FAILED" }
+    }
+}
