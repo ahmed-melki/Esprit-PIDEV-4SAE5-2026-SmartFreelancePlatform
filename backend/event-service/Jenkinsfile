@@ -1,37 +1,34 @@
 pipeline {
     agent any
-
     tools {
         maven 'Maven3'
         jdk 'JDK17'
     }
-
     environment {
         SONAR_TOKEN    = credentials('sonar-token')
         SONAR_HOST_URL = 'http://localhost:9000'
-
         DOCKER_IMAGE = 'omayma13/gestion-event'
         DOCKER_TAG   = "${BUILD_NUMBER}"
     }
-
     stages {
-
         stage('Checkout Code') {
             steps {
                 git branch: 'blog+event',
                     url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
             }
         }
-
         stage('Clean & Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('backend/event-service') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
-
         stage('Run Unit Tests') {
             steps {
-                sh 'mvn test'
+                dir('backend/event-service') {
+                    sh 'mvn test'
+                }
             }
             post {
                 always {
@@ -39,44 +36,40 @@ pipeline {
                 }
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
-                sh """
-                    mvn sonar:sonar \
-                    -Dsonar.projectKey=blog-event \
-                    -Dsonar.host.url=${SONAR_HOST_URL} \
-                    -Dsonar.login=${SONAR_TOKEN} \
-                    -Dsonar.qualitygate.wait=false
-                """
+                dir('backend/event-service') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=blog-event \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.qualitygate.wait=false
+                    """
+                }
             }
         }
-
         stage('Docker Build') {
             steps {
-                sh 'pwd'
-                sh 'ls -la'
-                sh 'ls -la target/'
-                sh """
-                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-                """
+                dir('backend/event-service') {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                    """
+                }
             }
         }
-
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(
-                   credentialsId: 'dockerhub-creds',
+                    credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker push ${DOCKER_IMAGE}:latest
-                        docker logout
-                    """
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
+                    sh 'docker logout'
                 }
             }
             post {
@@ -89,7 +82,6 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             echo 'CI SUCCESS ✔ Build + Test + Sonar + Docker OK'
