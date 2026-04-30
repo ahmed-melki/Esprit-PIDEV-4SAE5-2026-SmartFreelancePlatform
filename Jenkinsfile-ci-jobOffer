@@ -1,6 +1,6 @@
 // ============================================================
 // PIPELINE CI - JOB OFFER BACKEND (Java 21)
-// Branche: gestionOffre
+// Branche: main ou develop
 // ============================================================
 
 pipeline {
@@ -13,9 +13,6 @@ pipeline {
         SONAR_HOST_URL = "http://host.docker.internal:9000"
         SONAR_PROJECT_KEY = 'job-offer-backend'
         SONAR_PROJECT_NAME = 'Job Offer Backend'
-        
-        // ⭐ Variable pour stocker le chemin du projet
-        PROJECT_PATH = ""
     }
 
     options {
@@ -36,40 +33,10 @@ pipeline {
             }
         }
 
-        // ⭐ NOUVEAU STAGE : Trouver le projet JobOffer
-        stage('Find JobOffer Project') {
-            steps {
-                script {
-                    // Chercher le dossier contenant le pom.xml pour JobOffer
-                    def possiblePaths = [
-                        'JobOffer',
-                        'joboffer',
-                        'job-offer',
-                        '.'
-                    ]
-                    
-                    for (path in possiblePaths) {
-                        if (fileExists("${path}/pom.xml")) {
-                            PROJECT_PATH = path
-                            echo "✅ Projet trouvé dans: ${PROJECT_PATH}"
-                            break
-                        }
-                    }
-                    
-                    if (PROJECT_PATH == "") {
-                        error "❌ Impossible de trouver le projet JobOffer (pom.xml introuvable)"
-                    }
-                    
-                    // Afficher la structure
-                    sh "ls -la ${PROJECT_PATH}"
-                }
-            }
-        }
-
-        // ⭐ Build, Test et SonarQube
+        // ⭐ Build, Test et SonarQube dans un conteneur Docker
         stage('Build, Test & SonarQube') {
             steps {
-                dir("${PROJECT_PATH}") {
+                dir('JobOffre') {
                     withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
                         sh """
                             docker run --rm \
@@ -86,13 +53,9 @@ pipeline {
             }
             post {
                 always {
-                    script {
-                        if (fileExists("${PROJECT_PATH}/target/surefire-reports/")) {
-                            junit "${PROJECT_PATH}/target/surefire-reports/**/*.xml"
-                        }
-                        if (fileExists("${PROJECT_PATH}/target/*.jar")) {
-                            archiveArtifacts artifacts: "${PROJECT_PATH}/target/*.jar", fingerprint: true
-                        }
+                    dir('JobOffre') {
+                        junit 'target/surefire-reports/**/*.xml'
+                        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
                     }
                 }
             }
@@ -101,7 +64,7 @@ pipeline {
         // ⭐ Docker Build
         stage('Docker Build') {
             steps {
-                dir("${PROJECT_PATH}") {
+                dir('JobOffre') {
                     sh """
                         docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
                                      -t ${DOCKER_IMAGE}:latest .
@@ -128,12 +91,9 @@ pipeline {
     post {
         success {
             echo "✅ CI RÉUSSIE - Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-            echo "📁 Chemin du projet: ${PROJECT_PATH}"
         }
         failure {
             echo "❌ CI ÉCHOUÉE"
-            sh "ls -la"
-            sh "find . -name 'pom.xml' -type f 2>/dev/null || echo 'Aucun pom.xml trouvé'"
         }
         always {
             echo "Nettoyage terminé"
