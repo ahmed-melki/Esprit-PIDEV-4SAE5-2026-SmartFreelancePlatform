@@ -1,0 +1,93 @@
+// ============================================================
+// PIPELINE CD - JOB OFFER BACKEND (Kubernetes kind)
+// ============================================================
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "amounete/job-offer-backend"
+        KUBECONFIG = credentials('kubeconfig-file')
+        NAMESPACE = "job-offer"  // Namespace différent pour JobOffer
+    }
+
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Tag image Docker')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Environnement')
+    }
+
+    stages {
+        stage('Check Parameters') {
+            steps {
+                echo "🚀 Déploiement de ${DOCKER_IMAGE}:${params.IMAGE_TAG} sur ${params.ENVIRONMENT}"
+            }
+        }
+
+        stage('Verify Cluster') {
+            steps {
+                sh 'kubectl get nodes'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Namespace
+                    sh "kubectl apply -f k8s/namespace.yaml"
+                    
+                    // Déploiement MySQL pour JobOffer
+                    sh """
+                        kubectl apply -f k8s/mysql/pvc.yaml
+                        kubectl apply -f k8s/mysql/deployment.yaml
+                        kubectl apply -f k8s/mysql/service.yaml
+                    """
+                    
+                    // Déploiement Backend JobOffer
+                    sh """
+                        kubectl apply -f k8s/backend/configmap.yaml
+                        kubectl apply -f k8s/backend/deployment.yaml
+                        kubectl apply -f k8s/backend/service.yaml
+                    """
+                    
+                    // Mise à jour de l'image
+                    sh """
+                        kubectl set image deployment/job-offer-backend \
+                            backend=${DOCKER_IMAGE}:${params.IMAGE_TAG} \
+                            -n ${NAMESPACE}
+                    """
+                }
+            }
+        }
+
+        stage('Wait for Rollout') {
+            steps {
+                sh """
+                    kubectl rollout status deployment/mysql -n ${NAMESPACE} --timeout=180s || true
+                    kubectl rollout status deployment/job-offer-backend -n ${NAMESPACE} --timeout=300s
+                """
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh """
+                    echo "=== Pods ==="
+                    kubectl get pods -n ${NAMESPACE}
+                    echo ""
+                    echo "=== Services ==="
+                    kubectl get svc -n ${NAMESPACE}
+                """
+            }
+        }
+    }
+
+    post {
+        success { 
+            echo "✅ CD RÉUSSIE - ${DOCKER_IMAGE}:${params.IMAGE_TAG}"
+        }
+        failure { 
+            echo "❌ CD ÉCHOUÉE"
+            sh "kubectl logs -n ${NAMESPACE} -l app=job-offer-backend --tail=50 || true"
+        }
+    }
+}

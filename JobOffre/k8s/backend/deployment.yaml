@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-offer-backend
+  namespace: job-offer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: job-offer-backend
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8046"
+        prometheus.io/path: "/actuator/prometheus"
+      labels:
+        app: job-offer-backend
+    spec:
+      containers:
+      - name: backend
+        image: amounete/job-offer-backend:latest
+        ports:
+        - containerPort: 8046
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        env:
+        - name: SPRING_CONFIG_LOCATION
+          value: "file:/app/config/application.properties"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        # Activation des métriques (sans modifier le code)
+        - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+          value: "health,info,prometheus,metrics"
+        - name: MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED
+          value: "true"
+        - name: MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED
+          value: "true"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+      volumes:
+      - name: config
+        configMap:
+          name: backend-config

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-offer-backend
+  namespace: job-offer
+spec:
+  type: NodePort
+  ports:
+  - port: 8046
+    targetPort: 8046
+    nodePort: 30446  
+    name: http
+  selector:
+    app: job-offer-backend

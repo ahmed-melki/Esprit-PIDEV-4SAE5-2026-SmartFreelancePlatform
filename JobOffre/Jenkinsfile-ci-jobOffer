@@ -1,0 +1,102 @@
+// ============================================================
+// PIPELINE CI - JOB OFFER BACKEND (Java 21)
+// Branche: main ou develop
+// ============================================================
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "amounete/job-offer-backend"
+        IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+        
+        SONAR_HOST_URL = "http://host.docker.internal:9000"
+        SONAR_PROJECT_KEY = 'job-offer-backend'
+        SONAR_PROJECT_NAME = 'Job Offer Backend'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+
+    triggers {
+        pollSCM('')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "✅ Code récupéré depuis GitHub - Branche: ${env.BRANCH_NAME}"
+            }
+        }
+
+        // ⭐ Build, Test et SonarQube dans un conteneur Docker
+        stage('Build, Test & SonarQube') {
+            steps {
+                dir('JobOffer') {
+                    withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                            docker run --rm \
+                                -v \$(pwd):/app \
+                                -w /app \
+                                maven:3.9.4-eclipse-temurin-21 \
+                                mvn clean test package sonar:sonar \
+                                    -DskipTests=false \
+                                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                                    -Dsonar.token=\$SONAR_TOKEN
+                        """
+                    }
+                }
+            }
+            post {
+                always {
+                    dir('JobOffer') {
+                        junit 'target/surefire-reports/**/*.xml'
+                        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                    }
+                }
+            }
+        }
+
+        // ⭐ Docker Build
+        stage('Docker Build') {
+            steps {
+                dir('JobOffer') {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} \
+                                     -t ${DOCKER_IMAGE}:latest .
+                    """
+                }
+            }
+        }
+
+        // ⭐ Push DockerHub
+        stage('Push DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+                        docker push ${DOCKER_IMAGE}:${IMAGE_TAG}
+                        docker push ${DOCKER_IMAGE}:latest
+                        docker logout
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ CI RÉUSSIE - Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "❌ CI ÉCHOUÉE"
+        }
+        always {
+            echo "Nettoyage terminé"
+        }
+    }
+}

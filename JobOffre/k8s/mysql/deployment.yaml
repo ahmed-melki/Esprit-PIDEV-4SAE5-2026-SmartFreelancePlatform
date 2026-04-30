@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-joboffer
+  namespace: job-offer
+  labels:
+    app: mysql-joboffer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-joboffer
+  template:
+    metadata:
+      labels:
+        app: mysql-joboffer
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MYSQL_DATABASE
+          value: "jobDB"
