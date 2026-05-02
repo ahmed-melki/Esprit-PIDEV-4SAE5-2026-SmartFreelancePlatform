@@ -33,20 +33,20 @@ pipeline {
             steps {
                 script {
                     // Namespace
-                    sh "kubectl apply -f jobOffre/k8s/namespace.yaml"
+                    sh "kubectl apply -f JobOffre/k8s/namespace.yaml"
                     
                     // Déploiement MySQL pour JobOffer
                     sh """
-                        kubectl apply -f jobOffre/k8s/mysql/pvc.yaml
-                        kubectl apply -f jobOffre/k8s/mysql/deployment.yaml
-                        kubectl apply -f jobOffre/k8s/mysql/service.yaml
+                        kubectl apply -f JobOffre/k8s/mysql/pvc.yaml
+                        kubectl apply -f JobOffre/k8s/mysql/deployment.yaml
+                        kubectl apply -f JobOffre/k8s/mysql/service.yaml
                     """
                     
                     // Déploiement Backend JobOffer
                     sh """
-                        kubectl apply -f jobOffre/k8s/backend/configmap.yaml
-                        kubectl apply -f jobOffre/k8s/backend/deployment.yaml
-                        kubectl apply -f jobOffre/k8s/backend/service.yaml
+                        kubectl apply -f JobOffre/k8s/backend/configmap.yaml
+                        kubectl apply -f JobOffre/k8s/backend/deployment.yaml
+                        kubectl apply -f JobOffre/k8s/backend/service.yaml
                     """
                     
                     // Mise à jour de l'image
