@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'JDK17'
+    }
+    environment {
+        SONAR_TOKEN    = credentials('sonar-token')
+        SONAR_HOST_URL = 'http://localhost:9001'
+        DOCKER_IMAGE = 'omayma13/gestion-blog'
+        DOCKER_TAG   = "${BUILD_NUMBER}"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'blog+event',
+                    url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+            }
+        }
+        stage('Clean & Build') {
+            steps {
+                dir('backend/blog-service') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+        stage('Run Unit Tests') {
+            steps {
+                dir('backend/blog-service') {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend/blog-service') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=gestion-blog \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.qualitygate.wait=false
+                    """
+                }
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                dir('backend/blog-service') {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                    """
+                }
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
+                    sh 'docker logout'
+                }
+            }
+            post {
+                always {
+                    sh """
+                        docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+                        docker rmi ${DOCKER_IMAGE}:latest || true
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'CI SUCCESS ✔ Build + Test + Sonar + Docker OK'
+        }
+        failure {
+            echo 'CI FAILED ❌ Check logs'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
