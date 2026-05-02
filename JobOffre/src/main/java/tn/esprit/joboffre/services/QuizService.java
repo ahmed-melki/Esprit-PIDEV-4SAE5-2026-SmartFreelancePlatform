@@ -30,7 +30,7 @@ public class QuizService {
                 if (question.getAnswers() != null) {
                     for (Answer answer : question.getAnswers()) {
                         answer.setQuestion(question);
-                        System.out.println("Sauvegarde réponse: " + answer.getText() + " - isCorrect: " + answer.isCorrect());
+                       
                     }
                 }
             }
