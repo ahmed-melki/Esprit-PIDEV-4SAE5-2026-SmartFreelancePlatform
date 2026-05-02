@@ -8,6 +8,6 @@ public enum StatutCandidature {
     REFUSEE,
     ENTRETIEN_PLANIFIE,
     ENTRETIEN_REALISE,
-    EMBauCHE,
+    EMBAUCHE,
     ARCHIVEE
 }

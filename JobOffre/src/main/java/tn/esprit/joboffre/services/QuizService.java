@@ -166,9 +166,9 @@ public class QuizService {
     }
 
     @Transactional
-    public void deleteQuestion(Long questionId) {
-
-    }
+public void deleteQuestion(Long questionId) {
+    throw new UnsupportedOperationException("Cette fonctionnalité n'est pas encore implémentée");
+}
 
     public boolean hasUserPassedQuiz(Long quizId, Long userId) {
         return quizResultRepository.existsByUserIdAndQuizIdAndPassedTrue(userId, quizId);
