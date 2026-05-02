@@ -65,7 +65,7 @@ class QuizServiceTest {
         quizResult.setQuiz(quiz);
         quizResult.setUserId(5L);
         quizResult.setPassed(true);
-        quizResult.setPercentage(85.0);
+        quizResult.setPercentage(85);
     }
 
     @Test
@@ -126,7 +126,7 @@ class QuizServiceTest {
 
         assertThat(result.getTitle()).isEqualTo("Nouveau titre");
         assertThat(result.getDescription()).isEqualTo("Nouvelle description");
-        assertThat(result.getPassingScore()).isEqualTo(80.0);
+        assertThat(result.getPassingScore()).isEqualTo(80);
         assertThat(result.getTimeLimitMinutes()).isEqualTo(45);
         assertThat(result.isActive()).isFalse();
         assertThat(result.getUpdatedAt()).isNotNull();
