@@ -7,7 +7,8 @@ spec:
   selector:
     app: gestion-event
   ports:
-    - port: 8081
+    - name: http
+      port: 8081
       targetPort: 8081
       nodePort: 30081
   type: NodePort
