@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/files")
-@CrossOrigin("*")
+@CrossOrigin(origins = {"http://localhost:4200"})
 public class FileController {
 
     private final String UPLOAD_DIR = "uploads/cvs/";

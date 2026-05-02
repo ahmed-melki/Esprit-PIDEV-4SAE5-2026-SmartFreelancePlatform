@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/candidatures")
-@CrossOrigin("*")
+@CrossOrigin(origins = {"http://localhost:4200"})
 public class CandidatureController {
 
     private final CandidatureService candidatureService;
