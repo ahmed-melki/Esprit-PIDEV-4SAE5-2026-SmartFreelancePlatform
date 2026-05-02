@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'blog+event',
+                    url: 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f backend/blog-service/deployment.yaml'
+                sh 'kubectl apply -f backend/blog-service/service.yaml'
+                sh 'kubectl rollout status deployment/gestion-blog --timeout=120s'
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                sh 'kubectl get pods -l app=gestion-blog'
+                sh 'kubectl get service gestion-blog-service'
+            }
+        }
+    }
+    post {
+        success {
+            echo 'CD SUCCESS'
+        }
+        failure {
+            echo 'CD FAILED'
+        }
+    }
+}

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-blog
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-blog
+  template:
+    metadata:
+      labels:
+        app: gestion-blog
+    spec:
+      containers:
+        - name: gestion-blog
+          image: omayma13/gestion-blog:latest
+          ports:
+            - containerPort: 8082
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/blog?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
