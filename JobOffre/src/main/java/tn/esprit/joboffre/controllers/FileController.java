@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ public class FileController {
             String fileUrl = "http://localhost:8052/api/files/download/" + fileName;
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
-            e.printStackTrace();
+           
             return ResponseEntity.badRequest().body("Erreur lors de l'upload: " + e.getMessage());
         }
     }
@@ -64,7 +63,7 @@ public class FileController {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+           
             return ResponseEntity.notFound().build();
         }
     }
