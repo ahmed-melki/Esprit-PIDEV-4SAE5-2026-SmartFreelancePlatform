@@ -30,7 +30,7 @@ public class QuizService {
                 if (question.getAnswers() != null) {
                     for (Answer answer : question.getAnswers()) {
                         answer.setQuestion(question);
-                        System.out.println("Sauvegarde réponse: " + answer.getText() + " - isCorrect: " + answer.isCorrect());
+                        
                     }
                 }
             }
@@ -165,10 +165,7 @@ public class QuizService {
         return question;
     }
 
-    @Transactional
-    public void deleteQuestion(Long questionId) {
-
-    }
+    
 
     public boolean hasUserPassedQuiz(Long quizId, Long userId) {
         return quizResultRepository.existsByUserIdAndQuizIdAndPassedTrue(userId, quizId);
