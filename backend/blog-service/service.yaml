@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: gestion-blog-service
   namespace: default
+  labels:
+    app: gestion-blog
 spec:
   selector:
     app: gestion-blog
   ports:
-    - port: 8082
+    - name: http
+      port: 8082
       targetPort: 8082
       nodePort: 30082
   type: NodePort
