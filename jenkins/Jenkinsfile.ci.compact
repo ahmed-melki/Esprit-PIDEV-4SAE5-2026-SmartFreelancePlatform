@@ -60,8 +60,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh 'set -e; kubectl port-forward --address 0.0.0.0 svc/sonarqube 9000:9000 -n "$K8S_NAMESPACE" > sonarqube-port-forward.log 2>&1 & echo $! > sonar.pid; for i in $(seq 1 30); do curl -fsS http://localhost:9000 >/dev/null && exit 0; sleep 2; done; cat sonarqube-port-forward.log; exit 1'
-                    sh 'set -e; docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-back" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.token="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
-                    sh 'set -e; docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-training-certification" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.token="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh 'set -e; docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-back" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.login="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh 'set -e; docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-training-certification" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.login="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                     sh 'kill $(cat sonar.pid) 2>/dev/null || true'
                 }
             }
