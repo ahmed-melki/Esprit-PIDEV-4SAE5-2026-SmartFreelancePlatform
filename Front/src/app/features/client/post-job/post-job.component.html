@@ -15,11 +15,11 @@
   <div class="glass-panel form-card">
     <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
-        <div class="form-group" style="flex:2">
+        <div class="form-group field-grow-2">
           <label class="form-label">Job Title *</label>
           <input type="text" formControlName="title" class="form-control" placeholder="e.g. Senior Angular Developer">
         </div>
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Contract Type *</label>
           <select formControlName="contractType" class="form-control">
             <option value="CDI">CDI</option>
@@ -31,11 +31,11 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group" style="flex:2">
+        <div class="form-group field-grow-2">
           <label class="form-label">Company *</label>
           <input type="text" formControlName="company" class="form-control" placeholder="e.g. TechCorp SA">
         </div>
-        <div class="form-group" style="flex:2">
+        <div class="form-group field-grow-2">
           <label class="form-label">Location</label>
           <input type="text" formControlName="location" class="form-control" placeholder="e.g. Tunis, Tunisia">
         </div>
@@ -47,30 +47,30 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Salary Min (TND)</label>
           <input type="number" formControlName="salaryMin" class="form-control" placeholder="e.g. 2000">
         </div>
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Salary Max (TND)</label>
           <input type="number" formControlName="salaryMax" class="form-control" placeholder="e.g. 4000">
         </div>
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Positions *</label>
           <input type="number" formControlName="numberOfPositions" class="form-control" min="1">
         </div>
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Deadline *</label>
           <input type="date" formControlName="deadline" class="form-control">
         </div>
       </div>
 
       <div class="form-row">
-        <div class="form-group" style="flex:2">
+        <div class="form-group field-grow-2">
           <label class="form-label">Required Skills (comma separated)</label>
           <input type="text" formControlName="requiredSkills" class="form-control" placeholder="e.g. Angular, TypeScript, Git">
         </div>
-        <div class="form-group" style="flex:1">
+        <div class="form-group field-grow-1">
           <label class="form-label">Experience Level</label>
           <input type="text" formControlName="experienceLevel" class="form-control" placeholder="e.g. Mid-level">
         </div>

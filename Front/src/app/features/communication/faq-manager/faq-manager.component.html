@@ -8,13 +8,13 @@
         <p>Réponses automatiques par mots-clés</p>
       </div>
     </div>
-    <button class="btn-add" (click)="showCreateForm = !showCreateForm">
+    <button type="button" class="btn-add" (click)="showCreateForm = true">
       <span class="material-symbols-rounded">add</span>
       Nouvelle FAQ
     </button>
   </div>
 
-  <!-- Success toast -->
+  <!-- Toast -->
   @if (successMessage) {
     <div class="toast success">
       <span class="material-symbols-rounded">check_circle</span>
@@ -22,36 +22,46 @@
     </div>
   }
 
-  <!-- Create form -->
+  <!-- Create modal -->
   @if (showCreateForm) {
-    <div class="create-card">
-      <h3>Nouvelle entrée FAQ</h3>
-      <div class="form-row-two">
-        <div class="form-group">
-          <label class="form-label">Mot-clé</label>
-          <input
-            type="text"
-            [(ngModel)]="newFaq.keyword"
-            placeholder="ex: prix, délai, paiement..."
-            class="form-control"
-          />
+    <div class="modal-overlay" (click)="$event.target === $event.currentTarget && (showCreateForm = false)">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h3>Nouvelle entrée FAQ</h3>
+            <p class="modal-subtitle">Définissez un mot-clé et sa réponse automatique</p>
+          </div>
+          <button type="button" class="btn-close" (click)="showCreateForm = false">
+            <span class="material-symbols-rounded">close</span>
+          </button>
         </div>
-        <div class="form-group full">
-          <label class="form-label">Réponse automatique</label>
-          <textarea
-            [(ngModel)]="newFaq.answer"
-            placeholder="La réponse qui sera suggérée quand ce mot est détecté..."
-            class="form-control"
-            rows="3"
-          ></textarea>
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">Mot-clé</label>
+            <input
+              type="text"
+              [(ngModel)]="newFaq.keyword"
+              placeholder="ex: prix, délai, paiement..."
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Réponse automatique</label>
+            <textarea
+              [(ngModel)]="newFaq.answer"
+              placeholder="La réponse qui sera suggérée quand ce mot est détecté..."
+              class="form-control"
+              rows="4"
+            ></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="showCreateForm = false">Annuler</button>
+            <button type="button" class="btn btn-primary" (click)="createFaq()" [disabled]="!newFaq.keyword || !newFaq.answer">
+              <span class="material-symbols-rounded">save</span>
+              Enregistrer
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-ghost" (click)="showCreateForm = false">Annuler</button>
-        <button class="btn-primary" (click)="createFaq()" [disabled]="!newFaq.keyword || !newFaq.answer">
-          <span class="material-symbols-rounded">save</span>
-          Enregistrer
-        </button>
       </div>
     </div>
   }
@@ -91,16 +101,16 @@
               <td class="id-cell">{{ faq.id }}</td>
               @if (editingFaq?.id === faq.id) {
                 <td>
-                  <input type="text" [(ngModel)]="editingFaq!.keyword" class="inline-input" />
+                  <input type="text" [(ngModel)]="editingFaq!.keyword" class="inline-input" title="Mot-clé" placeholder="Mot-clé" />
                 </td>
                 <td>
-                  <textarea [(ngModel)]="editingFaq!.answer" class="inline-textarea" rows="2"></textarea>
+                  <textarea [(ngModel)]="editingFaq!.answer" class="inline-textarea" rows="2" title="Réponse" placeholder="Réponse..."></textarea>
                 </td>
                 <td class="actions-cell">
-                  <button class="btn-save" (click)="saveEdit()">
+                  <button type="button" class="btn-save" (click)="saveEdit()">
                     <span class="material-symbols-rounded">save</span>
                   </button>
-                  <button class="btn-cancel-edit" (click)="cancelEdit()">
+                  <button type="button" class="btn-cancel-edit" (click)="cancelEdit()">
                     <span class="material-symbols-rounded">close</span>
                   </button>
                 </td>
@@ -108,10 +118,10 @@
                 <td><span class="keyword-chip">{{ faq.keyword }}</span></td>
                 <td class="answer-cell">{{ faq.answer }}</td>
                 <td class="actions-cell">
-                  <button class="btn-edit" (click)="startEdit(faq)">
+                  <button type="button" class="btn-edit" (click)="startEdit(faq)">
                     <span class="material-symbols-rounded">edit</span>
                   </button>
-                  <button class="btn-del" (click)="deleteFaq(faq)">
+                  <button type="button" class="btn-del" (click)="deleteFaq(faq)">
                     <span class="material-symbols-rounded">delete</span>
                   </button>
                 </td>

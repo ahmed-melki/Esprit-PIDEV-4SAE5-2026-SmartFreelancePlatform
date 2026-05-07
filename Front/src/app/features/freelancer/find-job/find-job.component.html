@@ -30,7 +30,7 @@
   <div *ngIf="error && !isLoading" class="error-container glass-card">
     <span class="material-symbols-rounded error-icon">warning</span>
     <h3>Connection Error</h3>
-    <p>Could not load jobs. Please ensure the job service is running on port 8052.</p>
+    <p>Could not load jobs. Check that the API gateway and backend services are available.</p>
     <button class="btn btn-primary" (click)="fetchJobs()">Retry</button>
   </div>
 

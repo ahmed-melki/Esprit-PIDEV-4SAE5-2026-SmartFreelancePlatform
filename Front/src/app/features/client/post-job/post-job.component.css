@@ -87,14 +87,21 @@
   gap: 1.5rem;
 }
 
+.field-grow-1,
 .half-width {
   flex: 1;
+}
+
+.field-grow-2 {
+  flex: 2;
 }
 
 .form-actions {
   margin-top: 2rem;
   display: flex;
   justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .btn-icon {
@@ -138,5 +145,18 @@ select.form-control {
   .form-row {
     flex-direction: column;
     gap: 0;
+  }
+
+  .form-card {
+    padding: 1.5rem;
+  }
+
+  .step-bar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .step-connector {
+    display: none;
   }
 }

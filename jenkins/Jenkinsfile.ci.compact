@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+    options { timestamps(); disableConcurrentBuilds() }
+    parameters { booleanParam(name: 'ENABLE_NOTIFICATIONS', defaultValue: true, description: 'Send Discord webhook messages') }
+    environment {
+        GIT_BRANCH_NAME = 'Training-certification'
+        GIT_REPO_URL = 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+        GIT_CREDENTIALS_ID = 'github-credentials'
+        K8S_NAMESPACE = 'devops'
+        MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
+        MINIKUBE_PROFILE = 'smartfreelance'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
+        MAVEN_IMAGE = 'maven:3.9.8-eclipse-temurin-21'
+        NODE_IMAGE = 'node:20-alpine'
+        SONAR_IMAGE = 'sonarqube:9.9-community'
+        PROMETHEUS_IMAGE = 'prom/prometheus:latest'
+        GRAFANA_IMAGE = 'grafana/grafana:latest'
+        JAEGER_IMAGE = 'jaegertracing/all-in-one:1.57'
+        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_PROJECT_KEY = 'smart-freelance-platform'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: env.GIT_BRANCH_NAME, credentialsId: env.GIT_CREDENTIALS_ID, url: env.GIT_REPO_URL
+            }
+        }
+        stage('Ensure Minikube') {
+            steps {
+                sh 'set -e; docker version; kubectl version --client; minikube version; mkdir -p "$MINIKUBE_HOME" "$(dirname "$KUBECONFIG")"; minikube -p "$MINIKUBE_PROFILE" status || minikube -p "$MINIKUBE_PROFILE" start --driver=docker --memory=6144 --cpus=4; kubectl get ns "$K8S_NAMESPACE" || kubectl create ns "$K8S_NAMESPACE"'
+            }
+        }
+        stage('JaCoCo Tests') {
+            steps {
+                sh 'set -e; docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back "$MAVEN_IMAGE" mvn -B -ntp clean verify'
+                sh 'set -e; docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service "$MAVEN_IMAGE" mvn -B -ntp clean verify'
+                sh 'set -e; docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/infrastructure/api-gateway "$MAVEN_IMAGE" mvn -B -ntp clean verify'
+                sh 'set -e; docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/infrastructure/discovery-service "$MAVEN_IMAGE" mvn -B -ntp clean verify'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/site/jacoco/**'
+                }
+            }
+        }
+        stage('Frontend Build') {
+            steps {
+                sh 'set -e; docker run --rm -v "$PWD/Front:/workspace" -w /workspace "$NODE_IMAGE" sh -lc "npm ci && npm run build"'
+            }
+        }
+        stage('Prepare Quality Stack') {
+            steps {
+                sh 'set -e; for image in "$SONAR_IMAGE" "$PROMETHEUS_IMAGE" "$GRAFANA_IMAGE" "$JAEGER_IMAGE"; do docker image inspect "$image" >/dev/null 2>&1 || timeout 15m docker pull "$image"; minikube -p "$MINIKUBE_PROFILE" image load "$image"; done'
+                sh 'set -e; kubectl apply -n "$K8S_NAMESPACE" -f k8s/quality/sonarqube-deployment.yaml -f k8s/monitoring/prometheus-deployment.yaml -f k8s/monitoring/grafana-deployment.yaml -f k8s/monitoring/jaeger-deployment.yaml'
+                sh 'set -e; kubectl rollout status deployment/sonarqube -n "$K8S_NAMESPACE" --timeout=8m; kubectl rollout status deployment/prometheus -n "$K8S_NAMESPACE" --timeout=4m; kubectl rollout status deployment/grafana -n "$K8S_NAMESPACE" --timeout=4m; kubectl rollout status deployment/jaeger -n "$K8S_NAMESPACE" --timeout=4m'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh 'set -e; kubectl port-forward svc/sonarqube 9000:9000 -n "$K8S_NAMESPACE" > sonarqube-port-forward.log 2>&1 & echo $! > sonar.pid; sleep 15'
+                    sh 'set -e; docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-back" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.token="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh 'set -e; docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service "$MAVEN_IMAGE" mvn -B -ntp sonar:sonar -Dsonar.projectKey="$SONAR_PROJECT_KEY-training-certification" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.token="$SONAR_TOKEN" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh 'kill $(cat sonar.pid) 2>/dev/null || true'
+                }
+            }
+        }
+        stage('Links') {
+            steps {
+                sh 'IP=$(minikube -p "$MINIKUBE_PROFILE" ip); echo "SonarQube: http://$IP:30090"; echo "Grafana: http://$IP:30030"; echo "Prometheus: http://$IP:30091"'
+                sh 'IP=$(minikube -p "$MINIKUBE_PROFILE" ip); echo "Jaeger: http://$IP:30086"'
+            }
+        }
+    }
+    post {
+        success {
+            echo 'CI succeeded. Jenkins trigger can start CD.'
+            script { notifyDiscord('SUCCESS', "CI succeeded for ${env.JOB_NAME} #${env.BUILD_NUMBER}") }
+        }
+        failure {
+            sh 'kubectl get pods -n "$K8S_NAMESPACE" -o wide || true'
+            script { notifyDiscord('FAILURE', "CI failed for ${env.JOB_NAME} #${env.BUILD_NUMBER}") }
+        }
+    }
+}
+
+def notifyDiscord(String status, String message) {
+    if (!params.ENABLE_NOTIFICATIONS) {
+        echo "Discord notifications disabled: ${status} - ${message}"
+        return
+    }
+    withCredentials([string(credentialsId: 'notification-webhook-url', variable: 'DISCORD_WEBHOOK_URL')]) {
+        sh "curl -s -H 'Content-Type: application/json' -d '{\"content\":\"${status}: ${message}\"}' \"$DISCORD_WEBHOOK_URL\" || true"
+    }
+}

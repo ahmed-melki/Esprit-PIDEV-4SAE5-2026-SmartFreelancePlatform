@@ -55,7 +55,7 @@ export class TakeQuizComponent implements OnInit {
         });
       },
       error: (err) => {
-        this.error = 'Could not load quiz. Ensure backend is running on port 8052.';
+        this.error = 'Could not load quiz. Check that the API gateway and backend services are running.';
         this.loading = false;
       }
     });

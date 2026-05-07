@@ -115,7 +115,10 @@ export class JobApplicantsComponent implements OnInit {
   }
 
   downloadCV(cvUrl: string): void {
-    window.open(cvUrl, '_blank');
+    const resolvedUrl = /^https?:\/\//i.test(cvUrl)
+      ? cvUrl
+      : (cvUrl.startsWith('/') ? cvUrl : `/${cvUrl}`);
+    window.open(resolvedUrl, '_blank');
   }
 
   formatDate(date: string | undefined): string {

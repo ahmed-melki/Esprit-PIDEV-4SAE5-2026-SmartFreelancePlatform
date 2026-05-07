@@ -74,7 +74,7 @@ export class PostJobComponent {
       error: (err) => {
         console.error(err);
         this.isSubmitting = false;
-        this.submitError = 'Failed to post job. Ensure backend is running on port 8052.';
+        this.submitError = 'Failed to post job. Check that the API gateway and backend services are running.';
       }
     });
   }

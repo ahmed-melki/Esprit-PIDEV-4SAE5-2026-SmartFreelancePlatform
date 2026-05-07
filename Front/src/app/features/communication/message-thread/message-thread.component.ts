@@ -161,6 +161,12 @@ export class MessageThreadComponent implements OnInit, OnChanges, OnDestroy, Aft
     return `${(bytes / 1048576).toFixed(1)} MB`;
   }
 
+  resolveFileUrl(fileUrl?: string): string {
+    if (!fileUrl) return '#';
+    if (/^https?:\/\//i.test(fileUrl)) return fileUrl;
+    return fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`;
+  }
+
   toggleReactionPicker(msgId?: number): void {
     this.showReactionPicker = this.showReactionPicker === msgId ? null : (msgId ?? null);
   }

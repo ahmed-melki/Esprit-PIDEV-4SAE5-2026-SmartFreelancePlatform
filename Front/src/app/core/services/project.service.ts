@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Project } from '../models/project.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectService {
-  private apiUrl = 'http://localhost:8045/api/projects'; // Based on Spring Boot controller
+  private readonly apiUrl = `${environment.apiUrl}/projects`;
 
   constructor(private http: HttpClient) { }
 

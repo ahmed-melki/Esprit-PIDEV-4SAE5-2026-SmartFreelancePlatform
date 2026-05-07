@@ -95,7 +95,7 @@ export class ApplyJobComponent implements OnInit {
         console.error(err);
         this.isUploading = false;
         this.uploadProgress = '';
-        this.submitError = 'CV upload failed. Make sure the backend is running on port 8052.';
+        this.submitError = 'CV upload failed. Check that the API gateway and file upload endpoint are available.';
       }
     });
   }

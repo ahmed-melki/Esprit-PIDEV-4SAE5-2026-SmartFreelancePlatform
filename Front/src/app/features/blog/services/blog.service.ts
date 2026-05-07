@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Article, ArticleReport } from '../models/blog.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BlogService {
-  private base = 'http://localhost:8073/api/articles';
+  private readonly base = `${environment.apiUrl}/articles`;
 
   constructor(private http: HttpClient) {}
 

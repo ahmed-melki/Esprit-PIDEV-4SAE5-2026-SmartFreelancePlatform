@@ -59,7 +59,7 @@ export class PostProjectComponent {
       error: (err) => {
         console.error(err);
         this.isSubmitting = false;
-        this.submitError = 'Failed to post project. Ensure backend runs on port 8045.';
+        this.submitError = 'Failed to post project. Check that the API gateway and backend services are running.';
       }
     });
   }

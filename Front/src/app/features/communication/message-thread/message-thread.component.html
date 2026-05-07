@@ -51,12 +51,12 @@
           <div class="file-msg">
             <span class="material-symbols-rounded file-icon">{{ getFileIcon(msg.fileName) }}</span>
             <div class="file-info">
-              <a [href]="'http://localhost:8085' + msg.fileUrl" target="_blank" class="file-name">
+              <a [href]="resolveFileUrl(msg.fileUrl)" target="_blank" class="file-name">
                 {{ msg.fileName }}
               </a>
               <small class="file-size">{{ formatSize(msg.fileSize ?? 0) }}</small>
             </div>
-            <a [href]="'http://localhost:8085' + msg.fileUrl" download class="download-btn">
+            <a [href]="resolveFileUrl(msg.fileUrl)" download class="download-btn">
               <span class="material-symbols-rounded">download</span>
             </a>
           </div>

@@ -1,0 +1,217 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        booleanParam(name: 'ENABLE_NOTIFICATIONS', defaultValue: true, description: 'Send Discord webhook messages')
+    }
+
+    environment {
+        GIT_BRANCH_NAME = 'Training-certification'
+        GIT_REPO_URL = 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+        GIT_CREDENTIALS_ID = 'github-credentials'
+        K8S_NAMESPACE = 'devops'
+        MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
+        MINIKUBE_PROFILE = 'smartfreelance'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
+        MAVEN_IMAGE = 'maven:3.9.8-eclipse-temurin-21'
+        NODE_IMAGE = 'node:20-alpine'
+        SONAR_IMAGE = 'sonarqube:9.9-community'
+        PROMETHEUS_IMAGE = 'prom/prometheus:latest'
+        GRAFANA_IMAGE = 'grafana/grafana:latest'
+        JAEGER_IMAGE = 'jaegertracing/all-in-one:1.57'
+        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_PROJECT_KEY = 'smart-freelance-platform'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${env.GIT_BRANCH_NAME}"]],
+                    extensions: [[
+                        $class: 'CloneOption',
+                        depth: 1,
+                        noTags: true,
+                        shallow: true,
+                        timeout: 20
+                    ]],
+                    userRemoteConfigs: [[
+                        credentialsId: env.GIT_CREDENTIALS_ID,
+                        url: env.GIT_REPO_URL
+                    ]]
+                ])
+            }
+        }
+
+        stage('Verify Agent Tools') {
+            steps {
+                sh '''
+                    set -e
+                    docker version
+                    kubectl version --client
+                    minikube version
+                '''
+            }
+        }
+
+        stage('Ensure Minikube') {
+            steps {
+                sh '''
+                    set -e
+                    mkdir -p "$MINIKUBE_HOME" "$(dirname "$KUBECONFIG")"
+                    minikube -p ${MINIKUBE_PROFILE} status || minikube -p ${MINIKUBE_PROFILE} start --driver=docker --memory=6144 --cpus=4
+                    kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
+                '''
+            }
+        }
+
+        stage('JaCoCo Tests') {
+            steps {
+                sh '''
+                    set -e
+                    docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back ${MAVEN_IMAGE} mvn -B -ntp clean verify
+                    docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service ${MAVEN_IMAGE} mvn -B -ntp clean verify
+                    docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/infrastructure/api-gateway ${MAVEN_IMAGE} mvn -B -ntp clean verify
+                    docker run --rm -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/infrastructure/discovery-service ${MAVEN_IMAGE} mvn -B -ntp clean verify
+                '''
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/site/jacoco/**'
+                }
+            }
+        }
+
+        stage('Frontend Build') {
+            steps {
+                sh '''
+                    set -e
+                    docker run --rm -v "$PWD/Front:/workspace" -w /workspace ${NODE_IMAGE} sh -lc "npm ci && npm run build"
+                '''
+            }
+        }
+
+        stage('Prepare Quality Stack') {
+            steps {
+                sh '''
+                    set -e
+
+                    ensure_image() {
+                        image="$1"
+                        docker image inspect "$image" >/dev/null 2>&1 || timeout 15m docker pull "$image"
+                        minikube -p ${MINIKUBE_PROFILE} image load "$image"
+                    }
+
+                    wait_deployment() {
+                        name="$1"
+                        timeout_value="$2"
+                        if ! kubectl rollout status "deployment/$name" -n ${K8S_NAMESPACE} --timeout="$timeout_value"; then
+                            kubectl get pods -n ${K8S_NAMESPACE} -o wide
+                            kubectl describe pods -n ${K8S_NAMESPACE} -l "app=$name" || true
+                            exit 1
+                        fi
+                    }
+
+                    ensure_image ${SONAR_IMAGE}
+                    ensure_image ${PROMETHEUS_IMAGE}
+                    ensure_image ${GRAFANA_IMAGE}
+                    ensure_image ${JAEGER_IMAGE}
+
+                    kubectl apply -n ${K8S_NAMESPACE} -f k8s/quality/sonarqube-deployment.yaml
+                    kubectl apply -n ${K8S_NAMESPACE} -f k8s/monitoring/prometheus-deployment.yaml
+                    kubectl apply -n ${K8S_NAMESPACE} -f k8s/monitoring/grafana-deployment.yaml
+                    kubectl apply -n ${K8S_NAMESPACE} -f k8s/monitoring/jaeger-deployment.yaml
+
+                    wait_deployment sonarqube 8m
+                    wait_deployment prometheus 4m
+                    wait_deployment grafana 4m
+                    wait_deployment jaeger 4m
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        set -e
+
+                        cleanup() {
+                            kill $SONAR_PID 2>/dev/null || true
+                        }
+                        trap cleanup EXIT
+
+                        kubectl port-forward svc/sonarqube 9000:9000 -n ${K8S_NAMESPACE} > sonarqube-port-forward.log 2>&1 &
+                        SONAR_PID=$!
+                        sleep 15
+
+                        docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY}-back \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.token=$SONAR_TOKEN \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+                        docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY}-training-certification \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.token=$SONAR_TOKEN \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Links') {
+            steps {
+                sh '''
+                    MINIKUBE_IP=$(minikube -p ${MINIKUBE_PROFILE} ip)
+                    echo "SonarQube URL: http://${MINIKUBE_IP}:30090"
+                    echo "Prometheus URL: http://${MINIKUBE_IP}:30091"
+                    echo "Grafana URL: http://${MINIKUBE_IP}:30030"
+                    echo "Jaeger URL: http://${MINIKUBE_IP}:30086"
+                    echo "If NodePort is not reachable on Windows, use:"
+                    echo "kubectl port-forward -n ${K8S_NAMESPACE} svc/sonarqube 9000:9000"
+                    echo "kubectl port-forward -n ${K8S_NAMESPACE} svc/grafana 3000:3000"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI succeeded. Jenkins job trigger can now start the CD pipeline.'
+            script {
+                notifyDiscord('SUCCESS', "CI succeeded for ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+            }
+        }
+        failure {
+            echo 'CI failed. CD will not start.'
+            sh 'kubectl get pods -n ${K8S_NAMESPACE} -o wide || true'
+            script {
+                notifyDiscord('FAILURE', "CI failed for ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+            }
+        }
+    }
+}
+
+def notifyDiscord(String status, String message) {
+    if (!params.ENABLE_NOTIFICATIONS) {
+        echo "Discord notifications disabled: ${status} - ${message}"
+        return
+    }
+
+    withCredentials([string(credentialsId: 'notification-webhook-url', variable: 'DISCORD_WEBHOOK_URL')]) {
+        sh """
+            curl -s -H 'Content-Type: application/json' \
+              -d '{"content":"${status}: ${message}"}' \
+              "$DISCORD_WEBHOOK_URL" || true
+        """
+    }
+}

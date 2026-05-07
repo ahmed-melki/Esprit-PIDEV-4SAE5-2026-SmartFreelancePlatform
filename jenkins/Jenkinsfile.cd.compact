@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+    options { timestamps(); disableConcurrentBuilds() }
+    parameters { booleanParam(name: 'ENABLE_NOTIFICATIONS', defaultValue: true, description: 'Send Discord webhook messages') }
+    environment {
+        GIT_BRANCH_NAME = 'Training-certification'
+        GIT_REPO_URL = 'https://github.com/ahmed-melki/Esprit-PIDEV-4SAE5-2026-SmartFreelancePlatform.git'
+        GIT_CREDENTIALS_ID = 'github-credentials'
+        DOCKER_NAMESPACE = 'rayenetr'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        K8S_NAMESPACE = 'devops'
+        MINIKUBE_HOME = '/var/lib/jenkins/.minikube'
+        MINIKUBE_PROFILE = 'smartfreelance'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
+        DISCOVERY_IMAGE = "${DOCKER_NAMESPACE}/discovery-service"
+        GATEWAY_IMAGE = "${DOCKER_NAMESPACE}/api-gateway"
+        BACK_IMAGE = "${DOCKER_NAMESPACE}/back-service"
+        TRAINING_IMAGE = "${DOCKER_NAMESPACE}/training-certification-service"
+        FRONTEND_IMAGE = "${DOCKER_NAMESPACE}/frontend"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: env.GIT_BRANCH_NAME, credentialsId: env.GIT_CREDENTIALS_ID, url: env.GIT_REPO_URL
+            }
+        }
+        stage('Ensure Minikube') {
+            steps {
+                sh 'set -e; docker version; mkdir -p "$MINIKUBE_HOME" "$(dirname "$KUBECONFIG")"; minikube -p "$MINIKUBE_PROFILE" status || minikube -p "$MINIKUBE_PROFILE" start --driver=docker --memory=6144 --cpus=4; kubectl get ns "$K8S_NAMESPACE" || kubectl create ns "$K8S_NAMESPACE"'
+            }
+        }
+        stage('Build Docker Images') {
+            steps {
+                sh 'set -e; docker build -t "$DISCOVERY_IMAGE:$DOCKER_TAG" -t "$DISCOVERY_IMAGE:latest" infrastructure/discovery-service'
+                sh 'set -e; docker build -t "$GATEWAY_IMAGE:$DOCKER_TAG" -t "$GATEWAY_IMAGE:latest" infrastructure/api-gateway'
+                sh 'set -e; docker build -t "$BACK_IMAGE:$DOCKER_TAG" -t "$BACK_IMAGE:latest" Back'
+                sh 'set -e; docker build -t "$TRAINING_IMAGE:$DOCKER_TAG" -t "$TRAINING_IMAGE:latest" training-certification-service'
+                sh 'set -e; docker build -t "$FRONTEND_IMAGE:$DOCKER_TAG" -t "$FRONTEND_IMAGE:latest" Front'
+            }
+        }
+        stage('Push Docker Images') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'set -e; echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    sh 'set -e; for image in "$DISCOVERY_IMAGE" "$GATEWAY_IMAGE" "$BACK_IMAGE" "$TRAINING_IMAGE" "$FRONTEND_IMAGE"; do docker push "$image:$DOCKER_TAG"; docker push "$image:latest"; done'
+                }
+            }
+        }
+        stage('Deploy Kubernetes') {
+            steps {
+                sh 'set -e; kubectl apply -n "$K8S_NAMESPACE" -f k8s/database/mysql-deployment.yaml -f k8s/apps/microservices-deployment.yaml -f k8s/apps/frontend-deployment.yaml'
+                sh 'set -e; kubectl set image deployment/discovery-service -n "$K8S_NAMESPACE" discovery-service="$DISCOVERY_IMAGE:$DOCKER_TAG"'
+                sh 'set -e; kubectl set image deployment/api-gateway -n "$K8S_NAMESPACE" api-gateway="$GATEWAY_IMAGE:$DOCKER_TAG"'
+                sh 'set -e; kubectl set image deployment/back-service -n "$K8S_NAMESPACE" back-service="$BACK_IMAGE:$DOCKER_TAG"'
+                sh 'set -e; kubectl set image deployment/training-certification-service -n "$K8S_NAMESPACE" training-certification-service="$TRAINING_IMAGE:$DOCKER_TAG"'
+                sh 'set -e; kubectl set image deployment/frontend -n "$K8S_NAMESPACE" frontend="$FRONTEND_IMAGE:$DOCKER_TAG"'
+            }
+        }
+        stage('Rollout Status') {
+            steps {
+                sh 'set -e; for app in mysql discovery-service back-service training-certification-service api-gateway frontend; do kubectl rollout status deployment/$app -n "$K8S_NAMESPACE" --timeout=5m || { kubectl describe pods -n "$K8S_NAMESPACE" -l app=$app; exit 1; }; done'
+            }
+        }
+        stage('Smoke Tests') {
+            steps {
+                sh 'set -e; kubectl port-forward svc/api-gateway 18100:8100 -n "$K8S_NAMESPACE" > gateway-port-forward.log 2>&1 & echo $! > gateway.pid; kubectl port-forward svc/frontend 18080:80 -n "$K8S_NAMESPACE" > frontend-port-forward.log 2>&1 & echo $! > frontend.pid; sleep 12; curl --fail --silent --show-error http://localhost:18100/actuator/health; curl --fail --silent --show-error http://localhost:18080/; kill $(cat gateway.pid) $(cat frontend.pid) 2>/dev/null || true'
+            }
+        }
+        stage('Links') {
+            steps {
+                sh 'IP=$(minikube -p "$MINIKUBE_PROFILE" ip); echo "Frontend: http://$IP:30082"; echo "API Gateway: http://$IP:30081"; echo "Grafana: http://$IP:30030"; echo "SonarQube: http://$IP:30090"; echo "Jaeger: http://$IP:30086"'
+            }
+        }
+    }
+    post {
+        success {
+            echo "CD succeeded for image tag ${env.DOCKER_TAG}"
+            script { notifyDiscord('SUCCESS', "CD succeeded for ${env.JOB_NAME} #${env.BUILD_NUMBER}") }
+        }
+        failure {
+            sh 'kubectl get pods -n "$K8S_NAMESPACE" -o wide || true'
+            script { notifyDiscord('FAILURE', "CD failed for ${env.JOB_NAME} #${env.BUILD_NUMBER}") }
+        }
+        always { sh 'docker logout || true' }
+    }
+}
+
+def notifyDiscord(String status, String message) {
+    if (!params.ENABLE_NOTIFICATIONS) {
+        echo "Discord notifications disabled: ${status} - ${message}"
+        return
+    }
+    withCredentials([string(credentialsId: 'notification-webhook-url', variable: 'DISCORD_WEBHOOK_URL')]) {
+        sh "curl -s -H 'Content-Type: application/json' -d '{\"content\":\"${status}: ${message}\"}' \"$DISCORD_WEBHOOK_URL\" || true"
+    }
+}

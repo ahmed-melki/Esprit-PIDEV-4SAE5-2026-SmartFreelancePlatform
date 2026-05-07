@@ -308,3 +308,22 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+@media (max-width: 768px) {
+  .quiz-meta,
+  .result-stats {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .question-card,
+  .result-card,
+  .error-card,
+  .success-card {
+    padding: 1.5rem;
+  }
+
+  .submit-area {
+    justify-content: stretch;
+  }
+}

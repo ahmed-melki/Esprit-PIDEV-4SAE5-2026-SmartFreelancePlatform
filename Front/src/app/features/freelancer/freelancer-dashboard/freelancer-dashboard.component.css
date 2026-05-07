@@ -16,6 +16,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 3rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .greeting {
@@ -165,6 +167,7 @@
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   background: white;
   border: 1px solid #f1f5f9;
+  border-radius: var(--radius-lg);
 }
 
 .job-card:hover {
@@ -397,6 +400,10 @@
   .dashboard-sidebar {
     order: -1; /* Sidebar on top for mobile */
   }
+
+  .header-actions {
+    width: 100%;
+  }
   
   .profile-card {
     display: flex;
@@ -419,6 +426,10 @@
 }
 
 @media (max-width: 768px) {
+  .dashboard-header {
+    align-items: flex-start;
+  }
+
   .job-card {
     flex-direction: column;
   }

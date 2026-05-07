@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ReactionResponse, UserReactionStatus, ReactionType } from '../models/blog.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReactionService {
-  private base = 'http://localhost:8073/api/reactions';
+  private readonly base = `${environment.apiUrl}/reactions`;
   private sessionId: string;
 
   constructor(private http: HttpClient) {

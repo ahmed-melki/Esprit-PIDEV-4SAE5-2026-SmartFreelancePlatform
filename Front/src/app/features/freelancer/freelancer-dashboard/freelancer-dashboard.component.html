@@ -89,7 +89,7 @@
       <!-- Error state -->
       <div *ngIf="projectError && !isLoadingProjects" class="empty-state glass-card error-state">
         <span class="material-symbols-rounded empty-icon">cloud_off</span>
-        <p>Could not reach backend. Make sure Spring Boot runs on port 8045.</p>
+        <p>Could not load matched projects. Check that the API gateway and backend services are running.</p>
       </div>
 
       <!-- Results -->
@@ -189,7 +189,7 @@
         </div>
         <h4>Upgrade to Pro</h4>
         <p>Get 50 more connects and priority bidding.</p>
-        <button class="btn btn-outline btn-sm full-width mt-3" style="border-color: white; color: white;">Learn More</button>
+        <button class="btn btn-outline btn-outline-light btn-sm full-width mt-3">Learn More</button>
       </div>
     </div>
     
