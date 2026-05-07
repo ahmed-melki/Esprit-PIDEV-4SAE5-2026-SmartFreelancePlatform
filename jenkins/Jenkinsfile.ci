@@ -24,7 +24,7 @@ pipeline {
         PROMETHEUS_IMAGE = 'prom/prometheus:latest'
         GRAFANA_IMAGE = 'grafana/grafana:latest'
         JAEGER_IMAGE = 'jaegertracing/all-in-one:1.57'
-        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_HOST_URL = 'http://host.docker.internal:9000'
         SONAR_PROJECT_KEY = 'smart-freelance-platform'
     }
 
@@ -148,17 +148,24 @@ pipeline {
                         }
                         trap cleanup EXIT
 
-                        kubectl port-forward svc/sonarqube 9000:9000 -n ${K8S_NAMESPACE} > sonarqube-port-forward.log 2>&1 &
+                        kubectl port-forward --address 0.0.0.0 svc/sonarqube 9000:9000 -n ${K8S_NAMESPACE} > sonarqube-port-forward.log 2>&1 &
                         SONAR_PID=$!
-                        sleep 15
+                        for i in $(seq 1 30); do
+                            curl -fsS http://localhost:9000 >/dev/null && break
+                            sleep 2
+                        done
+                        curl -fsS http://localhost:9000 >/dev/null || {
+                            cat sonarqube-port-forward.log
+                            exit 1
+                        }
 
-                        docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                        docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY}-back \
                           -Dsonar.host.url=${SONAR_HOST_URL} \
                           -Dsonar.token=$SONAR_TOKEN \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-                        docker run --rm --network host -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                        docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY}-training-certification \
                           -Dsonar.host.url=${SONAR_HOST_URL} \
                           -Dsonar.token=$SONAR_TOKEN \
