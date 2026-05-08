@@ -1,0 +1,76 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'      // À adapter selon le nom de l'outil Maven dans Jenkins
+        jdk 'JDK-17'           // À adapter selon le nom du JDK
+    }
+
+    environment {
+        SERVICE_NAME = 'api-gateway'
+        DOCKER_REGISTRY = 'myregistry'  // À remplacer par votre registry Docker (ex: docker.io/moncompte)
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            when { branch 'main' }
+            steps {
+                sh "docker build -t ${SERVICE_NAME}:${BUILD_NUMBER} ."
+                sh "docker tag ${SERVICE_NAME}:${BUILD_NUMBER} ${DOCKER_REGISTRY}/${SERVICE_NAME}:latest"
+                sh "docker push ${DOCKER_REGISTRY}/${SERVICE_NAME}:latest"
+            }
+        }
+
+        stage('Deploy') {
+            when { branch 'main' }
+            steps {
+                echo "Déploiement de ${SERVICE_NAME}"
+                // Exemple avec ssh et docker-compose :
+                // sh "ssh user@serveur 'docker pull ${DOCKER_REGISTRY}/${SERVICE_NAME}:latest && docker-compose up -d ${SERVICE_NAME}'"
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo "Pipeline échoué pour ${SERVICE_NAME}"
+        }
+    }
+}
