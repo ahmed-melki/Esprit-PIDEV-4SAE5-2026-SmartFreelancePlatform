@@ -1,0 +1,128 @@
+pipeline {
+    agent any
+
+    environment {
+        // Chemins relatifs
+        FRONTEND_DIR = 'pidev'
+        BACKEND_ROOT = 'pidev-back'
+        SERVICES = 'api-gateway eureka-server user-service'
+        // Node.js version (ajuster si besoin)
+        NODE_VERSION = '18'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // ---------- FRONTEND ----------
+        stage('Frontend - Install') {
+            agent { docker { image "node:${NODE_VERSION}" args '-u root' } } // ou utiliser un agent Node préconfiguré
+            steps {
+                dir(env.FRONTEND_DIR) {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Frontend - Build') {
+            agent { docker { image "node:${NODE_VERSION}" args '-u root' } }
+            steps {
+                dir(env.FRONTEND_DIR) {
+                    sh 'npm run build -- --prod'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: "${env.FRONTEND_DIR}/dist/**", fingerprint: true
+                }
+            }
+        }
+
+        stage('Frontend - Test') {
+            agent { docker { image "node:${NODE_VERSION}" args '-u root' } }
+            steps {
+                dir(env.FRONTEND_DIR) {
+                    sh 'npm test -- --watch=false --browsers=ChromeHeadless --code-coverage'
+                }
+            }
+            post {
+                always {
+                    junit "${env.FRONTEND_DIR}/test-results/**/*.xml"
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        reportDir: "${env.FRONTEND_DIR}/coverage",
+                        reportFiles: 'index.html',
+                        reportName: 'Angular Coverage Report'
+                    ])
+                }
+            }
+        }
+
+        // ---------- BACKEND (parallélisation) ----------
+        stage('Backend') {
+            parallel {
+                script {
+                    env.SERVICES.split().each { service ->
+                        def serviceDir = "${env.BACKEND_ROOT}/${service}"
+                        // Vérifier que le sous-projet existe
+                        if (fileExists(serviceDir)) {
+                            stage("Backend - ${service}") {
+                                stages {
+                                    stage("${service} - Compile") {
+                                        steps {
+                                            dir(serviceDir) {
+                                                sh 'mvn clean compile'
+                                            }
+                                        }
+                                    }
+                                    stage("${service} - Test") {
+                                        steps {
+                                            dir(serviceDir) {
+                                                sh 'mvn test'
+                                            }
+                                        }
+                                        post {
+                                            always {
+                                                junit "${serviceDir}/target/surefire-reports/*.xml"
+                                            }
+                                        }
+                                    }
+                                    stage("${service} - Package") {
+                                        steps {
+                                            dir(serviceDir) {
+                                                sh 'mvn package -DskipTests'
+                                            }
+                                        }
+                                        post {
+                                            success {
+                                                archiveArtifacts artifacts: "${serviceDir}/target/*.jar", fingerprint: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            echo "Service directory ${serviceDir} does not exist, skipping."
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()  // nettoie l'espace de travail (optionnel)
+        }
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check logs."
+        }
+    }
+}
