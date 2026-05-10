@@ -8,6 +8,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'ENABLE_NOTIFICATIONS', defaultValue: true, description: 'Send Discord webhook messages')
+        booleanParam(name: 'CLEANUP_DOCKER_STORAGE', defaultValue: true, description: 'Prune stopped containers, dangling images, and old build cache after CI')
     }
 
     environment {
@@ -159,17 +160,36 @@ pipeline {
                             exit 1
                         }
 
-                        docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/Back ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                        curl -fsS -u "$SONAR_TOKEN:" http://localhost:9000/api/authentication/validate | grep -q '"valid":true' || {
+                            echo "Invalid sonar-token credential for this SonarQube instance."
+                            exit 1
+                        }
+
+                        docker run --rm --add-host=host.docker.internal:host-gateway \
+                          -e SONAR_TOKEN="$SONAR_TOKEN" \
+                          -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
+                          -e SONAR_PROJECT_KEY="${SONAR_PROJECT_KEY}" \
+                          -v "$PWD:/workspace" \
+                          -v "$HOME/.m2:/root/.m2" \
+                          -w /workspace/Back \
+                          ${MAVEN_IMAGE} sh -lc 'mvn -B -ntp sonar:sonar \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY}-back \
                           -Dsonar.host.url=${SONAR_HOST_URL} \
                           -Dsonar.login=$SONAR_TOKEN \
-                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
 
-                        docker run --rm --add-host=host.docker.internal:host-gateway -v "$PWD:/workspace" -v "$HOME/.m2:/root/.m2" -w /workspace/training-certification-service ${MAVEN_IMAGE} mvn -B -ntp sonar:sonar \
+                        docker run --rm --add-host=host.docker.internal:host-gateway \
+                          -e SONAR_TOKEN="$SONAR_TOKEN" \
+                          -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
+                          -e SONAR_PROJECT_KEY="${SONAR_PROJECT_KEY}" \
+                          -v "$PWD:/workspace" \
+                          -v "$HOME/.m2:/root/.m2" \
+                          -w /workspace/training-certification-service \
+                          ${MAVEN_IMAGE} sh -lc 'mvn -B -ntp sonar:sonar \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY}-training-certification \
                           -Dsonar.host.url=${SONAR_HOST_URL} \
                           -Dsonar.login=$SONAR_TOKEN \
-                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                     '''
                 }
             }
@@ -192,6 +212,24 @@ pipeline {
     }
 
     post {
+        always {
+            script {
+                if (params.CLEANUP_DOCKER_STORAGE) {
+                    echo 'Docker storage before cleanup:'
+                    sh 'docker system df || true'
+                    sh 'docker container prune -f || true'
+                    sh 'docker image prune -f || true'
+                    sh 'docker builder prune -af --filter until=24h || true'
+                    sh 'minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1 && minikube -p "$MINIKUBE_PROFILE" ssh -- docker container prune -f || true'
+                    sh 'minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1 && minikube -p "$MINIKUBE_PROFILE" ssh -- docker image prune -f || true'
+                    sh 'minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1 && minikube -p "$MINIKUBE_PROFILE" ssh -- docker builder prune -af --filter until=24h || true'
+                    echo 'Docker storage after cleanup:'
+                    sh 'docker system df || true'
+                } else {
+                    echo 'Docker storage cleanup disabled.'
+                }
+            }
+        }
         success {
             echo 'CI succeeded. Jenkins job trigger can now start the CD pipeline.'
             script {

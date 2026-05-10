@@ -39,15 +39,39 @@ spec:
       labels:
         app: sonarqube
     spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /opt/sonarqube/data /opt/sonarqube/extensions /opt/sonarqube/logs"]
+          volumeMounts:
+            - name: sonarqube-pvc
+              mountPath: /opt/sonarqube/data
+              subPath: data
+            - name: sonarqube-pvc
+              mountPath: /opt/sonarqube/extensions
+              subPath: extensions
+            - name: sonarqube-pvc
+              mountPath: /opt/sonarqube/logs
+              subPath: logs
       containers:
         - name: sonarqube
           image: sonarqube:9.9-community
           ports:
             - containerPort: 9000
+          env:
+            - name: SONAR_ES_BOOTSTRAP_CHECKS_DISABLE
+              value: "true"
           volumeMounts:
-            - name: sonarqube-data
+            - name: sonarqube-pvc
               mountPath: /opt/sonarqube/data
+              subPath: data
+            - name: sonarqube-pvc
+              mountPath: /opt/sonarqube/extensions
+              subPath: extensions
+            - name: sonarqube-pvc
+              mountPath: /opt/sonarqube/logs
+              subPath: logs
       volumes:
-        - name: sonarqube-data
+        - name: sonarqube-pvc
           persistentVolumeClaim:
             claimName: sonarqube-pvc
