@@ -1,0 +1,5 @@
+# 1. Start minikube as jenkins
+sudo -u jenkins minikube start
+
+# 2. Fix Elasticsearch (required after every restart)
+sudo -u jenkins minikube ssh -- sudo sysctl -w vm.max_map_count=262144
